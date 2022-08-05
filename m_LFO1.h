@@ -1,3 +1,20 @@
+// --------------------------------------------------------------------------
+// This file is part of the KAGOUYAR firmware.
+//
+//    KAGOUYAR firmware is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    KAGOUYAR firmware is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
+// --------------------------------------------------------------------------
+
 float g_LFO1_noise[2]; // pour le noise avec interpolation cubic
 float g_LFO1_AR[nb_voice+1];
 float g_phase_LFO1_div;
@@ -404,6 +421,7 @@ inline void LFO1(float fq, float mix_factor, float increment) {
         g_LFO1_AR[3]= modulation;
         g_LFO1_AR[4]= modulation; // la somme de tout les AR = LFO en mode normal
         g_Modulation[LFO1_OUT] = modulation;
+        g_Modulation[LFO1_OUT+modulation_source_last] = -modulation;
         g_Modulation[LFO1_OUT_FILTER] += 0.003 * (modulation - g_Modulation[LFO1_OUT_FILTER]);
     }
 }
@@ -421,5 +439,6 @@ inline void LFO4(float increment) {
 
     tmp = LFO_compute_WF(phase, curent_config.c_LFO4_WF, g_LFO4_noise, g_Modulation_Reset[LFO4_OUT]);
     g_Modulation[LFO4_OUT] = tmp;
+    g_Modulation[LFO4_OUT+modulation_source_last] = -tmp;
     g_Modulation[LFO4_OUT_FILTER] += 0.003 * (tmp - g_Modulation[LFO4_OUT_FILTER]);
 }

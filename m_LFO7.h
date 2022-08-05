@@ -1,3 +1,20 @@
+// --------------------------------------------------------------------------
+// This file is part of the KAGOUYAR firmware.
+//
+//    KAGOUYAR firmware is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    KAGOUYAR firmware is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
+// --------------------------------------------------------------------------
+
 float LFO4_INC, LFO5_INC, LFO6_INC;
 float LFO1_FQ, LFO2_FQ, LFO3_FQ;
 float LFO1_INC, LFO2_INC, LFO3_INC;
@@ -33,6 +50,7 @@ inline void LFO7(float increment, float WF, float sym) {
     out = (out + tmp)/(1.f+fabs(tmp)); // distortion
     out = _fclamp(out, -1.f, 1.f);
     g_Modulation[LFO7_OUT] = out;
+    g_Modulation[LFO7_OUT + modulation_source_last] = -out;
     g_Modulation[LFO7_OUT_FILTER] += 0.003 * (out - g_Modulation[LFO7_OUT_FILTER]);
 }
 
