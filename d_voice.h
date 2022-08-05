@@ -1,3 +1,20 @@
+// --------------------------------------------------------------------------
+// This file is part of the KAGOUYAR firmware.
+//
+//    KAGOUYAR firmware is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    KAGOUYAR firmware is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
+// --------------------------------------------------------------------------
+
 // voice source : 0 = Kb, 1 = MIDI, 2 = CV gate
 uint32_t g_new_gate = 0;
 
@@ -76,7 +93,6 @@ void remove_voice(uint32_t my_GATE_source, int32_t my_pitch) {
         }
     }
 }
-
 
 inline uint32_t test_voice(int32_t pitch) { 
     uint32_t on = 0;
