@@ -1,4 +1,22 @@
+// --------------------------------------------------------------------------
+// This file is part of the KAGOUYAR firmware.
+//
+//    KAGOUYAR firmware is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    KAGOUYAR firmware is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
+// --------------------------------------------------------------------------
+
 #include "b_hardware.h"
+
 // copy and adapted from daisy_pod
 // 2020 cyrille henry
 
@@ -93,6 +111,7 @@
 #define PIN_KB1_INT 5
 #define PIN_KB2_INT 6
 #define PIN_HW_TEST 3
+#define PIN_LOW_POWER 1
 
 // prototype
 inline float _fclamp(float, float, float);
@@ -104,7 +123,7 @@ using namespace daisy;
 Kagouyar hw;
 
 // test pin
-dsy_gpio test_pin, gate_pin, Kb1_int, Kb2_int, HW_test;
+dsy_gpio test_pin, gate_pin, Kb1_int, Kb2_int, HW_test, low_power_pin;
 
 I2CHandle i2c_led, i2c_kb;
 
@@ -124,7 +143,7 @@ static constexpr I2CHandle::Config i2c_kb_config
 void Kagouyar::Init()
 { // Initialize the hardware.
     seed.Configure();
-    seed.Init(false); // TODO : tester  avec true : c'est le boost mode des adc
+    seed.Init(true); // true = c'est le boost mode des adc
     InitKnobs();
     SetAudioBlockSize(block_size);
     InitLeds();
@@ -135,7 +154,7 @@ void Kagouyar::Init()
 }
 
 void Kagouyar::StartAudio(AudioHandle::InterleavingAudioCallback cb){seed.StartAudio(cb);}
-//void Kagouyar::StartAudio(AudioHandle::AudioCallback cb){seed.StartAudio(cb);}
+void Kagouyar::StopAudio(){seed.StopAudio();}
 void Kagouyar::SetAudioBlockSize(size_t size){seed.SetAudioBlockSize(size);}
 void Kagouyar::StartAdc(){seed.adc.Start();}
 inline void Kagouyar::test_out(bool out){dsy_gpio_write(&test_pin, out);};
@@ -159,12 +178,11 @@ void Kagouyar::InitKnobs()
     adc_cfg[6].InitSingle(seed.GetPin(CV1_PIN));
     adc_cfg[7].InitSingle(seed.GetPin(CV2_PIN));
 
-    seed.adc.Init(adc_cfg, 8, daisy::AdcHandle::OVS_4);// Oversampling to 32x I.E 200Hz update for all knob
-    // TODO : test and adjust Over sampling rate
-
-    for(int i = 0; i < 48; i++){
-        knobs_[i].Init(seed.adc.GetMuxPtr(i/8, i%8), seed.AudioCallbackRate());
-    }
+    seed.adc.Init(adc_cfg, 8, daisy::AdcHandle::OVS_4);// Oversampling to 32x -> 200Hz update for all knob (en theory)
+	// 8 -> on mesure 8 pot actualisé par ms, 166Hz en pratique pour l'update des pots
+	// 4 -> 12 pot par ms, 250Hz d'actualisation
+	
+    for(int i = 0; i < 48; i++){ knobs_[i].Init(seed.adc.GetMuxPtr(i/8, i%8), seed.AudioCallbackRate()); }
 
     knobs_[48].Init(seed.adc.GetPtr(6), seed.AudioCallbackRate());
     knobs_[49].Init(seed.adc.GetPtr(7), seed.AudioCallbackRate());
@@ -240,4 +258,9 @@ inline void Kagouyar::InitPin()
     HW_test.mode = DSY_GPIO_MODE_INPUT;
     HW_test.pull = DSY_GPIO_PULLUP;
     dsy_gpio_init(&HW_test);
+    
+    low_power_pin.pin = seed.GetPin(PIN_LOW_POWER);
+    low_power_pin.mode = DSY_GPIO_MODE_INPUT;
+    low_power_pin.pull = DSY_GPIO_PULLUP;
+    dsy_gpio_init(&low_power_pin);
 }
