@@ -1,3 +1,20 @@
+// --------------------------------------------------------------------------
+// This file is part of the KAGOUYAR firmware.
+//
+//    KAGOUYAR firmware is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    KAGOUYAR firmware is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
+// --------------------------------------------------------------------------
+
 uint32_t led_time;
 
 #define LED_VCO1            7
@@ -77,7 +94,7 @@ void leds_mode_normal() {
     hw.led_driver_.SetLed_ch(LED_LFO6, (float)(0.55f + g_Modulation[LFO6_OUT_FILTER]*0.45f));
     hw.led_driver_.SetLed_ch(LED_LFO7, (float)(0.55f + g_Modulation[LFO7_OUT_FILTER]*0.45f));
     if(g_last_switch_configuration != MENU_MIDI)
-        hw.led_driver_.SetLed_ch(LED_MIDI, (float)(0.55f + g_Modulation[MIDI_expression]*0.45f));
+        hw.led_driver_.SetLed_ch(LED_MIDI, (float)(g_Modulation[MIDI_modulation]));
     else
         hw.led_driver_.SetLed_ch(LED_MIDI, (float)g_MIDI_led_time);
 
@@ -86,14 +103,15 @@ void leds_mode_normal() {
     hw.led_driver_.SetLed_ch(LED_GAIN, g_clip);
     
     g_clip = _fmax(0.f, g_clip - 0.03f); 
-    g_MIDI_led_time = _fmax(0.f, g_MIDI_led_time - 0.01f);
+    g_MIDI_led_time = _fmax(0.f, g_MIDI_led_time - 0.02f);
 
     hw.led_driver_.SwapBuffersAndTransmit();
 }
 
 
 void leds_keyboard() {
-    uint32_t tmp, led_keyboard = 0;
+    uint32_t led_keyboard = 0;
+    int32_t tmp;
     for (int i=nb_voice; i--;) {
         if ( (allvoice[i].v_GATE_source == 0) && (allvoice[i].v_GATE == 1) ) {
             tmp = allvoice[i].v_pitch; // pitch = 0 sur le "LA 440", touche N°9
@@ -110,9 +128,12 @@ void leds_key_modulation(uint32_t my_modulation) { // switch de choix de la sour
     uint32_t led_keyboard = 0;
     for (uint32_t i=0; i<16; i++) hw.led_driver_.SetLed_ch(i, 0.f); //RaZ des leds
 
-//    if  ( (my_modulation != EFFECT1_MOD) || !(2<<curent_config.c_EFFECT1_TYPE & (2<<0)+(2<<1) ) )  // on ne l'affiche pas pour les effet qui n'utilisent pas la modulation
-        hw.led_driver_.SetLed_ch(table_led_modulation[curent_config.c_Modulation_Source[my_modulation] ], 1.f );
-
+	uint32_t tmp = curent_config.c_Modulation_Source[my_modulation];
+	if  ( (my_modulation != EFFECT1_MOD) || !(1<<curent_config.c_EFFECT1_TYPE & ((1<<1)+(1<<5)) ) ) { // on ne l'affiche pas pour les effet qui n'utilisent pas la modulation
+		if ( (tmp <modulation_source_last) || (g_led_blink>0)  ) // soit on as une modulation positive, soit on affiche une fois sur deux a cause du blink
+			hw.led_driver_.SetLed_ch(table_led_modulation[tmp % modulation_source_last], 1.f );
+	}
+		
     switch (my_modulation) { // leds du clavier : ligne et configuration
         case VCO1_MOD1:
         case VCO1_MOD2:
