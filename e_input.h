@@ -1,3 +1,23 @@
+// --------------------------------------------------------------------------
+// This file is part of the KAGOUYAR firmware.
+//
+//    KAGOUYAR firmware is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    KAGOUYAR firmware is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
+// --------------------------------------------------------------------------
+
+
+#ifdef proto2
+//version SSOP
 // kb I2C data
 #define BIT_KEY_SEL_VCO1  			3
 #define BIT_KEY_SEL_VCO2  			7
@@ -49,6 +69,62 @@
 #define BIT_KEY_SEL_MIDI 2
 #define BIT_KEY_SEL_CV1  1
 #define BIT_KEY_SEL_CV2  0
+#endif
+
+#ifndef proto2
+//version QFN
+// kb I2C data
+#define BIT_KEY_SEL_VCO1  			3
+#define BIT_KEY_SEL_VCO2  			4
+#define BIT_KEY_SEL_VCO3  			5
+#define BIT_KEY_SEL_VCF1  			6
+#define BIT_KEY_SEL_ADSR  			7
+#define BIT_KEY_SEL_LFO1  			17
+#define BIT_KEY_SEL_LFO2  			19
+#define BIT_KEY_SEL_LFO3  			21
+#define BIT_KEY_SEL_LFO4  			10
+#define BIT_KEY_SEL_LFO5  			11
+#define BIT_KEY_SEL_LFO6  			12
+#define BIT_KEY_SEL_LFO7  			22
+#define BIT_KEY_VCO1_MOD1 		2
+#define BIT_KEY_VCO1_MOD2 		27
+#define BIT_KEY_VCO1_MOD3 		26
+#define BIT_KEY_VCO2_MOD1 		1
+#define BIT_KEY_VCO2_MOD2 		29
+#define BIT_KEY_VCO2_MOD3 		28
+#define BIT_KEY_VCO3_MOD1 		0
+#define BIT_KEY_VCO3_MOD2 		31
+#define BIT_KEY_VCO3_MOD3 		30
+#define BIT_KEY_VCF1_MOD1 		9
+#define BIT_KEY_VCF1_MOD2 		8
+#define BIT_KEY_LFO1_MOD1 		16
+#define BIT_KEY_LFO2_MOD1 		18
+#define BIT_KEY_LFO3_MOD1 		20
+#define BIT_KEY_EFF1      				23
+#define BIT_KEY_EFF2_MOD  			14
+#define BIT_KEY_EFF1_MOD  			13
+#define BIT_KEY_VCF2_MOD  		15
+#define BIT_KEY_LOAD      				24
+#define BIT_KEY_SAVE      				25
+
+// led I2C data
+#define BIT_KEY_kb0      	3
+#define BIT_KEY_kb1      	4
+#define BIT_KEY_kb2      	5
+#define BIT_KEY_kb3      	6
+#define BIT_KEY_kb4      	7
+#define BIT_KEY_kb5      	8
+#define BIT_KEY_kb6      	9
+#define BIT_KEY_kb7      	10
+#define BIT_KEY_kb8      	11
+#define BIT_KEY_kb9      	12
+#define BIT_KEY_kb10     	13
+#define BIT_KEY_kb11     	14
+#define BIT_KEY_kb12     	15
+#define BIT_KEY_SEL_MIDI 2
+#define BIT_KEY_SEL_CV1  1
+#define BIT_KEY_SEL_CV2  0
+#endif
 
 
 const int bit_key_I2C2[] = { BIT_KEY_kb0, BIT_KEY_kb1, BIT_KEY_kb2, BIT_KEY_kb3, BIT_KEY_kb4, BIT_KEY_kb5, BIT_KEY_kb6, BIT_KEY_kb7, BIT_KEY_kb8,
@@ -80,6 +156,11 @@ uint32_t g_MIDI_QNote, g_MIDI_count;
 ///////////////////////////////////////////////////////
 // valeur actuel
 uint32_t g_switch1=0, g_switch2=0; // valeur des touches en cours de récupération
+
+///////////////////////////////////////////////////////
+uint32_t g_menu_count = 0; // pour compter le temps d'apuis sur une touche (pour tester les appuis long)
+int32_t g_led_blink;
+
 
 // sauvegarde des touches
 uint32_t g_last_switch_keyboard_bit = 0; // toutes les touches, en binaire
@@ -122,43 +203,39 @@ void leds_key_configuration(uint32_t my_menu_switch);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void get_keyboard() { // recupere les information des 6 capteurs capacitif, et les organise
+inline void get_keyboard() { // recupere les information des 6 capteurs capacitif, et les organise
     // les fonctions de communication sont bloquante (interrompu par la routine audio)
     // cette tache est séparé en diferentes fonction bloquante afin de pouvoir rendre la main a des fonction devant etre lancé plus frequement comme les receptions MIDI
     uint8_t kb_data[2];
     uint32_t ui_tmp;
-    
     kb_data[0] = 0;
-    
     if (g_time < 0) return; // on execute la fonction seulement si c'est le bon moment
                             // g_time est incrémenté ds la boucle audio
-                           
-	//g_switch_keyboard_bit = 0;
-	//g_switch_keyboard = -1;
-	//g_switch_configuration = -1; 
-	//g_switch_modulation = -1;
-	//return;
-                
+    g_menu_count++; 
+    g_menu_count = (g_menu_count > 1000000)? 1000000:g_menu_count; // temps depuis le dernier changement
+    g_led_blink += 1<<25; // on laisse les overflow passer de negatif a positif
+    
     switch(g_state_kb) {
     case 0:
         key_and_led(); // update configuration and leds
         g_state_kb++;
-        g_time = -3 * block_per_ms;
+        g_time = -3 * block_per_ms; // 3ms min entre les test des inputs capacitive
         break;
     case 1:
-        if(dsy_gpio_read(&Kb1_int) == 1) { // pas de changement, on ne fait rien, on saute directement a l'autre bloc de touche
-            g_state_kb = 5;
-            break;
-        }
-        
-        //if(true) // pour skipper ce test
+		//g_state_kb++; break;
+        if(dsy_gpio_read(&Kb1_int) == 1)  // commenter pour sauter ce bloc
+        // pas de changement, on ne fait rien, on saute directement a l'autre bloc de touche
+        { 
+			g_state_kb = 5; 
+			break; 
+		}
         if(i2c_kb.ReadDataAtAddress(136, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK) 
         {
             ui_tmp = g_switch1;
             ui_tmp &= 0xFFFFFF00; // clear current bits
             ui_tmp += kb_data[0];
             g_switch1 = ui_tmp;
-             if(dsy_gpio_read(&Kb1_int) == 0) g_state_kb++; else g_state_kb = 7; // si on tjrs l'interuption, on continue d'aquisition, sinon on saute direct a l'analyse
+            if(dsy_gpio_read(&Kb1_int) == 0) g_state_kb++; else g_state_kb = 7; // si on a tjrs l'interuption, on continue d'aquisition, sinon on saute direct a l'analyse
             g_time = 0;
         } else {
             i2c_kb.Init(i2c_kb.GetConfig()); // reinit I2C driver, and do this test again
@@ -166,8 +243,8 @@ void get_keyboard() { // recupere les information des 6 capteurs capacitif, et l
         }
         break;
     case 2 :
-// on arrive ici seulement si il y a eu un changement, mais que la lecture du 1er n'as servis a rien
-        //if(true) // pour skipper ce test
+		// on arrive ici seulement si il y a eu un changement, mais que la lecture du 1er n'as servis a rien
+		//g_state_kb++; break;
         if(i2c_kb.ReadDataAtAddress(138, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK) 
         {
             ui_tmp = g_switch1;
@@ -181,8 +258,8 @@ void get_keyboard() { // recupere les information des 6 capteurs capacitif, et l
             g_time = -2 * block_per_ms;
         }
         break;
-    case 3 :
-        //if(true) // pour skipper ce test
+    case 3 :		
+		//g_state_kb++; break;
         if(i2c_kb.ReadDataAtAddress(140, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK) 
         {
             ui_tmp = g_switch1;
@@ -190,14 +267,14 @@ void get_keyboard() { // recupere les information des 6 capteurs capacitif, et l
             ui_tmp += kb_data[0]<<16;
             g_switch1 = ui_tmp;
             if(dsy_gpio_read(&Kb1_int) == 0) g_state_kb++; else g_state_kb = 7; // si on as de nouvelles informations, saute direct a l'analyse
-            g_time = 0;
+            g_time = 0; 
         } else {
             i2c_kb.Init(i2c_kb.GetConfig());
             g_time = -2 * block_per_ms;
         }
-        break;
+         break;
     case 4 :
-        //if(true) // pour skipper ce test
+		//g_state_kb++; break;
         if(i2c_kb.ReadDataAtAddress(142, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK) 
         {
             ui_tmp = g_switch1;
@@ -212,11 +289,14 @@ void get_keyboard() { // recupere les information des 6 capteurs capacitif, et l
         }
         break;
     case 5 :
-        if(dsy_gpio_read(&Kb2_int) == 1) { // pas de changement, on ne fait rien, on saute directement a l'autre bloc de touche
-            g_state_kb = 8;
-            break;
-        }
-        //if(true) // pour skipper ce test
+		// il n'y a pas eu de changement sur le 1er bloc, donc on test le clavier
+   		//g_state_kb++; break;
+        if(dsy_gpio_read(&Kb2_int) == 1)  // commenter pour sauter ce bloc
+        // pas de changement, on ne fait rien, on saute directement a l'autre bloc de touche
+        { 
+			g_state_kb = 8; 
+			break; 
+		}
         if(i2c_led.ReadDataAtAddress(136, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK) 
         {
             ui_tmp = g_switch2;
@@ -231,7 +311,7 @@ void get_keyboard() { // recupere les information des 6 capteurs capacitif, et l
         }
         break;
     case 6 :
-        //if(true) // pour skipper ce test
+   		//g_state_kb++; break; // pour skipper le test
         if(i2c_led.ReadDataAtAddress(142, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK) 
         {
             ui_tmp = g_switch2;
@@ -257,7 +337,9 @@ void get_keyboard() { // recupere les information des 6 capteurs capacitif, et l
             switch_keyboard_bit = 0;
             switch_modulation = -1;
             switch_configuration = -1;
-
+			
+			g_menu_count = 0;	// raz du  temps depuis le dernier changement 
+			
             if (l_switch1 & (1<<BIT_KEY_SEL_VCO1)) switch_configuration = MENU_VCO1;
             if (l_switch1 & (1<<BIT_KEY_SEL_VCO2)) switch_configuration = MENU_VCO2;
             if (l_switch1 & (1<<BIT_KEY_SEL_VCO3)) switch_configuration = MENU_VCO3;
@@ -314,6 +396,7 @@ void get_keyboard() { // recupere les information des 6 capteurs capacitif, et l
     case 8 :
         g_state_kb = 0; // retour au debut
         g_time = -1 * block_per_ms; // limitation de la vitesse d'update
+        
         break;
     }
 }
@@ -345,20 +428,36 @@ void change_key(uint32_t current_key_bit) {
     g_save_switch_keyboard_bit = current_key_bit;
 }
 
-void set_modulation (uint32_t switch_modulation, uint32_t new_mod) {
-	if (curent_config.c_Modulation_Source[switch_modulation] == new_mod)
-		curent_config.c_Modulation_Source[switch_modulation] = NONE_OUT;
-	else
-		curent_config.c_Modulation_Source[switch_modulation] = new_mod;
+void set_modulation (uint32_t switch_modulation, uint32_t new_mod, uint32_t change_time) {
+	if(!change_time) {
+		if (curent_config.c_Modulation_Source[switch_modulation] == new_mod)
+			curent_config.c_Modulation_Source[switch_modulation] = NONE_OUT;
+		else
+			curent_config.c_Modulation_Source[switch_modulation] = new_mod;
+	}
+}
+
+void set_modulation_negatif (uint32_t switch_modulation, uint32_t new_mod, uint32_t change_time) {
+	if(change_time) {
+		curent_config.c_Modulation_Source[switch_modulation] = new_mod + modulation_source_last;
+	}
+	else {
+		if (curent_config.c_Modulation_Source[switch_modulation] == new_mod)
+			curent_config.c_Modulation_Source[switch_modulation] = NONE_OUT;
+		else
+			curent_config.c_Modulation_Source[switch_modulation] = new_mod;
+	}
 }
  
- void set_modulation_special (uint32_t switch_modulation, uint32_t new_mod) {
-	uint32_t uint_tmp2 = curent_config.c_Modulation_Source[switch_modulation];
-	uint32_t tmp = 0;
-	if(uint_tmp2 < ADSR_OUT) { // on as une modulation issue d'un VCO
-		tmp = uint_tmp2%6; // on cherche la formes d'ondes "speciales"
+ void set_modulation_special (uint32_t switch_modulation, uint32_t new_mod, uint32_t change_time) {
+	if(!change_time) {
+		uint32_t uint_tmp2 = curent_config.c_Modulation_Source[switch_modulation];
+		uint32_t tmp = 0;
+		if(uint_tmp2 < ADSR_OUT) { // on as une modulation issue d'un VCO
+			tmp = uint_tmp2%6; // on cherche la formes d'ondes "speciales"
+		}
+		set_modulation( switch_modulation, new_mod + tmp, 0);
 	}
-	set_modulation( switch_modulation, new_mod + tmp);
  }
  
 int keyboard_all() { // gere le clavier : change les configs si besion and return le mode d'affichage des leds :
@@ -367,7 +466,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
     // 2 : mode configuration
     // 3 : aucun changement, on reste sur le dernier mode
 
-    uint32_t change_keyboard, change_modulation, change_configuration;
+    uint32_t change_keyboard, change_modulation, change_configuration, change_time;
     uint32_t pressed_keyboard, pressed_modulation, pressed_configuration;
     uint32_t uint_tmp, uint_tmp2;
     int32_t switch_modulation = g_switch_modulation;
@@ -375,21 +474,27 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
     uint32_t switch_keyboard_bit = g_switch_keyboard_bit;
     int32_t switch_keyboard = g_switch_keyboard;
 
-    change_keyboard = (g_last_switch_keyboard_bit == switch_keyboard_bit)? 0:1;
-    change_modulation = (g_last_switch_modulation == switch_modulation)? 0:1;
-    change_configuration = (g_last_switch_configuration == switch_configuration)? 0:1;
+    change_keyboard = (g_last_switch_keyboard_bit != switch_keyboard_bit);
+    change_modulation = (g_last_switch_modulation != switch_modulation);
+    change_configuration = (g_last_switch_configuration != switch_configuration);
+    change_time = ((g_menu_count > 100) && (g_menu_count < 1000000)); // pour tester lkes appuie long
+    if (change_time) g_menu_count=1000000; // on ne traite qu'une fois le "change_time"
+        
     g_last_switch_modulation = switch_modulation;
     g_last_switch_configuration = switch_configuration;
     g_last_switch_keyboard = switch_keyboard;
     g_last_switch_keyboard_bit = switch_keyboard_bit;
 
-    if ( (change_keyboard + change_modulation + change_configuration) == 0 )
-        return 3; // si rien n'a changé, on ne fait rien de neuf
+    // si il y a un changement : a quel niveau?
+    pressed_keyboard = (switch_keyboard>=0);
+    pressed_modulation = (switch_modulation>=0);
+    pressed_configuration = (switch_configuration>=0);
+    
+    if (!change_keyboard && !change_modulation && !change_configuration && !change_time)  return 3; // si rien n'a changé, on ne fait rien de neuf
 
-    // il y a un changement : a quel niveau?
-    pressed_keyboard = (switch_keyboard>=0)? 1:0;
-    pressed_modulation = (switch_modulation>=0)? 1:0;
-    pressed_configuration = (switch_configuration>=0)? 1:0;
+	if (change_time && !(pressed_modulation && pressed_configuration) ) return 3; // si change_time, alors il n'y a qu'un cas qui nous interesse
+	// si change_time on reste ssi modulation et configuration sont aussi appuyé
+	// cad on sort si change_time et si (modulation et configuration) ne sont pas appuyé simultanement
 
 	if( pressed_keyboard && change_modulation)
 		return 3; // on appuie sur une touche de modulation alors que le clavier est appuyé : le clavier a la priorité : on joue des notes
@@ -398,13 +503,13 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 	if( pressed_configuration && change_modulation)
 		return 3; // on appuie sur une touche de modulation alors qu'une touche de configuration est appuyé : on ne fait rien : priorité a la configuration
 
-    if ( (pressed_keyboard + pressed_modulation + pressed_configuration) == 0) { // on a relaché toutes les touches
+    if (!pressed_keyboard && !pressed_modulation && !pressed_configuration) { // on a relaché toutes les touches
         g_last_load_save = -1; // pour l'affichage des derniere sauvegarde
         if (change_keyboard == 0) return 0 ; // Ce n'est pas le clavier, dc on a relaché une touche de configuration ou de modulation : on n'as rien a faire
         change_key(switch_keyboard_bit); // else : on a relaché une touche du clavier : on gere ca ailleur
         return 0 ;
     }
-    if ( (pressed_keyboard + pressed_modulation + pressed_configuration) == 3 ) { // on ne gere pas l'appuie sur 3 touches simultanement : on ignore le clavier
+    if (pressed_keyboard && pressed_modulation && pressed_configuration) { // on ne gere pas l'appuie sur 3 touches simultanement : on ignore le clavier
         switch_keyboard = -1;
         change_keyboard = 0;
         pressed_keyboard = 0;
@@ -419,57 +524,57 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
         return 0;
     }
     // 2 touches sont appuyés, il y a forcement une configuration qq part a changer
-    if (pressed_modulation + pressed_configuration == 2) { // changement de source de modulation
+    if (pressed_modulation && pressed_configuration ) { // changement de source de modulation
         switch (switch_configuration) {
            case MENU_VCO1:
-				set_modulation_special(switch_modulation, VCO1_OUT);
+				set_modulation_special(switch_modulation, VCO1_OUT, change_time);
             break;
             case MENU_VCO2:
-				set_modulation_special(switch_modulation, VCO2_OUT);
+				set_modulation_special(switch_modulation, VCO2_OUT, change_time);
             break;
             case MENU_VCO3:
-				set_modulation_special(switch_modulation, VCO3_OUT);
+				set_modulation_special(switch_modulation, VCO3_OUT, change_time);
             break;
             case MENU_VCF1:
                 // ce n'est pas une modulation...
             break;
             case MENU_ADSR:
-				set_modulation(switch_modulation, ADSR_OUT);
+				set_modulation_negatif(switch_modulation, ADSR_OUT, change_time); 
             break;
             case MENU_LFO1:
-				set_modulation(switch_modulation, LFO1_OUT);
+				set_modulation_negatif(switch_modulation, LFO1_OUT, change_time);
             break;
             case MENU_LFO2:
-				set_modulation(switch_modulation, LFO2_OUT);
+				set_modulation_negatif(switch_modulation, LFO2_OUT, change_time);
             break;
             case MENU_LFO3:
-				set_modulation(switch_modulation, LFO3_OUT);
+				set_modulation_negatif(switch_modulation, LFO3_OUT, change_time);
             break;
             case MENU_LFO4:
-				set_modulation(switch_modulation, LFO4_OUT);
+				set_modulation_negatif(switch_modulation, LFO4_OUT, change_time);
             break;
             case MENU_LFO5:
-				set_modulation(switch_modulation, LFO5_OUT);
+				set_modulation_negatif(switch_modulation, LFO5_OUT, change_time);
             break;
             case MENU_LFO6:
-				set_modulation(switch_modulation, LFO6_OUT);
+				set_modulation_negatif(switch_modulation, LFO6_OUT, change_time);
             break;
             case MENU_LFO7:
-				set_modulation(switch_modulation, LFO7_OUT);
+				set_modulation_negatif(switch_modulation, LFO7_OUT, change_time);
             break;
             case MENU_MIDI:
-            	set_modulation(switch_modulation, MIDI_expression);
+            	set_modulation_negatif(switch_modulation, MIDI_modulation, change_time);
             break;
             case MENU_CV1:
-				set_modulation(switch_modulation, CV1_OUT);
+				set_modulation_negatif(switch_modulation, CV1_OUT, change_time);
             break;
             case MENU_CV2:
-				set_modulation(switch_modulation, CV2_OUT);
+				set_modulation_negatif(switch_modulation, CV2_OUT, change_time);
             break;
         }
         return 1;
     }
-    if (pressed_modulation + pressed_keyboard == 2) { // changement de paramettre de modulation
+    if (pressed_modulation && pressed_keyboard) { // changement de paramettre de modulation
         switch(switch_modulation){
         case VCO1_MOD1 :
         case VCO1_MOD2 :
@@ -516,7 +621,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
         }
         return 1;
     }
-    if (pressed_configuration + pressed_keyboard == 2) { // changement de paramettre de configuration
+    if (pressed_configuration && pressed_keyboard) { // changement de paramettre de configuration
         switch(switch_configuration){
         case MENU_VCO1 :
             if (switch_keyboard <= 8)
@@ -725,17 +830,6 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 					standard_config();
 				break;
 				case 2: // load random config
-				case 3:
-				case 4:
-				case 5:
-				case 6:
-				case 7:
-				case 8:
-				case 9:
-				case 10:
-				case 11:
-				case 12:
-					empty_config();
 					random_config();
 				break;				
 			}
@@ -831,14 +925,13 @@ void midi_in(uint32_t MIDI_data) {
                 // we have a full midi message
                 if ( ( g_MIDI_status == 0x90) &&  (MIDI_data2 != 0) ) // note on
                 {
-                    add_voice(1, MIDI_data1-57);
+                    add_voice(1, MIDI_data1-60);
                     //g_Modulation[MIDI_vel] = MIDI_data2;
                 }
-                if ( ( (g_MIDI_status == 0x90) &&  (MIDI_data2 == 0) )
-                        || ( g_MIDI_status == 0x80 ) )
+                if ( ( (g_MIDI_status == 0x90) &&  (MIDI_data2 == 0) ) || ( g_MIDI_status == 0x80 ) )
                  // note off
                 {
-                    remove_voice(1, MIDI_data1-57);
+                    remove_voice(1, MIDI_data1-60);
                 }
 
                 if ( g_MIDI_status == 0b11100000) // v_pitch bend
@@ -848,15 +941,28 @@ void midi_in(uint32_t MIDI_data) {
                 if ( g_MIDI_status == 0b10110000) // CC
                 {
                     if (MIDI_data1 == 01) { // mod wheel
-                        tmpf = (MIDI_data2 << 7)+ g_MIDI_MODWHEEL_LSB;
-                        g_Modulation[MIDI_modulation] = 24.f * (-1.f + tmpf * 0.00012207f); // 14 bit de -1 a 1
+                        tmpf = (float)((MIDI_data2 << 7)+ g_MIDI_MODWHEEL_LSB);
+                        tmpf = ( tmpf * 0.00006103515f); // 14 bit de 0 a 1
+                        g_Modulation[MIDI_modulation] = tmpf;      
+                        g_Modulation[MIDI_modulation + modulation_source_last] = -tmpf;      
                     }
-                    if (MIDI_data1 == 11) { g_Modulation[MIDI_expression] = -1.f + (float)((MIDI_data2 << 7) + g_MIDI_exprssion_LSB) * 0.00012207f; }
+                    if (MIDI_data1 == 11) { 
+						tmpf = (float)((MIDI_data2 << 7) + g_MIDI_exprssion_LSB) * 0.00006103515f;  // positif seulement
+						g_Modulation[MIDI_expression] = tmpf;
+						}
                     if (MIDI_data1 == 33) { g_MIDI_MODWHEEL_LSB = MIDI_data2; }  // mod wheel LSB
                     if (MIDI_data1 == 99) { g_RNPN_addresse_MSB = MIDI_data2; }
                     if (MIDI_data1 == 98) { g_RNPN_addresse_LSB = MIDI_data2; }
-                    if (MIDI_data1 == 6 ) { g_RNPN_value_MSB = MIDI_data2; }
-                    if (MIDI_data1 == 38) { g_RNPN_value_LSB = MIDI_data2;
+                    if (MIDI_data1 == 6 ) { 
+						g_RNPN_value_MSB = MIDI_data2; 
+						uint_tmp = g_RNPN_addresse_LSB + (g_RNPN_addresse_MSB << 7);
+                        if (uint_tmp < nb_potentiometer) {
+							uint_tmp = table_midi_order[uint_tmp];
+                            g_midi_parameter[uint_tmp] = (g_RNPN_value_MSB << 7) * 0.00006103515f;
+                        }
+					}
+                    if (MIDI_data1 == 38) { 
+						g_RNPN_value_LSB = MIDI_data2; 
                         uint_tmp = g_RNPN_addresse_LSB + (g_RNPN_addresse_MSB << 7);
                         if (uint_tmp < nb_potentiometer) {
 							uint_tmp = table_midi_order[uint_tmp];
@@ -878,9 +984,13 @@ void midi_in(uint32_t MIDI_data) {
 
 inline void get_analog_in() {
     uint32_t analog_gate;
-
-    g_Modulation[CV1_OUT] =   ((0.5f -  g_knob[k_CV1]) - g_CV1_offset) * 2.f ;
-    g_Modulation[CV2_OUT] =  ((0.5f - g_knob[k_CV2]) - g_CV2_offset) * 2.f;
+	float tmpf;
+	tmpf = ((0.5f -  g_knob[k_CV1]) - g_CV1_offset) * 2.f ;
+    g_Modulation[CV1_OUT] =  tmpf;
+    g_Modulation[CV1_OUT+modulation_source_last] =  -tmpf;
+    tmpf = ((0.5f - g_knob[k_CV2]) - g_CV2_offset) * 2.f;
+    g_Modulation[CV2_OUT] = tmpf;
+    g_Modulation[CV2_OUT+modulation_source_last] = -tmpf;
 
     analog_gate = dsy_gpio_read(&gate_pin);
     if (g_analog_gate > analog_gate) remove_voice(2, 0);
