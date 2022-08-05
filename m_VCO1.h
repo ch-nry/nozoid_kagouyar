@@ -1,7 +1,24 @@
+// --------------------------------------------------------------------------
+// This file is part of the KAGOUYAR firmware.
+//
+//    KAGOUYAR firmware is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    KAGOUYAR firmware is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
+// --------------------------------------------------------------------------
+
 #define modulation_VCO1(VCO_mod, VCO_MOD)                                           \
     modulation_value = VCO_mod;                                                     \
     modulation_value *= g_Modulation[curent_config.c_Modulation_Source[VCO_MOD]];   \
-                                                                                    \
+																					\
     switch (curent_config.c_Modulation_Type[VCO_MOD]) {                             \
     case MOD_FM_exp :                                                               \
         VCO1_FM_exp += modulation_value ;                                           \
@@ -18,7 +35,7 @@
     case MOD_PM :                                                                   \
         VCO1_PM += modulation_value ;                                               \
         break;                                                                      \
-    case MOD_CLIP :                                                               \
+    case MOD_CLIP :                                                                 \
         VCO1_clip -= modulation_value + VCO_mod + _fmax(0.f, VCO_mod-0.5f)*4.0f;    \
         break;                                                                      \
     case MOD_WF :                                                                   \
@@ -60,10 +77,6 @@ inline float VCO1(uint32_t j, float frequency) {
 
     float VCO1_phase_local = wrap(allvoice[j].v_VCO1_phase + increment);
     allvoice[j].v_VCO1_phase = VCO1_phase_local;
-    VCO1_PM *= 4.f;
-    VCO1_phase_local += VCO1_PM;
-    //increment =  abs(_floor(VCO1_phase_local-old_phase)); // should we compute this increment after PM?
-    VCO1_phase_local -= _floor(VCO1_phase_local); // car on peux aller ds le negatif, ou aller au dela de 2 a cause des multiples modulations
     
     g_Modulation[VCO1_SIN] = _cos(VCO1_phase_local); // g_Modulation sinus
     g_Modulation[VCO1_SQUARE] = (VCO1_phase_local > 0.5f)? 1.f : -1.f; // g_Modulation square
@@ -72,18 +85,23 @@ inline float VCO1(uint32_t j, float frequency) {
     g_Modulation[VCO1_RAMP] = tmp;
     g_Modulation[VCO1_SAW] = -tmp; // saw down
 
+    VCO1_PM *= 4.f;
+    VCO1_phase_local += VCO1_PM;
+    //increment =  abs(_floor(VCO1_phase_local-old_phase)); // should we compute this increment after PM?
+    VCO1_phase_local -= _floor(VCO1_phase_local); // car on peux aller ds le negatif, ou aller au dela de 2 a cause des multiples modulations
+
     float PWM_local = _fclamp(PWM + VCO1_mod_PWM, 0.f, 1.f);;
 
     switch(curent_config.c_VCO1_WF) {
     case 0 : //sin
         phase2 = _sin(VCO1_phase_local); 
         _fonepole(allvoice[j].v_VCO1_filter1, phase2, 6000.f*OneOverSR);
-        out = _cos_positiv_loop(111.f + VCO1_phase_local + allvoice[j].v_VCO1_filter1 * PWM_local * 0.4f);
+        out = _cos_loop(VCO1_phase_local + allvoice[j].v_VCO1_filter1 * PWM_local * 0.4f);
         break;
     case 1 : //multi sin
         phase2 = _sin(VCO1_phase_local);
         _fonepole(allvoice[j].v_VCO1_filter1, phase2, 600.f*OneOverSR);
-        out = _cos_loop((0.7f+1.5f*PWM_local) * allvoice[j].v_VCO1_filter1 + 0.33f );
+        out = _cos_loop((0.7f+3.5f*PWM_local) * allvoice[j].v_VCO1_filter1 + 0.33f );
         break;
     case 2 : // tri
         out = tri_bl(VCO1_phase_local, fabs(increment), allvoice[j].v_VCO1_filter1);
