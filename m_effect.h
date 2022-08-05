@@ -1,3 +1,20 @@
+// --------------------------------------------------------------------------
+// This file is part of the KAGOUYAR firmware.
+//
+//    KAGOUYAR firmware is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    KAGOUYAR firmware is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
+// --------------------------------------------------------------------------
+
 float g_effect1_phase;
 float g_effect1_last_out = 0.f;
 float g_effect1_param_filter = 0.f;
@@ -60,22 +77,22 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
         g_delay_effect1.Write(_fclamp(sound_out, -3.f, 3.f));
         return sound_out;
         //break;
-    case 4 : // chorus : ( WET + feedback, TIME, WET) : OK
+    case 4 : // chorus : ( WET + feedback, TIME, WET modulation) : OK
 		param1 *= 1200.f;// 1/8 du temps max du chorus, en echantillons 
         g_effect1_phase = wrap(g_effect1_phase + (0.005f/48000.f)); // LFO : vitesse de variation du temps du chorus
         effect1_phase = g_effect1_phase;
         sound_out = 0.f; //sound_in;
         g_delay_effect3.SetDelay(1.f + (_cos_positiv_loop(             effect1_phase*5.f)+1.f) * param1);
         sound_out  += g_delay_effect3.Read();
-        g_delay_effect3.SetDelay(1.f + (_cos_positiv_loop(0.23f + effect1_phase*4.f)+3.f) * param1);
+        g_delay_effect3.SetDelay(1.f + (_cos_positiv_loop(0.23f + effect1_phase*4.f)+3.1f) * param1);
         sound_out -= g_delay_effect3.Read();
-        g_delay_effect3.SetDelay(1.f + (_cos_positiv_loop(0.57f + effect1_phase*3.f)+5.f) * param1);
+        g_delay_effect3.SetDelay(1.f + (_cos_positiv_loop(0.57f + effect1_phase*3.f)+5.2f) * param1);
         sound_out += g_delay_effect3.Read();
-        g_delay_effect3.SetDelay(1.f + (_cos_positiv_loop(0.71f + effect1_phase*7.f)+7.f) * param1);
+        g_delay_effect3.SetDelay(1.f + (_cos_positiv_loop(0.71f + effect1_phase*7.f)+7.3f) * param1);
         sound_out -= g_delay_effect3.Read();
-        sound_out *= 0.33f;
-        sound_out = sound_in + wetM*wetM*sound_out;
-        g_delay_effect3.Write(_fclamp(sound_out, -3.f, 3.f));
+        sound_out *= 0.5f;        
+        sound_out = sound_in + _tanh(wetM*sound_out);
+        g_delay_effect3.Write(sound_out);
         return sound_out;
     case 5 : // ring delay : WET : amplitude du feedback; param1 : temps de delay ; param2 : frequence du ring
         tmp = (24000.f * param1 * (param1+1.f)) + 50.f;
@@ -112,6 +129,10 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
     }
     return 0;
 }
+
+// --------------------------------------------------------------------------------------------
+// EFFECT 2
+// --------------------------------------------------------------------------------------------
 
 float g_Effect2_filtre = 0.f;
 float g_effect2_sound_env = 0.f;
@@ -169,6 +190,7 @@ inline float effect2(float sound_in) { //, float param, float param1) {
 
         return mix(sound_in, sound_out*0.5, wet);        
     case 5: // compresseur- attenuateur :
+    //  qd pas de modulation, que faire avec param???
         tmp = fabs(sound_in);
         if (tmp > g_effect2_sound_env) {
             g_effect2_sound_env = mix(g_effect2_sound_env, tmp, 0.01f); // temps de monté
