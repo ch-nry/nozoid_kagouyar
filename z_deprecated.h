@@ -1,3 +1,13 @@
+//#if defined(_MSC_VER)
+//#define FORCE_INLINE __forceinline /**< & */
+//#elif defined(__clang__)
+//#define FORCE_INLINE inline __attribute__((always_inline)) /**< & */
+//#pragma clang diagnostic ignored "-Wduplicate-decl-specifier"
+//#elif defined(__GNUC__)
+//#define FORCE_INLINE inline __attribute__((always_inline)) /**< & */
+//#else
+//#error unknown compiler
+//#endif
 
 void UsbCallback(uint8_t* buf, uint32_t* len)
 {
@@ -17,12 +27,106 @@ void UsbCallback(uint8_t* buf, uint32_t* len)
         //sprintf(buff, "ping;\n");
         //hw.seed.usb_handle.TransmitInternal((uint8_t*)buff, strlen(buff));
 
+// VCO macro : 
+// les multiples IF sont plus lent
+//#define modulation_VCO1(VCO_mod, VCO_MOD)                                           						\
+//    modulation_value = VCO_mod;                                                     										\
+//    modulation_value *= g_Modulation[curent_config.c_Modulation_Source[VCO_MOD]];   	\
+//																																				\
+// if(curent_config.c_Modulation_Type[VCO_MOD] & 0b100){ /* 4, 5 ou 6 */						\
+//	 if(curent_config.c_Modulation_Type[VCO_MOD] & 0b10){ /* 6 */									\
+//		VCO1_mod_PWM += modulation_value;                                           							\
+//	} else { /* 4 ou 5*/																											\
+//		if(curent_config.c_Modulation_Type[VCO_MOD] & 0b1){ /* 5 */									\
+//			VCO1_clip -= modulation_value + VCO_mod + _fmax(0.f, VCO_mod-0.5f)*4.0f;   \
+//		} else { /* 4 */																											\
+//			VCO1_PM += modulation_value ;                                               							\
+//		}																																	\
+//	}																																		\
+//} else { /* 0, 1, 2 ou 3*/																										\
+//	if(curent_config.c_Modulation_Type[VCO_MOD] & 0b10){ /* 2 ou 3 */							\
+//		if(curent_config.c_Modulation_Type[VCO_MOD] & 0b1){ /* 3 */									\
+//			VCO1_AM -= VCO_mod - modulation_value;                                      					\
+//		} else { /* 2 */																											\
+//			VCO1_FM_lin += VCO_mod * modulation_value ;                                 					\
+//		}																																	\
+//	} else { /* 0 ou 1 */																										\
+//		if(curent_config.c_Modulation_Type[VCO_MOD] & 0b1){ /* 1 */									\
+//			VCO1_FM_Qtz += modulation_value ;                                           							\
+//		} else { /* 0  */																											\
+//			VCO1_FM_exp += modulation_value ;                                           							\
+//		}																																	\
+//	}																																		\
+//}									
+
+////////////////////////////////////
+// VCF 
+
+    // pas plus rapide avec des if
+    /*
+    if (curent_config.c_VCF1_TYPE >= 4){
+		if (curent_config.c_VCF1_TYPE == 4){
+			tmp = input1 - output1 - output1 + output2;
+		} else { // == 5
+			tmp = input1 - 4.f * (output1 + output3) + 6.f *  output2 + output4;
+		}
+	} else { // == 0, 1 ou 2
+		if (curent_config.c_VCF1_TYPE == 2){
+			tmp = output1 + output1 - output2 - output2;
+		} else {// == 0 ou 1 
+			if (curent_config.c_VCF1_TYPE == 0){
+				tmp = output4;
+			} else {// == 1 
+				tmp = output2;
+			}
+		}
+	} */
+	
+	
+////////////////////////////////
+// ADSR
+
+/* // plus lent avec des if
+	if(ADSR_mode <= 1) {
+		if(ADSR_mode == 0) {
+			tmp = g_pot_audio[k_ADSR_a];
+			ADSR_goal = ADSR_overshotA;
+		}
+		else {
+			tmp = g_pot_audio[k_ADSR_d];
+			ADSR_goal = S;
+		}
+	}
+	else {
+		tmp = g_pot_audio[k_ADSR_r];
+		ADSR_goal = ADSR_overshotR;
+	}
+*/
 
 /////////////////////:
 // effet audio
 
 ////////////////////////////////////////////////////////
 /*
+/*    case 4 : // chorus : ( WET + feedback, TIME, WET modulation) : OK
+		//param1 *= 1200.f;// 1/8 du temps max du chorus, en echantillons 
+        g_effect1_phase = wrap(g_effect1_phase + (0.2f*param1/48000.f)); // LFO : vitesse de variation du temps du chorus
+        effect1_phase = g_effect1_phase;
+        sound_out = 0.f; //sound_in;
+        g_delay_effect3.SetDelay(1.f + (_cos_positiv_loop(             effect1_phase*5.f)+1.f) * 500.f);
+        sound_out  += g_delay_effect3.Read();
+        g_delay_effect3.SetDelay(1.f + (_cos_positiv_loop(0.23f + effect1_phase*4.f)+3.1f) * 500.f);
+        sound_out -= g_delay_effect3.Read();
+        g_delay_effect3.SetDelay(1.f + (_cos_positiv_loop(0.57f + effect1_phase*3.f)+5.2f) * 500.f);
+        sound_out += g_delay_effect3.Read();
+        g_delay_effect3.SetDelay(1.f + (_cos_positiv_loop(0.71f + effect1_phase*7.f)+7.3f) * 500.f);
+        sound_out -= g_delay_effect3.Read();
+        sound_out *= 0.25f;
+        sound_out = sound_in + wetM*sound_out;
+        g_delay_effect3.Write(_fclamp(sound_out, -3.f, 3.f)); // mettre une saturation plus propre
+        return sound_out;
+*/
+
     case 7 : // HARMO (-1, +1 v_pitch shift) : OK
         g_delay_effect3.Write(sound_in); // phase du grain 1
         effect1_phase = g_effect1_phase + 0.00020833333f; // 100ms pour 1 grain
