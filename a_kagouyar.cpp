@@ -1,4 +1,21 @@
-// todo tester le flag -O3 plutot que -O2
+// --------------------------------------------------------------------------
+// This file is part of the KAGOUYAR firmware.
+//
+//    KAGOUYAR firmware is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    KAGOUYAR firmware is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
+// --------------------------------------------------------------------------
+
+#define proto2
 
 #include <stdio.h>
 #include <string.h>
@@ -21,8 +38,11 @@
 #include "m_effect.h"
 #include "x_test.h"
 
+//14th slot to save curent preset on shutdown
+#define save_pos  0x90000000 + (14*4096)
+
 static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle::InterleavingOutputBuffer out, size_t size) {              
-    hw.test_out(true); // write test_out pin;  10µs la premiere partie
+    //hw.test_out(true); // write test_out pin;  10µs la premiere partie
     g_time++;
 
     float VCO1_fq; 
@@ -117,13 +137,16 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
 		g_pot_audio[k_ADSR_s] += g_pot_increment[k_ADSR_s];
 
         for (uint32_t j=nb_voice; j--;)
-        { // pour toutes les voie de polyphonie
+        { // pour toutes les voies de polyphonie
             float sound;
             sommeADSR += ADSR(j);
             
             g_Modulation[LFO1_OUT] = g_LFO1_AR[j];
+            g_Modulation[LFO1_OUT+modulation_source_last] = -g_LFO1_AR[j];
             g_Modulation[LFO2_OUT] = g_LFO2_AR[j];
+            g_Modulation[LFO2_OUT+modulation_source_last] = -g_LFO2_AR[j];
             g_Modulation[LFO3_OUT] = g_LFO3_AR[j];
+            g_Modulation[LFO3_OUT+modulation_source_last] = -g_LFO3_AR[j];
 
             sound  =  mix1 * VCO1(j, VCO1_fq);
             sound += mix2  * VCO2(j, VCO2_fq);
@@ -133,10 +156,15 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
         }
 
         // pour la suite, on utilise la somme des ADSR comme g_Modulation
-        g_Modulation[ADSR_OUT] = sommeADSR * 1.f/nb_voice;
+        sommeADSR *= 1.f/nb_voice;
+        g_Modulation[ADSR_OUT] = sommeADSR;
+        g_Modulation[ADSR_OUT+modulation_source_last] = - sommeADSR;
         g_Modulation[LFO1_OUT] = g_LFO1_AR[nb_voice];
+        g_Modulation[LFO1_OUT+modulation_source_last] = -g_LFO1_AR[nb_voice];
         g_Modulation[LFO2_OUT] = g_LFO2_AR[nb_voice];
+        g_Modulation[LFO2_OUT+modulation_source_last] = -g_LFO2_AR[nb_voice];
         g_Modulation[LFO3_OUT] = g_LFO3_AR[nb_voice];
+        g_Modulation[LFO3_OUT+modulation_source_last] = -g_LFO3_AR[nb_voice];
 
         sig = effect1(sig);
         sig = effect2(sig);
@@ -144,12 +172,12 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
         VCF2(sig); 
         sig *= g_pot_audio[k_GAIN] * g_pot_audio[k_GAIN]; 
 		sig*= 0.5;
-        if(fabs(sig)>1.f) g_clip = 1.;
+        if(fabs(sig)>=1.f) g_clip = 1.;
 
         out[i++] = sig; // droite
         out[i++] = -sig; // gauche
     }
-    hw.test_out(false);
+    //hw.test_out(false);
 }
 
 int main(void)
@@ -171,11 +199,11 @@ int main(void)
 // initialisation des memoires
 ////////////////////////////////////////////////////////////////////////
 	if (true) { // normal operation
-		load_config(13); // only for the calibration
+		load_config(13); // only for the calibration 
 		g_CV1_offset = curent_config.c_CV1_offset;
 		g_CV2_offset = curent_config.c_CV2_offset;
 		g_CV1_gain = curent_config.c_CV1_gain;
-		load_config(0); // load empty config if config 0 is empty
+		if(!load_config(14)) empty_config(); // load saved config, if failled, load an empty config
 	}
 	else {	// for test purpose
 		empty_config();
@@ -193,8 +221,12 @@ int main(void)
     } // end of test mode
 
 ////////////////////////////////////////////////////////////////////////
-// start audio
+// erase memory that will be used to save the curent preset when shutdown
+// doing this now to gain time when shutdown
+	hw.seed.qspi.Erase(save_pos, save_pos + sizeof(CONFIGURATION));
+
 ////////////////////////////////////////////////////////////////////////
+// start audio
     hw.StartAudio(AudioCallback); // normal operation
 
 ////////////////////////////////////////////////////////////////////////
@@ -208,5 +240,25 @@ int main(void)
         get_pot(i); // get potentiometters value and filter them
         get_keyboard(); // test keyboard and display leds accordingly;
         get_midi(); // test reception de midi data
+       
+       // test shutdown
+        if (!dsy_gpio_read(&low_power_pin)) { // si l'allim passe en dessous des 7V, 
+			// on arrete le son et tout les process qui prennent du temps ou du courant, 
+			// ensuite, on sauve la config actuel pendant les qqs ms restante de courant ds les condensateurs
+			
+			hw.test_out(true); // for oscillo debug only
+			hw.StopAudio(); //stop audio
+			set_all_led(0,0,0,0,0); //extinction des leds analogique pour economiser du courant
+			write_binary_led(0); // extinction des leds du clavier
+			hw.test_out(false);
+			
+			hw.seed.qspi.Write(save_pos, sizeof(CONFIGURATION), (uint8_t*)&curent_config); // 4.5ms
+
+			while(true) { // boucle pour montrer la fin  de la procedure de sauvegarde
+				hw.test_out(true); hw.seed.SetLed(true);
+				hw.test_out(false); hw.seed.SetLed(false);
+			}
+		}
+		
     } // everything else is done on the audio interuption
 }
