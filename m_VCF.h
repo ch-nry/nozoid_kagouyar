@@ -1,3 +1,20 @@
+// --------------------------------------------------------------------------
+// This file is part of the KAGOUYAR firmware.
+//
+//    KAGOUYAR firmware is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    KAGOUYAR firmware is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
+// --------------------------------------------------------------------------
+
 // algorythm from :
 // Vesa Välimäki and Antti Huovilainen
 // Helsinki University of Technology
@@ -23,7 +40,7 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
     else 
         mod_q  += g_pot_audio[k_VCF1_mod2] * g_Modulation[curent_config.c_Modulation_Source[VCF1_MOD2]];
 
-    float freq = fq+48.f*mod_fq + g_Modulation[MIDI_modulation];
+    float freq = fq+ (48.f*mod_fq) + (24.f*g_Modulation[MIDI_expression]);
     tmp = curent_config.c_VCF1_pitch_TRACK;
     freq += tmp * allvoice[j].v_pitch*0.5f;
     freq = _fclamp(freq, -128, 138);
@@ -38,6 +55,9 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
 
     input1 *= 0.5; // limitation de l'amplitude d'entrée pour ne pas trop distordre le signal avant le filtre
 
+	_fonepole(v_VCF1_input, input1, 0.25f);
+	input1 = v_VCF1_input;
+	
     float feedback = Q * ( allvoice[j].v_VCF1_last_output4 - (0.5f * input1) ); // feedback
 
     input1 -= feedback;
@@ -95,6 +115,7 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
         tmp = input1 - 4.f * (output1 + output3) + 6.f *  output2 + output4;
         break;
     }
+ 
     return 2.f*tmp; // facteur 2 pour compenser le gain d'entré
 }
 
