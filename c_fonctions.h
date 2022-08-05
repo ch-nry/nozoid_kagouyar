@@ -1,3 +1,20 @@
+// --------------------------------------------------------------------------
+// This file is part of the KAGOUYAR firmware.
+//
+//    KAGOUYAR firmware is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    KAGOUYAR firmware is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
+// --------------------------------------------------------------------------
+
 float table_CV2freq[269];
 
 ////////////////////////////////////////////////////
@@ -141,7 +158,6 @@ void init_table_CV2freq() {
 }
 
 inline float CV2freq(float index) { // index from -128 to 139; 69 for 440Hz
-
   float f_index = index;
   f_index += 128.f;
   f_index = _fclamp(f_index, 0.f, 267.f );
@@ -361,7 +377,20 @@ void init_variables() {
     g_Modulation_Reset[NONE_OUT] = 0;
 }
 
-void random_config() {
+void random_config() {	
+    curent_config.c_VCO1_RANGE = 2;
+    curent_config.c_VCO2_RANGE = 2;
+    curent_config.c_VCO2_LINK = 0;
+    curent_config.c_VCO3_RANGE = 2;
+    curent_config.c_VCO3_LINK = 0;
+    curent_config.c_VCF1_TYPE = 0;
+    curent_config.c_VCF1_MOD1_TYPE = _rnd_ui()%2;
+    curent_config.c_VCF1_MOD2_TYPE = _rnd_ui()%2;
+    curent_config.c_VCF1_pitch_TRACK = 2;
+    curent_config.c_ADSR_LOOP = 0;
+    curent_config.c_VCA_TYPE = _rnd_ui()%2; // VCA or LowPasse_GATE
+    curent_config.c_VCF2_TYPE = 0;
+
 	curent_config.c_VCO1_WF = _rnd_ui()%9;
     curent_config.c_VCO2_WF =  _rnd_ui()%9;
     curent_config.c_VCO3_WF =  _rnd_ui()%9;
@@ -381,16 +410,16 @@ void random_config() {
     curent_config.c_LFO6_RANGE = _rnd_ui()%3;
     curent_config.c_LFO7_RANGE = _rnd_ui()%3;
 
-    curent_config.c_EFFECT1_TYPE = _rnd_ui()%7;
+    curent_config.c_EFFECT1_TYPE = _rnd_ui()%7; // fait planter
     curent_config.c_EFFECT2_TYPE = _rnd_ui()%6;
 
     for (uint32_t i=0; i<VCF1_MOD1; i++) { // pour tout les VCO
-        curent_config.c_Modulation_Source[i] = _rnd_ui()%MIDI_expression;
+        curent_config.c_Modulation_Source[i] = _rnd_ui()%MIDI_modulation;
         curent_config.c_Modulation_Type[i] = _rnd_ui()%modulation_type_last;
     }
 
     for (uint32_t i=VCF1_MOD1; i<modulation_destination_last; i++) { // pour toutes les autres modulation, on ne module pas avec les VCO
-        curent_config.c_Modulation_Source[i] = ADSR_OUT + _rnd_ui()%(MIDI_expression-ADSR_OUT);
+        curent_config.c_Modulation_Source[i] = ADSR_OUT + _rnd_ui()%(MIDI_modulation-ADSR_OUT);
     }
 
     for (uint32_t i=LFO1_MOD; i<EFFECT1_MOD; i++) {
@@ -453,6 +482,13 @@ void empty_config() {
     for (uint32_t i=0; i<modulation_destination_last; i++) { // pour tout les VCO
         curent_config.c_Modulation_Source[i] = NONE_OUT;
         curent_config.c_Modulation_Type[i] = MOD_FM_exp;
+    }
+     curent_config.c_Modulation_Source[VCF1_MOD1] = NONE_OUT;
+     curent_config.c_Modulation_Source[VCF1_MOD2] = NONE_OUT;
+     curent_config.c_Modulation_Source[VCF2_MOD1] = NONE_OUT;
+
+    for (uint32_t i=LFO1_MOD; i<EFFECT1_MOD; i++) {
+        curent_config.c_Modulation_Type[i] = _rnd_ui()%LFO_nb_algo;
     }
     
     curent_config.c_Modulation_Source[LFO1_MOD] = LFO1_OUT;
@@ -559,7 +595,7 @@ void save_config(uint32_t slot) {
     hw.seed.qspi.Write(base, sizeof(CONFIGURATION), (uint8_t*)&curent_config);
 }
 
-void load_config(uint32_t slot)
+int load_config(uint32_t slot)
 {
 	CONFIGURATION tmp_config; 
 	
@@ -571,8 +607,9 @@ void load_config(uint32_t slot)
 			curent_config.c_CV2_offset = 0.f;
 			curent_config.c_CV1_gain = 1.f;
 		}
+		return(0); //id not valid
 	}
-	else { // la memoire est valide, mais on met les elements un par un afin de rester ds le on range, 
+	else { // la memoire est valide, mais on met les elements un par un afin de rester ds le bon range, 
 		//pour d'etre sur qu'on a des valeurs correct meme si il y a eu des erreurs de lecture/ecriture
 	uint32_t i;
 	if (slot == 13) { // uniquement utilisé pour la calibration des CV
@@ -613,12 +650,14 @@ void load_config(uint32_t slot)
     curent_config.c_EFFECT1_TYPE = tmp_config.c_EFFECT1_TYPE%7;
     curent_config.c_EFFECT2_TYPE = tmp_config.c_EFFECT2_TYPE%6;
     curent_config.c_VCF2_TYPE = tmp_config.c_VCF2_TYPE%2;
-	for(i=0; i<modulation_destination_last; i++) curent_config.c_Modulation_Source[i] = tmp_config.c_Modulation_Source[i]%(MIDI_modulation);
+	for(i=0; i<modulation_destination_last; i++) curent_config.c_Modulation_Source[i] = tmp_config.c_Modulation_Source[i]%(2*modulation_source_last);
 	for(i=0; i<10; i++) curent_config.c_Modulation_Type[i] = tmp_config.c_Modulation_Type[i]%(modulation_type_last);
 	curent_config.c_Modulation_Type[LFO1_MOD] = tmp_config.c_Modulation_Type[LFO1_MOD]%(LFO_nb_algo);
 	curent_config.c_Modulation_Type[LFO2_MOD] = tmp_config.c_Modulation_Type[LFO2_MOD]%(LFO_nb_algo);
 	curent_config.c_Modulation_Type[LFO3_MOD] = tmp_config.c_Modulation_Type[LFO3_MOD]%(LFO_nb_algo);
 	}
+	return(1); //id not valid
+
 }
 
 // --------------- VCO -------------------
@@ -634,7 +673,7 @@ inline void VCO3_pitch(voice &myvoice, float &pitch) {
     if(curent_config.c_VCO3_LINK) pitch += myvoice.v_VCO1_pitch -(60.f + myvoice.v_pitch); else pitch +=  g_MIDI_pitchWHEEL;
 }
 
-void get_pot(uint32_t i) {
+inline void get_pot(uint32_t i) {
     uint32_t raw_value;
     float tmpf;
     uint32_t out, j, index;
@@ -642,7 +681,8 @@ void get_pot(uint32_t i) {
 
     raw_value = hw.knobs_[i].Process_ch();
     if (raw_value) { // raw_value = 0 si on n'as pas de nouvelle valeur
-		hw.seed.SetLed(true);
+		//hw.test_out(true);
+		//hw.seed.SetLed(true);
         index = ++g_filter_index[i];
         index = (index >= filter_order)? 0:index;
         g_filter_index[i] = index;
@@ -676,5 +716,6 @@ void get_pot(uint32_t i) {
         g_knob[i] = tmpf;
         g_pot_increment[i] = (tmpf - g_pot_audio[i]) * coef_CV_to_audio_filter;
     }
-    hw.seed.SetLed(false);
+    //hw.seed.SetLed(false);
+    //hw.test_out(false);
 }
