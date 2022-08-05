@@ -1,3 +1,20 @@
+// --------------------------------------------------------------------------
+// This file is part of the KAGOUYAR firmware.
+//
+//    KAGOUYAR firmware is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    KAGOUYAR firmware is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
+// --------------------------------------------------------------------------
+
 uint32_t g_shaser;
 int32_t g_test_mode;
 volatile  uint32_t g_led_time; // pour l'annimation des leds, variable temporaire
@@ -21,10 +38,13 @@ static void AudioCallbackTest(AudioHandle::InterleavingInputBuffer  in,
     float increment1 = 1000.f*OneOverSR;
     float increment2 = 440.f*OneOverSR;
 
+    g_delay_effect1.SetDelay(100.f);
+
     for(size_t i = 0; i < size; ) {
         allvoice[0].v_VCO1_phase += increment1;
         if(allvoice[0].v_VCO1_phase > 1.f) allvoice[0].v_VCO1_phase -= 1.f;
-        out[i++] = _cos(allvoice[0].v_VCO1_phase);
+        g_delay_effect1.Write(_cos(allvoice[0].v_VCO1_phase));
+        out[i++] = g_delay_effect1.Read(); // on lit a travers un delay, pour tester aussi la memoire embarqué du daisy
 
         allvoice[0].v_VCO2_phase += increment2;
         if(allvoice[0].v_VCO2_phase > 1.f) allvoice[0].v_VCO2_phase -= 1.f;
@@ -59,12 +79,13 @@ void test() {
     uint32_t led_keyboard = 0;
 
     get_keyboard();
+    
     for( int i=0; i<50; i++)
         get_pot(i);  // get potentiometters value and filter them
 
     if (g_state_kb>7) g_state_kb=1; // pour deconnecter la gestion des leds de get_keyboard()
-    if(g_time<2) return; // pour ne pas effectuer la boucle trop souvent
-    g_time=-2;
+    //if(g_time<2) return; // pour ne pas effectuer la boucle trop souvent
+    //g_time=-2;
    
    	//g_switch_keyboard_bit = 0;
 	//g_switch_keyboard = -1;
@@ -228,12 +249,12 @@ void test() {
 			  led_keyboard += 1 << BIT_LED_MENU_VCO;
 			  write_binary_led(led_keyboard);
 		   break;
-		   case 16: // LOAD
+		   case 16: // SAVE
 		      led_keyboard = 1 << BIT_LED_MENU_KEY1;
-			  led_keyboard += 1 << BIT_LED_MENU_LFO;
+			  led_keyboard += 1 << BIT_LED_MENU_EFFECTS;
 			  write_binary_led(led_keyboard);
 		   break;
-		   case 17: // SAVE
+		   case 17: // LOAD
 		      led_keyboard = 1 << BIT_LED_MENU_KEY1;
 			  led_keyboard += 1 << BIT_LED_MENU_LFO_MOD;
 			  write_binary_led(led_keyboard);
