@@ -1,22 +1,26 @@
-//#if defined(_MSC_VER)
-//#define FORCE_INLINE __forceinline /**< & */
-//#elif defined(__clang__)
-//#define FORCE_INLINE inline __attribute__((always_inline)) /**< & */
-//#pragma clang diagnostic ignored "-Wduplicate-decl-specifier"
-//#elif defined(__GNUC__)
-//#define FORCE_INLINE inline __attribute__((always_inline)) /**< & */
-//#else
-//#error unknown compiler
-//#endif
-
-
+// --------------------------------------------------------------------------
+// This file is part of the KAGOUYAR firmware.
+//
+//    KAGOUYAR firmware is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    KAGOUYAR firmware is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
+// --------------------------------------------------------------------------
 
 // g_variables : variables globales (static)
 // k_knob : knob number
 // v_variable : variable associé a une voie de polyphonie (ds la structure allvoice[])
 // c_variable : variable de configuration qui est ds la structure sauvegardé en EPROM
 
-// todo : mettre des variables en DTCM_MEM_SECTION ?
+// optimisation : mettre des variables en DTCM_MEM_SECTION ?
 
 #define block_size 48
 #define block_per_ms (48/block_size) // combien de bock audio par ms, pour calcul du temps
@@ -40,7 +44,7 @@
 
 #define nb_potentiometer 48
 #define nb_CV 50
-#define coef_CV_to_audio_filter 0.0005
+#define coef_CV_to_audio_filter 0.002
 #define coef_audio_to_block block_size
 
 #define nb_voice 4
@@ -151,7 +155,7 @@ enum MOD_OUT {
     LFO1_OUT, LFO2_OUT, LFO3_OUT,
     LFO4_OUT, LFO5_OUT, LFO6_OUT,
     LFO7_OUT,
-    MIDI_expression, CV1_OUT, CV2_OUT, NONE_OUT, MIDI_modulation,
+    MIDI_modulation, CV1_OUT, CV2_OUT, NONE_OUT, MIDI_expression,
     LFO1_OUT_FILTER, LFO2_OUT_FILTER, LFO3_OUT_FILTER,
     LFO4_OUT_FILTER, LFO5_OUT_FILTER, LFO6_OUT_FILTER,
 	LFO7_OUT_FILTER,
@@ -179,7 +183,6 @@ enum LFO_WF { WF_AR, WF_sin, WF_tri, WF_square, WF_ramp, WF_saw, WF_spike, WF_st
 enum LFO_Mix_algo { LFO_Mix, LFO_AM, LFO_FM, LFO_PM, LFO_CLIP, LFO_Fold, LFO_Xor, LFO_FILTER, LFO_RESET, LFO_SYNC, LFO_GATE, LFO_TH, LFO_RndLoop, LFO_nb_algo}; // LFO modulation
 enum MENU_switch {MENU_VCO1, MENU_VCO2, MENU_VCO3, MENU_VCF1, MENU_ADSR, MENU_LFO1, MENU_LFO2, MENU_LFO3,
         MENU_LFO4, MENU_LFO5, MENU_LFO6, MENU_LFO7, MENU_MIDI, MENU_CV1, MENU_CV2, MENU_EFFECTS, MENU_LOAD, MENU_SAVE, MENU_LOAD_SAVE };
-
 
 struct CONFIGURATION
 {
@@ -255,7 +258,7 @@ struct CONFIGURATION
 CONFIGURATION curent_config; // configuration actuel 
 
 // modulations, LFO
-float g_Modulation[modulation_source_last]; // valeur des diferentes g_Modulation
+float g_Modulation[2*modulation_source_last]; // valeur des diferentes g_Modulation
 uint32_t g_Modulation_Reset[modulation_source_last]; // bool pour marquer un reset de phase, utilisé pour les lfo 1 2 3 ds certain cas.
 float g_Modulation_Phase[modulation_source_last]; // valeur des phases des diferentes g_Modulation
 
@@ -284,6 +287,7 @@ struct voice
 // Low Pass v_GATE
     float v_LPG_last = 0.f;
 // VCF1
+	float v_VCF1_input = 0.f;
     float v_VCF1_last_input1  = 0.f;
     float v_VCF1_last_input2  = 0.f;
     float v_VCF1_last_input3  = 0.f;
