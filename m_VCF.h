@@ -55,6 +55,8 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
 
     input1 *= 0.5; // limitation de l'amplitude d'entrée pour ne pas trop distordre le signal avant le filtre
 	
+	Q *= 1.2f; // pour aller plus loin ds la resonnance
+	
     float feedback = Q * ( allvoice[j].v_VCF1_last_output4 - (0.5f * input1) ); // feedback
 
     input1 -= feedback;
