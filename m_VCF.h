@@ -42,7 +42,7 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
 
     float freq = fq+ (48.f*mod_fq) + (24.f*g_Modulation[MIDI_expression]);
     tmp = curent_config.c_VCF1_pitch_TRACK;
-    freq += tmp * allvoice[j].v_pitch*0.5f;
+    freq += tmp * 0.5f * (allvoice[j].v_pitch-12.f);
     freq = _fclamp(freq, -128, 138);
     freq = CV2freq(freq);
 
