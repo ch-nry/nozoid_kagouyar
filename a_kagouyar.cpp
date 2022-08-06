@@ -44,6 +44,7 @@
 static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle::InterleavingOutputBuffer out, size_t size) {              
     //hw.test_out(true); // write test_out pin;  10µs la premiere partie
     g_time++;
+    g_led_blink += 1<<25; // on laisse les overflow passer de negatif a positif
 
     float VCO1_fq; 
     float VCO2_fq;

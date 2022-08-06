@@ -178,6 +178,8 @@ int32_t g_switch_keyboard = -1;
 int32_t  g_switch_modulation = -1;
 int32_t  g_switch_configuration = -1;
 
+volatile uint32_t g_change_any_key = 0;
+
 uint32_t g_last_led_state = 0; // mode de fonctionement des leds
 // 0 : affichage des valeurs de modulation et les touches du clavier
 // 1 : affichage des sources de modulation et le clavier
@@ -208,195 +210,201 @@ inline void get_keyboard() { // recupere les information des 6 capteurs capaciti
     // cette tache est séparé en diferentes fonction bloquante afin de pouvoir rendre la main a des fonction devant etre lancé plus frequement comme les receptions MIDI
     uint8_t kb_data[2];
     uint32_t ui_tmp;
+    uint32_t l_switch1, l_switch2;
     kb_data[0] = 0;
     if (g_time < 0) return; // on execute la fonction seulement si c'est le bon moment
                             // g_time est incrémenté ds la boucle audio
     g_menu_count++; 
     g_menu_count = (g_menu_count > 1000000)? 1000000:g_menu_count; // temps depuis le dernier changement
-    g_led_blink += 1<<25; // on laisse les overflow passer de negatif a positif
     
     switch(g_state_kb) {
     case 0:
         key_and_led(); // update configuration and leds
         g_state_kb++;
         g_time = -3 * block_per_ms; // 3ms min entre les test des inputs capacitive
+        g_change_any_key = 0;
         break;
     case 1:
-		//g_state_kb++; break;
-        if(dsy_gpio_read(&Kb1_int) == 1)  // commenter pour sauter ce bloc
-        // pas de changement, on ne fait rien, on saute directement a l'autre bloc de touche
-        { 
-			g_state_kb = 5; 
-			break; 
-		}
-        if(i2c_kb.ReadDataAtAddress(136, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK) 
-        {
-            ui_tmp = g_switch1;
-            ui_tmp &= 0xFFFFFF00; // clear current bits
-            ui_tmp += kb_data[0];
-            g_switch1 = ui_tmp;
-            if(dsy_gpio_read(&Kb1_int) == 0) g_state_kb++; else g_state_kb = 7; // si on a tjrs l'interuption, on continue d'aquisition, sinon on saute direct a l'analyse
-            g_time = 0;
-        } else {
-            i2c_kb.Init(i2c_kb.GetConfig()); // reinit I2C driver, and do this test again
-            g_time = -2 * block_per_ms;
-        }
-        break;
+        if(dsy_gpio_read(&Kb1_int) != 1) 
+        {	// si on as un changement a tester
+			g_change_any_key = 1;
+			if(i2c_kb.ReadDataAtAddress(136, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK) 
+			{
+				ui_tmp = g_switch1;
+				ui_tmp &= 0xFFFFFF00; // clear current bits
+				ui_tmp += kb_data[0];
+				g_switch1 = ui_tmp;
+				g_time = -1 * block_per_ms;
+			} else {
+				i2c_kb.Init(i2c_kb.GetConfig()); // reinit I2C driver, and do this test again
+				g_time = -2 * block_per_ms;
+			}
+		} 
+		g_state_kb++;
+		break;
     case 2 :
-		// on arrive ici seulement si il y a eu un changement, mais que la lecture du 1er n'as servis a rien
-		//g_state_kb++; break;
-        if(i2c_kb.ReadDataAtAddress(138, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK) 
+        if(dsy_gpio_read(&Kb1_int) != 1) 
         {
-            ui_tmp = g_switch1;
-            ui_tmp &= 0xFFFF00FF; // clear current bits
-            ui_tmp += kb_data[0]<<8;
-            g_switch1 = ui_tmp;
-            if(dsy_gpio_read(&Kb1_int) == 0) g_state_kb++; else g_state_kb = 7; // si on as de nouvelles informations, saute direct a l'analyse
-            g_time = 0;
-        } else {
-            i2c_kb.Init(i2c_kb.GetConfig());
-            g_time = -2 * block_per_ms;
-        }
-        break;
-    case 3 :		
-		//g_state_kb++; break;
-        if(i2c_kb.ReadDataAtAddress(140, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK) 
-        {
-            ui_tmp = g_switch1;
-            ui_tmp &= 0xFF00FFFF; // clear current bits
-            ui_tmp += kb_data[0]<<16;
-            g_switch1 = ui_tmp;
-            if(dsy_gpio_read(&Kb1_int) == 0) g_state_kb++; else g_state_kb = 7; // si on as de nouvelles informations, saute direct a l'analyse
-            g_time = 0; 
-        } else {
-            i2c_kb.Init(i2c_kb.GetConfig());
-            g_time = -2 * block_per_ms;
-        }
-         break;
+			g_change_any_key = 1;
+			if(i2c_kb.ReadDataAtAddress(138, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK) 
+			{
+				ui_tmp = g_switch1;
+				ui_tmp &= 0xFFFF00FF; // clear current bits
+				ui_tmp += kb_data[0]<<8;
+				g_switch1 = ui_tmp;
+				g_time = -1 * block_per_ms;
+			} else {
+				i2c_kb.Init(i2c_kb.GetConfig());
+				g_time = -2 * block_per_ms;
+			}
+		} 
+		g_state_kb++;
+		break;
+    case 3 :
+		if(dsy_gpio_read(&Kb1_int) != 1) 
+		{
+			g_change_any_key = 1;
+			if(i2c_kb.ReadDataAtAddress(140, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK) 
+			{
+				ui_tmp = g_switch1;
+				ui_tmp &= 0xFF00FFFF; // clear current bits
+				ui_tmp += kb_data[0]<<16;
+				g_switch1 = ui_tmp;
+				g_time = -1 * block_per_ms;
+			} else {
+				i2c_kb.Init(i2c_kb.GetConfig());
+				g_time = -2 * block_per_ms;
+			}
+		} 
+		g_state_kb++;
+		break;
     case 4 :
-		//g_state_kb++; break;
-        if(i2c_kb.ReadDataAtAddress(142, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK) 
-        {
-            ui_tmp = g_switch1;
-            ui_tmp &= 0x00FFFFFF; // clear current bits
-            ui_tmp += kb_data[0]<<24;
-            g_switch1 = ui_tmp;
-            g_state_kb = 7; // on arrive ici seulement apres avoir testé tout les autres, dc il y a forcement eu un changement
-            g_time = 0;
-        } else {
-            i2c_kb.Init(i2c_kb.GetConfig());
-            g_time = -2 * block_per_ms;
-        }
-        break;
+		if(dsy_gpio_read(&Kb1_int) != 1) 
+		{
+			g_change_any_key = 1;
+			if(i2c_kb.ReadDataAtAddress(142, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK) 
+			{
+				ui_tmp = g_switch1;
+				ui_tmp &= 0x00FFFFFF; // clear current bits
+				ui_tmp += kb_data[0]<<24;
+				g_switch1 = ui_tmp;
+				g_time = -1 * block_per_ms;
+			} else {
+				i2c_kb.Init(i2c_kb.GetConfig());
+				g_time = -2 * block_per_ms;
+			}
+		} 
+		g_state_kb++;
+		break;
     case 5 :
-		// il n'y a pas eu de changement sur le 1er bloc, donc on test le clavier
-   		//g_state_kb++; break;
-        if(dsy_gpio_read(&Kb2_int) == 1)  // commenter pour sauter ce bloc
-        // pas de changement, on ne fait rien, on saute directement a l'autre bloc de touche
-        { 
-			g_state_kb = 8; 
-			break; 
+        if(dsy_gpio_read(&Kb2_int) != 1)  
+        {
+			g_change_any_key = 1;
+			if(i2c_led.ReadDataAtAddress(136, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK) 
+			{
+				ui_tmp = g_switch2;
+				ui_tmp &= 0xFFFFFF00; // clear current bits
+				ui_tmp += kb_data[0];
+				g_switch2 = ui_tmp;
+				g_time = -1 * block_per_ms;
+			} else {
+				i2c_led.Init(i2c_led.GetConfig());
+				g_time = -2 * block_per_ms;
+			}
+		} 
+		g_state_kb++;
+		break;
+    case 6:
+        if(dsy_gpio_read(&Kb2_int) != 1)  
+        {
+			g_change_any_key = 1;
+			if(i2c_led.ReadDataAtAddress(142, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK) 
+			{
+				ui_tmp = g_switch2;
+				ui_tmp &= 0xFFFF00FF; // clear current bits
+				ui_tmp += kb_data[0]<<8;
+				g_switch2 = ui_tmp;
+				g_time = -1 * block_per_ms;
+			} else {
+				i2c_led.Init(i2c_led.GetConfig());
+				g_time = -2 * block_per_ms;
+			}	
+		} 
+		g_state_kb++;
+		break;
+	case 7:
+		int32_t switch_configuration, switch_modulation, switch_keyboard;
+		uint32_t switch_keyboard_bit;
+		int32_t i;
+		if (g_change_any_key == 0) { g_state_kb++; break; }
+		g_change_any_key = 0;
+		
+		l_switch1 = g_switch1;
+		l_switch2 = g_switch2;
+		
+		switch_keyboard = -1;
+		switch_keyboard_bit = 0;
+		switch_modulation = -1;
+		switch_configuration = -1;
+		
+		g_menu_count = 0;	// raz du  temps depuis le dernier changement 
+		
+		if (l_switch1 & (1<<BIT_KEY_SEL_VCO1)) switch_configuration = MENU_VCO1;
+		if (l_switch1 & (1<<BIT_KEY_SEL_VCO2)) switch_configuration = MENU_VCO2;
+		if (l_switch1 & (1<<BIT_KEY_SEL_VCO3)) switch_configuration = MENU_VCO3;
+		if (l_switch1 & (1<<BIT_KEY_SEL_VCF1)) switch_configuration = MENU_VCF1;
+		if (l_switch1 & (1<<BIT_KEY_SEL_ADSR)) switch_configuration = MENU_ADSR;
+		if (l_switch1 & (1<<BIT_KEY_SEL_LFO1)) switch_configuration = MENU_LFO1;
+		if (l_switch1 & (1<<BIT_KEY_SEL_LFO2)) switch_configuration = MENU_LFO2;
+		if (l_switch1 & (1<<BIT_KEY_SEL_LFO3)) switch_configuration = MENU_LFO3;
+		if (l_switch1 & (1<<BIT_KEY_SEL_LFO4)) switch_configuration = MENU_LFO4;
+		if (l_switch1 & (1<<BIT_KEY_SEL_LFO5)) switch_configuration = MENU_LFO5;
+		if (l_switch1 & (1<<BIT_KEY_SEL_LFO6)) switch_configuration = MENU_LFO6;
+		if (l_switch1 & (1<<BIT_KEY_SEL_LFO7)) switch_configuration = MENU_LFO7;
+		if (l_switch1 & (1<<BIT_KEY_EFF1))     switch_configuration = MENU_EFFECTS;
+		if (l_switch1 & (1<<BIT_KEY_LOAD))     switch_configuration = MENU_LOAD;
+		if (l_switch1 & (1<<BIT_KEY_SAVE))     switch_configuration = MENU_SAVE;
+
+		if ( (l_switch1 & (1<<BIT_KEY_SAVE))  && (l_switch1 & (1<<BIT_KEY_LOAD)) ) switch_configuration = MENU_LOAD_SAVE;
+
+		if (l_switch2 & (1<<BIT_KEY_SEL_MIDI)) switch_configuration = MENU_MIDI; 
+		if (l_switch2 & (1<<BIT_KEY_SEL_CV1))  switch_configuration = MENU_CV1;
+		if (l_switch2 & (1<<BIT_KEY_SEL_CV2))  switch_configuration = MENU_CV2;
+		g_switch_configuration = switch_configuration; 
+		
+		if (l_switch1 & (1<<BIT_KEY_VCO1_MOD1)) switch_modulation = VCO1_MOD1;
+		if (l_switch1 & (1<<BIT_KEY_VCO1_MOD2)) switch_modulation = VCO1_MOD2;
+		if (l_switch1 & (1<<BIT_KEY_VCO1_MOD3)) switch_modulation = VCO1_MOD3;
+		if (l_switch1 & (1<<BIT_KEY_VCO2_MOD1)) switch_modulation = VCO2_MOD1;
+		if (l_switch1 & (1<<BIT_KEY_VCO2_MOD2)) switch_modulation = VCO2_MOD2;
+		if (l_switch1 & (1<<BIT_KEY_VCO2_MOD3)) switch_modulation = VCO2_MOD3;
+		if (l_switch1 & (1<<BIT_KEY_VCO3_MOD1)) switch_modulation = VCO3_MOD1;
+		if (l_switch1 & (1<<BIT_KEY_VCO3_MOD2)) switch_modulation = VCO3_MOD2;
+		if (l_switch1 & (1<<BIT_KEY_VCO3_MOD3)) switch_modulation = VCO3_MOD3;
+		if (l_switch1 & (1<<BIT_KEY_VCF1_MOD1)) switch_modulation = VCF1_MOD1;
+		if (l_switch1 & (1<<BIT_KEY_VCF1_MOD2)) switch_modulation = VCF1_MOD2;
+		if (l_switch1 & (1<<BIT_KEY_LFO1_MOD1)) switch_modulation = LFO1_MOD;
+		if (l_switch1 & (1<<BIT_KEY_LFO2_MOD1)) switch_modulation = LFO2_MOD;
+		if (l_switch1 & (1<<BIT_KEY_LFO3_MOD1)) switch_modulation = LFO3_MOD;
+		if (l_switch1 & (1<<BIT_KEY_EFF1_MOD))  switch_modulation = EFFECT1_MOD;
+		if (l_switch1 & (1<<BIT_KEY_EFF2_MOD))  switch_modulation = EFFECT2_MOD;
+		if (l_switch1 & (1<<BIT_KEY_VCF2_MOD))  switch_modulation = VCF2_MOD1;
+		g_switch_modulation = switch_modulation;
+
+		for (i=0;i<13;i++) {
+			if (l_switch2 & (1<<bit_key_I2C2[i])) {
+				switch_keyboard_bit += (1<<i);
+				switch_keyboard = i;
+			}
 		}
-        if(i2c_led.ReadDataAtAddress(136, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK) 
-        {
-            ui_tmp = g_switch2;
-            ui_tmp &= 0xFFFFFF00; // clear current bits
-            ui_tmp += kb_data[0];
-            g_switch2 = ui_tmp;
-            if(dsy_gpio_read(&Kb2_int) == 0) g_state_kb++; else g_state_kb = 7; // si on as de nouvelles informations, saute direct a l'analyse
-            g_time = -1;
-        } else {
-            i2c_led.Init(i2c_led.GetConfig());
-            g_time = -2 * block_per_ms;
-        }
+		g_switch_keyboard_bit = switch_keyboard_bit;
+		g_switch_keyboard = switch_keyboard;
+		g_state_kb++;
+        g_time = 0; 
         break;
-    case 6 :
-   		//g_state_kb++; break; // pour skipper le test
-        if(i2c_led.ReadDataAtAddress(142, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK) 
-        {
-            ui_tmp = g_switch2;
-            ui_tmp &= 0xFFFF00FF; // clear current bits
-            ui_tmp += kb_data[0]<<8;
-            g_switch2 = ui_tmp;
-            g_state_kb = 7; // on as forcement un changement car c'est le dernier a etre testé
-            g_time = -1;
-        } else {
-            i2c_led.Init(i2c_led.GetConfig());
-            g_time = -2 * block_per_ms;
-        }
-        break;
-    case 7 :
-        { 
-            uint32_t l_switch1 = g_switch1;
-            uint32_t l_switch2 = g_switch2;
-            int32_t switch_configuration, switch_modulation, switch_keyboard;
-            uint32_t switch_keyboard_bit;
-            int32_t i;
-
-            switch_keyboard = -1;
-            switch_keyboard_bit = 0;
-            switch_modulation = -1;
-            switch_configuration = -1;
-			
-			g_menu_count = 0;	// raz du  temps depuis le dernier changement 
-			
-            if (l_switch1 & (1<<BIT_KEY_SEL_VCO1)) switch_configuration = MENU_VCO1;
-            if (l_switch1 & (1<<BIT_KEY_SEL_VCO2)) switch_configuration = MENU_VCO2;
-            if (l_switch1 & (1<<BIT_KEY_SEL_VCO3)) switch_configuration = MENU_VCO3;
-            if (l_switch1 & (1<<BIT_KEY_SEL_VCF1)) switch_configuration = MENU_VCF1;
-            if (l_switch1 & (1<<BIT_KEY_SEL_ADSR)) switch_configuration = MENU_ADSR;
-            if (l_switch1 & (1<<BIT_KEY_SEL_LFO1)) switch_configuration = MENU_LFO1;
-            if (l_switch1 & (1<<BIT_KEY_SEL_LFO2)) switch_configuration = MENU_LFO2;
-            if (l_switch1 & (1<<BIT_KEY_SEL_LFO3)) switch_configuration = MENU_LFO3;
-            if (l_switch1 & (1<<BIT_KEY_SEL_LFO4)) switch_configuration = MENU_LFO4;
-            if (l_switch1 & (1<<BIT_KEY_SEL_LFO5)) switch_configuration = MENU_LFO5;
-            if (l_switch1 & (1<<BIT_KEY_SEL_LFO6)) switch_configuration = MENU_LFO6;
-            if (l_switch1 & (1<<BIT_KEY_SEL_LFO7)) switch_configuration = MENU_LFO7;
-            if (l_switch1 & (1<<BIT_KEY_EFF1))     switch_configuration = MENU_EFFECTS;
-            if (l_switch1 & (1<<BIT_KEY_LOAD))     switch_configuration = MENU_LOAD;
-            if (l_switch1 & (1<<BIT_KEY_SAVE))     switch_configuration = MENU_SAVE;
-
-            if ( (l_switch1 & (1<<BIT_KEY_SAVE))  && (l_switch1 & (1<<BIT_KEY_LOAD)) ) switch_configuration = MENU_LOAD_SAVE;
-
-            if (l_switch2 & (1<<BIT_KEY_SEL_MIDI)) switch_configuration = MENU_MIDI; 
-            if (l_switch2 & (1<<BIT_KEY_SEL_CV1))  switch_configuration = MENU_CV1;
-            if (l_switch2 & (1<<BIT_KEY_SEL_CV2))  switch_configuration = MENU_CV2;
-            g_switch_configuration = switch_configuration; 
-            
-            if (l_switch1 & (1<<BIT_KEY_VCO1_MOD1)) switch_modulation = VCO1_MOD1;
-            if (l_switch1 & (1<<BIT_KEY_VCO1_MOD2)) switch_modulation = VCO1_MOD2;
-            if (l_switch1 & (1<<BIT_KEY_VCO1_MOD3)) switch_modulation = VCO1_MOD3;
-            if (l_switch1 & (1<<BIT_KEY_VCO2_MOD1)) switch_modulation = VCO2_MOD1;
-            if (l_switch1 & (1<<BIT_KEY_VCO2_MOD2)) switch_modulation = VCO2_MOD2;
-            if (l_switch1 & (1<<BIT_KEY_VCO2_MOD3)) switch_modulation = VCO2_MOD3;
-            if (l_switch1 & (1<<BIT_KEY_VCO3_MOD1)) switch_modulation = VCO3_MOD1;
-            if (l_switch1 & (1<<BIT_KEY_VCO3_MOD2)) switch_modulation = VCO3_MOD2;
-            if (l_switch1 & (1<<BIT_KEY_VCO3_MOD3)) switch_modulation = VCO3_MOD3;
-            if (l_switch1 & (1<<BIT_KEY_VCF1_MOD1)) switch_modulation = VCF1_MOD1;
-            if (l_switch1 & (1<<BIT_KEY_VCF1_MOD2)) switch_modulation = VCF1_MOD2;
-            if (l_switch1 & (1<<BIT_KEY_LFO1_MOD1)) switch_modulation = LFO1_MOD;
-            if (l_switch1 & (1<<BIT_KEY_LFO2_MOD1)) switch_modulation = LFO2_MOD;
-            if (l_switch1 & (1<<BIT_KEY_LFO3_MOD1)) switch_modulation = LFO3_MOD;
-            if (l_switch1 & (1<<BIT_KEY_EFF1_MOD))  switch_modulation = EFFECT1_MOD;
-            if (l_switch1 & (1<<BIT_KEY_EFF2_MOD))  switch_modulation = EFFECT2_MOD;
-            if (l_switch1 & (1<<BIT_KEY_VCF2_MOD))  switch_modulation = VCF2_MOD1;
-            g_switch_modulation = switch_modulation;
-
-            for (i=0;i<13;i++) {
-                if (l_switch2 & (1<<bit_key_I2C2[i])) {
-                    switch_keyboard_bit += (1<<i);
-                    switch_keyboard = i;
-                }
-            }
-            g_switch_keyboard_bit = switch_keyboard_bit;
-            g_switch_keyboard = switch_keyboard;
-            g_state_kb++;
-        }
-        break;
-    case 8 :
+    case 8:
         g_state_kb = 0; // retour au debut
-        g_time = -1 * block_per_ms; // limitation de la vitesse d'update
-        
+        g_time = 0; // limitation de la vitesse d'update
         break;
     }
 }
@@ -477,7 +485,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
     change_keyboard = (g_last_switch_keyboard_bit != switch_keyboard_bit);
     change_modulation = (g_last_switch_modulation != switch_modulation);
     change_configuration = (g_last_switch_configuration != switch_configuration);
-    change_time = ((g_menu_count > 100) && (g_menu_count < 1000000)); // pour tester lkes appuie long
+    change_time = ((g_menu_count > 1000) && (g_menu_count < 1000000)); // pour tester lkes appuie long
     if (change_time) g_menu_count=1000000; // on ne traite qu'une fois le "change_time"
         
     g_last_switch_modulation = switch_modulation;
