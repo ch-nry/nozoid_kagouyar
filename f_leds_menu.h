@@ -102,7 +102,6 @@ void leds_mode_normal() {
     hw.led_driver_.SetLed_ch(LED_CV2,  (float)(0.55f + g_Modulation[CV2_OUT]*0.45f));
     hw.led_driver_.SetLed_ch(LED_GAIN, g_clip);
     
-    g_clip = _fmax(0.f, g_clip - 0.03f); 
     g_MIDI_led_time = _fmax(0.f, g_MIDI_led_time - 0.02f);
 
     hw.led_driver_.SwapBuffersAndTransmit();
