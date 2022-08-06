@@ -122,7 +122,7 @@ inline float VCO1(uint32_t j, float frequency) {
     case 5 :  // noise filter
         tmp = 2.f*_rnd_f()-1.f;
         _fonepole(allvoice[j].v_VCO1_filter1, tmp, abs(_fmin(increment*15.f, 1.f)));  
-        tmp = CV2freq(PWM_local * 127.f)*(1.f/13000.f);
+        tmp = CV2freq(60.f + PWM_local * 60.f)*(1.f/13000.f);
         _fonepole(allvoice[j].v_VCO1_filter2, allvoice[j].v_VCO1_filter1, tmp);
         out = 2.f * (allvoice[j].v_VCO1_filter2-allvoice[j].v_VCO1_filter1);
         break;
@@ -131,7 +131,7 @@ inline float VCO1(uint32_t j, float frequency) {
             phase2 = 2.f*_rnd_f() -1.f;
             allvoice[j].v_VCO1_filter1 = phase2;
         }
-        tmp = CV2freq( -40.f + (1.f-PWM_local) * 170.f) * (1.f/15000.f);
+        tmp = CV2freq( 0.f + (1.f-PWM_local) * 180.f) * (1.f/27000.f);
         _fonepole(allvoice[j].v_VCO1_filter2, allvoice[j].v_VCO1_filter1, tmp);
         out = allvoice[j].v_VCO1_filter2;
         break;
