@@ -58,7 +58,8 @@ inline float VCO1(uint32_t j, float frequency) {
     float VCO1_clip = 1.1f;
     float modulation_value;
     float PWM = g_pot_audio[k_VCO1_wfm];
-
+	float tmpf;
+	
     // Modulation
     modulation_VCO1(g_pot_audio[k_VCO1_mod1], VCO1_MOD1)
     modulation_VCO1(g_pot_audio[k_VCO1_mod2], VCO1_MOD2)
@@ -104,9 +105,10 @@ inline float VCO1(uint32_t j, float frequency) {
         out = _cos_loop((0.7f+3.5f*PWM_local) * allvoice[j].v_VCO1_filter1 + 0.33f );
         break;
     case 2 : // tri
-        out = tri_bl(VCO1_phase_local, fabs(increment), allvoice[j].v_VCO1_filter1);
-		out *= 1.f-PWM_local + PWM_local * fabs(out);
-		out *= 1.f-PWM_local + PWM_local * fabs(out);
+        out = tri_bl(VCO1_phase_local, fabs(increment), allvoice[j].v_VCO1_filter1); 
+        tmpf = 1.f-PWM_local + PWM_local * fabs(out);
+        tmpf *= tmpf;
+        out *= tmpf;
         break;
     case 3 :  // rectangle
         phase2 = VCO1_phase_local + (1.f-PWM_local)*0.5f;
