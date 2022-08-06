@@ -287,7 +287,6 @@ struct voice
 // Low Pass v_GATE
     float v_LPG_last = 0.f;
 // VCF1
-	float v_VCF1_input = 0.f;
     float v_VCF1_last_input1  = 0.f;
     float v_VCF1_last_input2  = 0.f;
     float v_VCF1_last_input3  = 0.f;

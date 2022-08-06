@@ -54,9 +54,6 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
     Q *= 1.0029f + omega*(0.0526f + omega * (-0.0926f  + omega*0.0218f));
 
     input1 *= 0.5; // limitation de l'amplitude d'entrée pour ne pas trop distordre le signal avant le filtre
-
-	_fonepole(v_VCF1_input, input1, 0.25f);
-	input1 = v_VCF1_input;
 	
     float feedback = Q * ( allvoice[j].v_VCF1_last_output4 - (0.5f * input1) ); // feedback
 
