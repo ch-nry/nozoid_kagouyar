@@ -710,9 +710,10 @@ inline void get_pot(uint32_t i) {
         g_pot16[i] = out;
         tmpf = (float) out;
         tmpf -= 150.f;
-        tmpf *= 1.f/65300.f; // pour etre sur d'etre entre 0. et 1.
         tmpf = _fmax(tmpf,0.f); 
-        tmpf= _fmin(tmpf + g_midi_parameter[i],1.f);
+        tmpf *= 1.f/65300.f; // pour etre sur d'etre entre 0. et 1.
+        tmpf +=  g_midi_parameter[i];
+        tmpf= _fmin(tmpf,1.f);
         g_knob[i] = tmpf;
         g_pot_increment[i] = (tmpf - g_pot_audio[i]) * coef_CV_to_audio_filter;
     }
