@@ -234,7 +234,7 @@ inline void get_keyboard() { // recupere les information des 6 capteurs capaciti
 				ui_tmp &= 0xFFFFFF00; // clear current bits
 				ui_tmp += kb_data[0];
 				g_switch1 = ui_tmp;
-				g_time = -1 * block_per_ms;
+				//g_time = -1 * block_per_ms;
 			} else {
 				i2c_kb.Init(i2c_kb.GetConfig()); // reinit I2C driver, and do this test again
 				g_time = -2 * block_per_ms;
@@ -252,7 +252,7 @@ inline void get_keyboard() { // recupere les information des 6 capteurs capaciti
 				ui_tmp &= 0xFFFF00FF; // clear current bits
 				ui_tmp += kb_data[0]<<8;
 				g_switch1 = ui_tmp;
-				g_time = -1 * block_per_ms;
+				//g_time = -1 * block_per_ms;
 			} else {
 				i2c_kb.Init(i2c_kb.GetConfig());
 				g_time = -2 * block_per_ms;
@@ -270,7 +270,7 @@ inline void get_keyboard() { // recupere les information des 6 capteurs capaciti
 				ui_tmp &= 0xFF00FFFF; // clear current bits
 				ui_tmp += kb_data[0]<<16;
 				g_switch1 = ui_tmp;
-				g_time = -1 * block_per_ms;
+				//g_time = -1 * block_per_ms;
 			} else {
 				i2c_kb.Init(i2c_kb.GetConfig());
 				g_time = -2 * block_per_ms;
@@ -288,7 +288,7 @@ inline void get_keyboard() { // recupere les information des 6 capteurs capaciti
 				ui_tmp &= 0x00FFFFFF; // clear current bits
 				ui_tmp += kb_data[0]<<24;
 				g_switch1 = ui_tmp;
-				g_time = -1 * block_per_ms;
+				//g_time = -1 * block_per_ms;
 			} else {
 				i2c_kb.Init(i2c_kb.GetConfig());
 				g_time = -2 * block_per_ms;
@@ -306,7 +306,7 @@ inline void get_keyboard() { // recupere les information des 6 capteurs capaciti
 				ui_tmp &= 0xFFFFFF00; // clear current bits
 				ui_tmp += kb_data[0];
 				g_switch2 = ui_tmp;
-				g_time = -1 * block_per_ms;
+				//g_time = -1 * block_per_ms;
 			} else {
 				i2c_led.Init(i2c_led.GetConfig());
 				g_time = -2 * block_per_ms;
@@ -324,7 +324,7 @@ inline void get_keyboard() { // recupere les information des 6 capteurs capaciti
 				ui_tmp &= 0xFFFF00FF; // clear current bits
 				ui_tmp += kb_data[0]<<8;
 				g_switch2 = ui_tmp;
-				g_time = -1 * block_per_ms;
+				//g_time = -1 * block_per_ms;
 			} else {
 				i2c_led.Init(i2c_led.GetConfig());
 				g_time = -2 * block_per_ms;
