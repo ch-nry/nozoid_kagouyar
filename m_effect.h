@@ -27,8 +27,8 @@ daisysp::DelayLine<float, 10000>  g_delay_effect3;
 			
 inline float effect1(float sound_in) { //, float wet, float param1, float param2) {
 	float wet = g_pot_audio[k_EFFECT1_wet] += g_pot_increment[k_EFFECT1_wet];
-	float param1 = g_pot_audio[k_EFFECT1_p1] += g_pot_increment[k_EFFECT1_p1];
-	float param2 = g_pot_audio[k_EFFECT1_p2] += g_pot_increment[k_EFFECT1_p2];
+	float param1 = _fclamp(g_pot_audio[k_EFFECT1_p1] += g_pot_increment[k_EFFECT1_p1], 0.f, 1.f);
+	float param2 = _fclamp(g_pot_audio[k_EFFECT1_p2] += g_pot_increment[k_EFFECT1_p2], 0.f, 1.f);
 
     float sound_out = 0.f;
     float tmp = 0;
@@ -48,7 +48,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		tmp += wetM*param1*fabs(sound_in)*_sin_loop(5.f*param1*sound_in*(1.f+fabs(sound_in)));
 		return tmp;
     case 1 : // ECHO : long delay (wet /  param1 : time / param2 : feedback) : OK
-        tmp = (239899.f * param1) + 100.f;
+        tmp = (239989.f * param1) + 10.f;
         g_delay_effect1.SetDelay(tmp);
         sound_out = g_delay_effect1.Read();
         g_delay_effect1.Write(_fclamp(sound_in + sound_out*param2, -3.f, 3.f));
