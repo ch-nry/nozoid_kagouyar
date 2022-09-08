@@ -97,7 +97,10 @@ inline float VCO1(uint32_t j, float frequency) {
     case 0 : //sin
         phase2 = _sin(VCO1_phase_local); 
         _fonepole(allvoice[j].v_VCO1_filter1, phase2, 6000.f*OneOverSR);
-        out = _cos_loop(VCO1_phase_local + allvoice[j].v_VCO1_filter1 * PWM_local * 0.4f);
+        //out = _cos_loop(VCO1_phase_local + allvoice[j].v_VCO1_filter1 * PWM_local * 0.4f);
+        phase2 = _cos_loop(VCO1_phase_local + allvoice[j].v_VCO1_filter1 * PWM_local * 0.4f);
+        _fonepole(allvoice[j].v_VCO1_filter2, phase2, 0.5f);
+		out = allvoice[j].v_VCO1_filter2;
         break;
     case 1 : //multi sin
         phase2 = _sin(VCO1_phase_local);
