@@ -15,6 +15,8 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
+void delay1_clear();
+
 float table_CV2freq[269];
 
 ////////////////////////////////////////////////////
@@ -410,7 +412,9 @@ void random_config() {
     curent_config.c_LFO6_RANGE = _rnd_ui()%3;
     curent_config.c_LFO7_RANGE = _rnd_ui()%3;
 
-    curent_config.c_EFFECT1_TYPE = _rnd_ui()%7; // fait planter
+	curent_config.c_EFFECT1_TYPE = 7;
+	delay1_clear();
+    curent_config.c_EFFECT1_TYPE = _rnd_ui()%7; 
     curent_config.c_EFFECT2_TYPE = _rnd_ui()%6;
 
     for (uint32_t i=0; i<VCF1_MOD1; i++) { // pour tout les VCO
@@ -548,6 +552,8 @@ void standard_config() {
     curent_config.c_LFO7_RANGE = 2;
 
     //
+    curent_config.c_EFFECT1_TYPE = 7;
+	delay1_clear();
     curent_config.c_EFFECT1_TYPE = 0;
     curent_config.c_EFFECT2_TYPE = 0;
     curent_config.c_VCF2_TYPE = 0;
@@ -647,6 +653,8 @@ int load_config(uint32_t slot)
     curent_config.c_LFO4_WF = ((tmp_config.c_LFO4_WF-1)%8)+1;
     curent_config.c_LFO5_WF = ((tmp_config.c_LFO5_WF-1)%8)+1;
     curent_config.c_LFO6_WF = ((tmp_config.c_LFO6_WF-1)%8)+1;
+    curent_config.c_EFFECT1_TYPE = 7;
+	delay1_clear();
     curent_config.c_EFFECT1_TYPE = tmp_config.c_EFFECT1_TYPE%7;
     curent_config.c_EFFECT2_TYPE = tmp_config.c_EFFECT2_TYPE%6;
     curent_config.c_VCF2_TYPE = tmp_config.c_VCF2_TYPE%2;

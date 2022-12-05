@@ -38,14 +38,15 @@ static void AudioCallbackTest(AudioHandle::InterleavingInputBuffer  in,
     float increment1 = 1000.f*OneOverSR;
     float increment2 = 440.f*OneOverSR;
 
-    g_delay_effect1.SetDelay(100.f);
+    //g_delay_effect1.SetDelay(100.f);
 
     for(size_t i = 0; i < size; ) {
         allvoice[0].v_VCO1_phase += increment1;
         if(allvoice[0].v_VCO1_phase > 1.f) allvoice[0].v_VCO1_phase -= 1.f;
-        g_delay_effect1.Write(_cos(allvoice[0].v_VCO1_phase));
-        out[i++] = g_delay_effect1.Read(); // on lit a travers un delay, pour tester aussi la memoire embarqué du daisy
-
+        //g_delay_effect1.Write(_cos(allvoice[0].v_VCO1_phase));
+        //out[i++] = g_delay_effect1.Read(); // on lit a travers un delay, pour tester aussi la memoire embarqué du daisy
+		out[i++] =_cos(allvoice[0].v_VCO1_phase);
+		
         allvoice[0].v_VCO2_phase += increment2;
         if(allvoice[0].v_VCO2_phase > 1.f) allvoice[0].v_VCO2_phase -= 1.f;
         out[i++] = _cos(allvoice[0].v_VCO2_phase);

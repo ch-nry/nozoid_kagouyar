@@ -126,7 +126,6 @@
 #define BIT_KEY_SEL_CV2  0
 #endif
 
-
 const int bit_key_I2C2[] = { BIT_KEY_kb0, BIT_KEY_kb1, BIT_KEY_kb2, BIT_KEY_kb3, BIT_KEY_kb4, BIT_KEY_kb5, BIT_KEY_kb6, BIT_KEY_kb7, BIT_KEY_kb8,
         BIT_KEY_kb9, BIT_KEY_kb10, BIT_KEY_kb11, BIT_KEY_kb12, BIT_KEY_SEL_MIDI, BIT_KEY_SEL_CV1, BIT_KEY_SEL_CV2 };
 
@@ -815,10 +814,16 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
         case MENU_CV2 :
             break;
         case MENU_EFFECTS :
-            if(switch_keyboard < 7) curent_config.c_EFFECT1_TYPE = switch_keyboard;
+            if(switch_keyboard < 7) {
+				if 	(curent_config.c_EFFECT1_TYPE != (uint32_t)switch_keyboard) {
+					curent_config.c_EFFECT1_TYPE = 7;
+					delay1_clear();
+					curent_config.c_EFFECT1_TYPE = switch_keyboard;
+					}
+			}
             else {
                 switch_keyboard -= 7;
-                curent_config.c_EFFECT2_TYPE = switch_keyboard;
+				curent_config.c_EFFECT2_TYPE = switch_keyboard;
             }
             break;
         case MENU_LOAD :

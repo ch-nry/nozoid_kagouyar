@@ -191,9 +191,9 @@ int main(void)
     hw.Init(); // Init the seed + hardware
     hw.StartAdc();// start ADC callbacks
     init_variables(); // init variables
-  	g_delay_effect1.Init(); // init delay line
+  	//g_delay_effect1.Init(); // init delay line
     g_delay_effect2.Init();
-    g_delay_effect3.Init();
+    //g_delay_effect3.Init();
     hw.midi.StartRx(); // init MIDI
 
 ////////////////////////////////////////////////////////////////////////
