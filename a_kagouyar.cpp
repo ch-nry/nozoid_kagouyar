@@ -16,6 +16,7 @@
 // --------------------------------------------------------------------------
 
 #define proto2
+// #define fabien // CV1 et CV2 switch pour faire octave + et octave -
 
 #include <stdio.h>
 #include <string.h>
