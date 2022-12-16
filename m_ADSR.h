@@ -46,7 +46,7 @@ float ADSR(uint32_t j) {
     if(!allvoice[j].v_GATE) {
         ADSR_mode = Release; // pas de gate, on est dc en release
     } else {
-        if ( ADSR_mode == Release )
+        if (( ADSR_mode == Decay ) || ( ADSR_mod == Release ) ) // on relance l'attaque, sauf si on  y etait deja, ou si on est en release2
         {
             ADSR_mode = Attack;
             g_Modulation_Reset[ADSR_OUT] = 1;
