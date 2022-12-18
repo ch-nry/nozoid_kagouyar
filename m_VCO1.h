@@ -76,13 +76,17 @@ inline float VCO1(uint32_t j, float frequency) {
     increment += (increment == 0) * 1e-10; // increment ne doit pas etre nul car on a plein de /increment plus tard.
     float phase2, tmp, out=0.f;
 
+
+// TODO : increment peut il etre negatif???
+
+
     float VCO1_phase_local = wrap(allvoice[j].v_VCO1_phase + increment);
     allvoice[j].v_VCO1_phase = VCO1_phase_local;
     
     g_Modulation[VCO1_SIN] = _cos(VCO1_phase_local); // g_Modulation sinus
     g_Modulation[VCO1_SQUARE] = (VCO1_phase_local > 0.5f)? 1.f : -1.f; // g_Modulation square
     g_Modulation[VCO1_TRI] = fabs(4.f*VCO1_phase_local-2.f)-1.f;
-    tmp = (VCO1_phase_local + VCO1_phase_local ) - 1.f; // ramp (saw up)
+    tmp = VCO1_phase_local + VCO1_phase_local - 1.f; // ramp (saw up)
     g_Modulation[VCO1_RAMP] = tmp;
     g_Modulation[VCO1_SAW] = -tmp; // saw down
 
@@ -97,7 +101,6 @@ inline float VCO1(uint32_t j, float frequency) {
     case 0 : //sin
         phase2 = _sin(VCO1_phase_local); 
         _fonepole(allvoice[j].v_VCO1_filter1, phase2, 6000.f*OneOverSR);
-        //out = _cos_loop(VCO1_phase_local + allvoice[j].v_VCO1_filter1 * PWM_local * 0.4f);
         phase2 = _cos_loop(VCO1_phase_local + allvoice[j].v_VCO1_filter1 * PWM_local * 0.4f);
         _fonepole(allvoice[j].v_VCO1_filter2, phase2, 0.5f);
 		out = allvoice[j].v_VCO1_filter2;
@@ -161,9 +164,11 @@ inline float VCO1(uint32_t j, float frequency) {
         out = 2.f*(allvoice[j].v_VCO1_last[1]) -1.f; // no interpolation
         break;
     }
-    out = _fmin(out, VCO1_clip);
+    out *= VCO1_AM; 
+
+    out = _fmin(out, VCO1_clip); // TODO : mettre un clamp
     out = _fmax(out, -1.1f);
-    out *= VCO1_AM;
+    
     g_Modulation[VCO1_OUT] = out;
     return out;
 }
