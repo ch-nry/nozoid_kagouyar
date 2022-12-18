@@ -522,14 +522,14 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
         pressed_keyboard = 0;
     }
     if ( (pressed_keyboard + pressed_modulation + pressed_configuration) == 1 ) { // une seule touche : on a juste a afficher les leds, a moins que ce ne soit le clavier
-        if (pressed_modulation) {
-				#ifdef fabien // octave + et - sur les touches CV1 et 2
-					if (switch_modulation == MENU_CV1)   curent_config.c_KEYBOARD_octave = _min(curent_config.c_KEYBOARD_octave+1, 2);
-					if (switch_modulation == MENU_CV2)   curent_config.c_KEYBOARD_octave = _max(curent_config.c_KEYBOARD_octave-1, -3);
-				#endif
-			return 1;
+        if (pressed_modulation) return 1;
+        if (pressed_configuration) {
+			#ifdef fabien // octave + et - sur les touches CV1 et 2
+			if (switch_configuration == MENU_CV1)   curent_config.c_KEYBOARD_octave = _fmin(curent_config.c_KEYBOARD_octave+1, 2);
+			if (switch_configuration == MENU_CV2)   curent_config.c_KEYBOARD_octave = _fmax(curent_config.c_KEYBOARD_octave-1, -3);
+			#endif
+			return 2;
 		}
-        if (pressed_configuration) return 2;
         // on as donc une touche du clavier seul
         if (change_keyboard == 0) return 0; // seul une touche de clavier est apuyé, mais c'est une touche de configuration ou de selection qui a changé : c'est un reste de la configuration que l'on viens de relacher : on ne la gere pas
         // defaut : c'est une touche du clavier qui a ete appuyé
