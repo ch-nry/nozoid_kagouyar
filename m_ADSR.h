@@ -56,7 +56,7 @@ float ADSR(uint32_t j) {
 			if ( (ADSR_LOOP == 1) && ( ADSR_out < (S+0.01f) ) ) {
 			// AD loop : on est pres du S (a la fin du D) : on retrig le A
 			// il se peut qu'on retrig l'attaque si on est deja en attaque : c'est pas grave
-			// si on est en release, on ne peux pas arriver la
+			// si on est en release, on ne peut pas arriver la
 				ADSR_mode = Attack;
 			}
 			if (ADSR_LOOP == 2) {
