@@ -92,8 +92,12 @@ inline int _floor(float x) {
     return (int) x - (x < (int) x);
 }
 
-inline float wrap(float x) {
+inline float wrap(float x) { // only for positive number, inversé pour les nombres negatifs
   return x - (int)x;
+}
+
+inline float wrap2(float x) {
+  return x - _floor(x);
 }
 
 inline float _tanh(float x) {
@@ -119,7 +123,7 @@ inline float _cos_positiv_loop(float index) { // positive index only
 }
 
 inline float _cos_loop(float index) { //
-    return _cos(index - _floor(index) );
+    return _cos(wrap2(index) );
 }
 
 inline float _sin(float index) { // index from 0 to 1 only
@@ -135,7 +139,7 @@ inline float _sin_positiv_loop(float index) { // positive index only
 }
 
 inline float _sin_loop(float index) { //
-    return _sin(index - _floor(index) );
+    return _sin(wrap2(index) );
 }
 inline float sign(float in) {
 	return ((in<0.f)?-1.f : 1.f);
