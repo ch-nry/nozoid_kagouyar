@@ -62,7 +62,7 @@ float ADSR(uint32_t j) {
 			if (ADSR_LOOP == 2) {
 				if ( ADSR_out == 0.f) { // ADSR loop : on est a 0 : on retrig une attack
 					ADSR_mode = Attack;
-					g_Modulation_Reset[ADSR_OUT] = 1;
+					//g_Modulation_Reset[ADSR_OUT] = 1;
 				}
 				else if ( ( ADSR_out < (S+0.01f) ) && (ADSR_mode == Decay) ) // ADSR loop : on est pres du S (a la fin du D) : on passe en mode pseudo R : (R mais avec un v_GATE)
 				ADSR_mode = Release2;
