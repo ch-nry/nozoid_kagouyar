@@ -43,7 +43,7 @@ float ADSR(uint32_t j) {
     uint32_t ADSR_mode = allvoice[j].v_ADSR_mode; // local variable
 
     g_Modulation_Reset[ADSR_OUT] = 0;
-    if (!allvoice[j].v_GATE) {
+    if (allvoice[j].v_GATE == 0) {
 		ADSR_mode = Release; // pas de gate, on est dc en release
 	}
 	else {

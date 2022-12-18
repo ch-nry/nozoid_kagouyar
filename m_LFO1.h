@@ -25,7 +25,7 @@ inline void LFO1(float fq, float mix_factor, float increment) {
 
     if (curent_config.c_LFO1_WF == WF_AR) {
         for (uint32_t j=nb_voice; j--;) {
-            float tmp = allvoice[j].v_GATE;
+            float tmp = allvoice[j].v_GATE >= 1;
             float time = tmp?ADSR_time2filter(fq) : ADSR_time2filter(mix_factor);
             _fonepole(g_LFO1_AR[j], tmp, time);
             modulation += g_LFO1_AR[j];

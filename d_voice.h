@@ -72,7 +72,7 @@ void remove_voice(uint32_t my_GATE_source, int32_t my_pitch) {
     int32_t i;
 
     for (i=nb_voice; i--;) { // on cherche la voie a suprimer
-        if ( (allvoice[i].v_GATE == 1) && (allvoice[i].v_GATE_source == my_GATE_source) && ((allvoice[i].v_pitch == my_pitch) || (my_GATE_source == 2))) {
+        if ( (allvoice[i].v_GATE >= 1) && (allvoice[i].v_GATE_source == my_GATE_source) && ((allvoice[i].v_pitch == my_pitch) || (my_GATE_source == 2))) {
             // si on a un gate, provenant de la meme source, avec le meme pitch (sauf pour gate analogique, on ne test pas le pitch)
             num_voice = i; // on as trouvé la voie a suprimer
             priorite = allvoice[i].v_priority; // forcement negatif
@@ -98,7 +98,7 @@ inline uint32_t test_voice(int32_t pitch) {
     uint32_t on = 0;
 
     for (uint32_t i=nb_voice; i--;) {
-        if ( (allvoice[i].v_pitch == pitch) && (allvoice[i].v_GATE_source == 0) && (allvoice[i].v_GATE == 1) )
+        if ( (allvoice[i].v_pitch == pitch) && (allvoice[i].v_GATE_source == 0) && (allvoice[i].v_GATE >= 1) )
             on = 1;
    }
    return on;
