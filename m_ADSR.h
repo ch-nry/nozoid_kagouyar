@@ -43,28 +43,30 @@ float ADSR(uint32_t j) {
     uint32_t ADSR_mode = allvoice[j].v_ADSR_mode; // local variable
 
     g_Modulation_Reset[ADSR_OUT] = 0;
-    if(!allvoice[j].v_GATE) {
-        ADSR_mode = Release; // pas de gate, on est dc en release
-    } else {
-        if (( ADSR_mode == Decay ) || ( ADSR_mode == Release ) ) // on relance l'attaque, sauf si on  y etait deja, ou si on est en release2
-        {
-            ADSR_mode = Attack;
-            g_Modulation_Reset[ADSR_OUT] = 1;
-        }
-        if ( (ADSR_LOOP == 1) && ( ADSR_out < S+0.01f ) ) {
-            // AD loop : on est pres du S (a la fin du D) : on retrig le A
-            ADSR_mode = Attack;
-        }
-        if (ADSR_LOOP == 2) {
-            if ( ADSR_out == 0.f) { // ADSR loop : on est a 0 : on retrig une attack
-                ADSR_mode = Attack;
-                g_Modulation_Reset[ADSR_OUT] = 1;
-            }
-            else if ( ( ADSR_out < S+0.01f ) && (ADSR_mode == Decay) ) // ADSR loop : on est pres du S (a la fin du D) : on passe en mode pseudo R : (R mais avec un v_GATE)
-                ADSR_mode = Release2;
-        }
-    }
-
+    if (!allvoice[j].v_GATE) {
+		ADSR_mode = Release; // pas de gate, on est dc en release
+	}
+	else {
+		if ( ADSR_mode == Release ) { // on relance l'attaque, sauf si on  y etait deja, ou si on est en release2
+			ADSR_mode = Attack;
+			g_Modulation_Reset[ADSR_OUT] = 1;
+		}
+		if ( (ADSR_LOOP == 1) && ( ADSR_out < (S+0.01f) ) ) {
+		// AD loop : on est pres du S (a la fin du D) : on retrig le A
+		// il se peut qu'on retrig l'attaque si on est deja en attaque : c'est pas grave
+		// si on est en release, on ne peux pas arriver la
+			ADSR_mode = Attack;
+		}
+		if (ADSR_LOOP == 2) {
+			if ( ADSR_out == 0.f) { // ADSR loop : on est a 0 : on retrig une attack
+				ADSR_mode = Attack;
+				g_Modulation_Reset[ADSR_OUT] = 1;
+			}
+			else if ( ( ADSR_out < (S+0.01f) ) && (ADSR_mode == Decay) ) // ADSR loop : on est pres du S (a la fin du D) : on passe en mode pseudo R : (R mais avec un v_GATE)
+			ADSR_mode = Release2;
+		}
+	} 
+	
     switch (ADSR_mode) {
     case Attack :
         tmp = g_pot_audio[k_ADSR_a];
