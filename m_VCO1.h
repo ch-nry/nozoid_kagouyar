@@ -70,17 +70,13 @@ inline float VCO1(uint32_t j, float frequency) {
     vco_pitch += (int)((12.f*VCO1_FM_Qtz)+0.5f);
 
     VCO1_pitch(allvoice[j], vco_pitch); // sauve ou rapele la valeur de vco1 pour les pitch des vco2 et 3 syncro sur le 1 (cf fonction.h)
-    float freq = CV2freq(vco_pitch) + VCO1_FM_lin * 2000.f;
+    float freq = CV2freq(vco_pitch) + VCO1_FM_lin * 2000.f;// freq peux etre negative, ou nulle
 	
     float increment = freq*OneOverSR; 
     increment += (increment == 0) * 1e-10; // increment ne doit pas etre nul car on a plein de /increment plus tard.
     float phase2, tmp, out=0.f;
 
-
-// TODO : increment peut il etre negatif???
-
-
-    float VCO1_phase_local = wrap(allvoice[j].v_VCO1_phase + increment);
+    float VCO1_phase_local = wrap2(allvoice[j].v_VCO1_phase + increment);
     allvoice[j].v_VCO1_phase = VCO1_phase_local;
     
     g_Modulation[VCO1_SIN] = _cos(VCO1_phase_local); // g_Modulation sinus
@@ -94,8 +90,9 @@ inline float VCO1(uint32_t j, float frequency) {
     VCO1_phase_local += VCO1_PM;
     //increment =  abs(_floor(VCO1_phase_local-old_phase)); // should we compute this increment after PM?
     VCO1_phase_local -= _floor(VCO1_phase_local); // car on peux aller ds le negatif, ou aller au dela de 2 a cause des multiples modulations
-
-    float PWM_local = _fclamp(PWM + VCO1_mod_PWM, 0.f, 1.f);;
+	VCO1_phase_local = _fclamp(VCO1_phase_local, 0.f,1.f); // inutil, mais au cas ou...
+	
+    float PWM_local = _fclamp(PWM + VCO1_mod_PWM, 0.f, 1.f);
 
     switch(curent_config.c_VCO1_WF) {
     case 0 : //sin
@@ -111,14 +108,15 @@ inline float VCO1(uint32_t j, float frequency) {
         out = _cos_loop((0.7f+3.5f*PWM_local) * allvoice[j].v_VCO1_filter1 + 0.33f );
         break;
     case 2 : // tri
-        out = tri_bl(VCO1_phase_local, fabs(increment), allvoice[j].v_VCO1_filter1); 
+        out = tri_bl(VCO1_phase_local, increment, allvoice[j].v_VCO1_filter1); 
         tmpf = 1.f-PWM_local + PWM_local * fabs(out);
         tmpf *= tmpf;
         out *= tmpf;
         break;
     case 3 :  // rectangle
-        phase2 = VCO1_phase_local + (1.f-PWM_local)*0.5f;
-        if (phase2 >= 1.f) phase2 -= 1.f;
+        //phase2 = VCO1_phase_local + (1.f-PWM_local)*0.5f;
+        //if (phase2 >= 1.f) phase2 -= 1.f;
+        phase2 = wrap(VCO1_phase_local + (1.f-PWM_local)*0.5f);
         out = (saw_bl(VCO1_phase_local,increment) - saw_bl(phase2,increment));
         break;
     case 4 :  // double saw
@@ -166,7 +164,7 @@ inline float VCO1(uint32_t j, float frequency) {
     }
     out *= VCO1_AM; 
 
-    out = _fmin(out, VCO1_clip); // TODO : mettre un clamp
+    out = _fmin(out, VCO1_clip); 
     out = _fmax(out, -1.1f);
     
     g_Modulation[VCO1_OUT] = out;
