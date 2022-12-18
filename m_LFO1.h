@@ -97,7 +97,7 @@ inline void LFO1(float fq, float mix_factor, float increment) {
                 g_Modulation_Reset[LFO1_OUT] = overflow_phase;
                 g_Modulation_Phase[LFO1_OUT] = phase;
 
-                phase = wrap(phase + 10.f + 2.f * WF1 * mix_factor);
+                phase = wrap2(phase + 2.f * WF1 * mix_factor);
                 float WF = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
                 modulation = WF;
             }
