@@ -174,7 +174,7 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
         VCF2(sig); 
         sig *= g_pot_audio[k_GAIN] * g_pot_audio[k_GAIN]; 
 		sig*= 0.5; 
-        if(fabs(sig)>=1.f) g_clip = 1.f; else g_clip =  _fmax(fabs(sig)*0.5f, g_clip - 0.00001f); 
+        if(fabs(sig)>=1.f) g_clip = 1.f; else g_clip =  _fmax(fabs(sig)*0.3f, g_clip - 0.0001f); 
 
         out[i++] = sig; // droite
         out[i++] = -sig; // gauche
