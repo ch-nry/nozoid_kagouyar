@@ -109,9 +109,10 @@ inline float VCO1(uint32_t j, float frequency) {
         break;
     case 2 : // tri
         out = tri_bl(VCO1_phase_local, increment, allvoice[j].v_VCO1_filter1); 
-        tmpf = 1.f-PWM_local + PWM_local * fabs(out);
-        tmpf *= tmpf;
-        out *= tmpf;
+        tmpf = 1.f - 0.5f*(PWM_local*(1.f+_cos(VCO1_phase_local)));
+        out +=1.f;
+        out *= tmpf * tmpf;
+        out -= 1.f;
         break;
     case 3 :  // rectangle
         //phase2 = VCO1_phase_local + (1.f-PWM_local)*0.5f;
