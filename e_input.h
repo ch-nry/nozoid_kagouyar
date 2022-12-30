@@ -826,10 +826,14 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 					delay1_clear();
 					curent_config.c_EFFECT1_TYPE = switch_keyboard;
 					}
+				else curent_config.c_EFFECT1_TYPE = 7;
 			}
             else {
                 switch_keyboard -= 7;
-				curent_config.c_EFFECT2_TYPE = switch_keyboard;
+				if 	(curent_config.c_EFFECT2_TYPE != (uint32_t)switch_keyboard) {
+					curent_config.c_EFFECT2_TYPE = switch_keyboard;
+					}
+				else curent_config.c_EFFECT2_TYPE = 6;                
             }
             break;
         case MENU_LOAD :
