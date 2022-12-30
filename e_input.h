@@ -638,7 +638,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
         switch(switch_configuration){
         case MENU_VCO1 :
             if (switch_keyboard <= 8)
-				if(curent_config.c_VCO1_WF == switch_keyboard) curent_config.c_VCO1_WF=9;
+				if(curent_config.c_VCO1_WF == (uint32_t)switch_keyboard) curent_config.c_VCO1_WF=9;
                 else curent_config.c_VCO1_WF = switch_keyboard;
             else {
                 switch (switch_keyboard-9) {
@@ -661,7 +661,8 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
         break;
         case MENU_VCO2 :
             if (switch_keyboard <= 8)
-                curent_config.c_VCO2_WF = switch_keyboard;
+				if(curent_config.c_VCO2_WF == (uint32_t)switch_keyboard) curent_config.c_VCO2_WF=9;
+                else curent_config.c_VCO2_WF = switch_keyboard;
             else {
                 switch (switch_keyboard-9) {
                 case 0 :
@@ -683,7 +684,8 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
         break;
         case MENU_VCO3 :
             if (switch_keyboard <= 8)
-                curent_config.c_VCO3_WF = switch_keyboard;
+ 				if(curent_config.c_VCO3_WF == (uint32_t)switch_keyboard) curent_config.c_VCO3_WF=9;
+                else curent_config.c_VCO3_WF = switch_keyboard;               
             else {
                 switch (switch_keyboard-9) {
                 case 0 :
