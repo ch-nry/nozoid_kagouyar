@@ -484,8 +484,8 @@ void empty_config() {
     // LFO7
     curent_config.c_LFO7_RANGE = 1;
 
-    curent_config.c_EFFECT1_TYPE = 0;
-    curent_config.c_EFFECT2_TYPE = 0;
+    curent_config.c_EFFECT1_TYPE = 7;
+    curent_config.c_EFFECT2_TYPE = 6;
     curent_config.c_VCF2_TYPE = 0;
 
     for (uint32_t i=0; i<modulation_destination_last; i++) { // pour tout les VCO
