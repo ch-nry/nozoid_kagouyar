@@ -160,8 +160,11 @@ inline float VCO1(uint32_t j, float frequency) {
             tmp *= (3.45f+0.51f*PWM_local) * (1.f-tmp);
             allvoice[j].v_VCO1_last[1] = tmp;
         }
-        out = 2.f*(allvoice[j].v_VCO1_last[1]) -1.f; // no interpolation
+        out = 2.f*(allvoice[j].v_VCO1_last[1]) -1.f; 
         break;
+	case 9:
+	    out=0.f;
+	    break;
     }
     out *= VCO1_AM; 
 

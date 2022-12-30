@@ -218,18 +218,18 @@ void leds_key_configuration(uint32_t my_menu_switch) { // led lorsque on appuie 
     switch (my_menu_switch) {
     case MENU_VCO1 :
         led_keyboard |= 1 << BIT_LED_MENU_VCO;
-        led_keyboard |= 1 << table_led_key[curent_config.c_VCO1_WF];
+        if (curent_config.c_VCO1_WF<9) led_keyboard |= 1 << table_led_key[curent_config.c_VCO1_WF];
         led_keyboard |= 1 << table_led_key[10+curent_config.c_VCO1_RANGE];
         break;
     case MENU_VCO2 :
         led_keyboard |= 1 << BIT_LED_MENU_VCO;
-        led_keyboard |= 1 << table_led_key[curent_config.c_VCO2_WF];
+        if (curent_config.c_VCO2_WF<9) led_keyboard |= 1 << table_led_key[curent_config.c_VCO2_WF];
         if(curent_config.c_VCO2_LINK) led_keyboard |= 1<< BIT_LED_MENU_KEY9;
         led_keyboard |= 1 << table_led_key[10 + curent_config.c_VCO2_RANGE];
         break;
     case MENU_VCO3 :
         led_keyboard |= 1 << BIT_LED_MENU_VCO;
-        led_keyboard |= 1 << table_led_key[curent_config.c_VCO3_WF];
+        if (curent_config.c_VCO3_WF<9) led_keyboard |= 1 << table_led_key[curent_config.c_VCO3_WF];
         if(curent_config.c_VCO3_LINK) led_keyboard |= 1<< BIT_LED_MENU_KEY9;
         led_keyboard |= 1 << table_led_key[10 + curent_config.c_VCO3_RANGE];
         break;
