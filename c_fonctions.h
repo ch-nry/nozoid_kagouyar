@@ -431,8 +431,8 @@ void random_config() {
         curent_config.c_Modulation_Source[i] = ADSR_OUT + _rnd_ui()%(MIDI_modulation-ADSR_OUT);
     }
 
-    for (uint32_t i=LFO1_MOD; i<EFFECT1_MOD; i++) {
-        curent_config.c_Modulation_Type[i] = _rnd_ui()%LFO_nb_algo;
+    for (uint32_t i=LFO1_MOD; i<=LFO3_MOD; i++) {
+        curent_config.c_Modulation_Type[i] = _rnd_ui()%8;
     }
 }
 
@@ -495,11 +495,7 @@ void empty_config() {
      curent_config.c_Modulation_Source[VCF1_MOD1] = NONE_OUT;
      curent_config.c_Modulation_Source[VCF1_MOD2] = NONE_OUT;
      curent_config.c_Modulation_Source[VCF2_MOD1] = NONE_OUT;
-
-    for (uint32_t i=LFO1_MOD; i<EFFECT1_MOD; i++) {
-        curent_config.c_Modulation_Type[i] = _rnd_ui()%LFO_nb_algo;
-    }
-    
+   
     curent_config.c_Modulation_Source[LFO1_MOD] = LFO1_OUT;
     curent_config.c_Modulation_Source[LFO2_MOD] = LFO2_OUT;
     curent_config.c_Modulation_Source[LFO3_MOD] = LFO3_OUT;
@@ -591,8 +587,8 @@ void standard_config() {
     curent_config.c_Modulation_Source[LFO2_MOD] = LFO5_OUT;
     curent_config.c_Modulation_Source[LFO3_MOD] = LFO6_OUT;
     curent_config.c_Modulation_Type[LFO1_MOD] = LFO_Mix;
-    curent_config.c_Modulation_Type[LFO2_MOD] = LFO_AM;
-    curent_config.c_Modulation_Type[LFO3_MOD] = LFO_FM;
+    curent_config.c_Modulation_Type[LFO2_MOD] = LFO_Mix;
+    curent_config.c_Modulation_Type[LFO3_MOD] = LFO_Mix;
 
     curent_config.c_Modulation_Source[EFFECT1_MOD] = LFO4_OUT;
     curent_config.c_Modulation_Source[EFFECT2_MOD] = LFO5_OUT;
