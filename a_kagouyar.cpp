@@ -15,7 +15,7 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
-#define proto2
+//#define proto2 // commenter pour la version final
 // #define fabien // CV1 et CV2 switch pour faire octave + et octave -
 
 #include <stdio.h>
@@ -42,12 +42,12 @@
 //14th slot to save curent preset on shutdown
 #define save_pos  0x90000000 + (14*4096)
 
-static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle::InterleavingOutputBuffer out, size_t size) {              
+static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle::InterleavingOutputBuffer out, size_t size) {
     //hw.test_out(true); // write test_out pin;  10µs la premiere partie
     g_time++;
     g_led_blink += 1<<25; // on laisse les overflow passer de negatif a positif
 
-    float VCO1_fq; 
+    float VCO1_fq;
     float VCO2_fq;
     float VCO3_fq;
     float VCF1_fq;
@@ -63,7 +63,7 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
     VCO3_fq = VCO_CV_range(curent_config.c_VCO3_RANGE, g_pot_audio[k_VCO3_fq]);
 
 	g_pot_audio[k_VCF1_fq] += coef_audio_to_block * g_pot_increment[k_VCF1_fq];
-    VCF1_fq = 127.f * g_pot_audio[k_VCF1_fq]; 
+    VCF1_fq = 127.f * g_pot_audio[k_VCF1_fq];
     g_pot_audio[k_VCF1_q] += coef_audio_to_block * g_pot_increment[k_VCF1_q];
     g_pot_audio[k_VCF1_mod1] += coef_audio_to_block * g_pot_increment[k_VCF1_mod1];
     g_pot_audio[k_VCF1_mod2] += coef_audio_to_block * g_pot_increment[k_VCF1_mod2];
@@ -74,30 +74,30 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
 
 	CV_pitch = g_Modulation[CV1_OUT] * 60.f*g_CV1_gain; // de -5V a +5V = +/- 5 octaves
 
-    if (allvoice[0].v_GATE_source == 2) allvoice[0].v_pitch = CV_pitch; 
+    if (allvoice[0].v_GATE_source == 2) allvoice[0].v_pitch = CV_pitch;
     if (allvoice[1].v_GATE_source == 2) allvoice[1].v_pitch = CV_pitch;
     if (allvoice[2].v_GATE_source == 2) allvoice[2].v_pitch = CV_pitch;
     if (allvoice[3].v_GATE_source == 2) allvoice[3].v_pitch = CV_pitch;
 
     LFO1_FQ  = g_knob[k_LFO1_fq]; // on ne filtre pas  les pots de frequence pour gagner en CPU
     LFO1_INC = CV2increment_lfo(curent_config.c_LFO1_RANGE, LFO1_FQ);
-    LFO1_MIX = g_pot_audio[k_LFO1_mod] += coef_audio_to_block * g_pot_increment[k_LFO1_mod]; 
+    LFO1_MIX = g_pot_audio[k_LFO1_mod] += coef_audio_to_block * g_pot_increment[k_LFO1_mod];
 
     LFO2_FQ  = g_knob[k_LFO2_fq];
     LFO2_INC = CV2increment_lfo(curent_config.c_LFO2_RANGE, LFO2_FQ);
-    LFO2_MIX = g_pot_audio[k_LFO2_mod] += coef_audio_to_block * g_pot_increment[k_LFO2_mod]; 
+    LFO2_MIX = g_pot_audio[k_LFO2_mod] += coef_audio_to_block * g_pot_increment[k_LFO2_mod];
 
     LFO3_FQ  = g_knob[k_LFO3_fq];
     LFO3_INC = CV2increment_lfo(curent_config.c_LFO3_RANGE, LFO3_FQ);
-    LFO3_MIX = g_pot_audio[k_LFO3_mod] += coef_audio_to_block * g_pot_increment[k_LFO3_mod]; 
+    LFO3_MIX = g_pot_audio[k_LFO3_mod] += coef_audio_to_block * g_pot_increment[k_LFO3_mod];
 
     LFO4_INC = CV2increment_lfo(curent_config.c_LFO4_RANGE, g_knob[k_LFO4_fq] );
     LFO5_INC = CV2increment_lfo(curent_config.c_LFO5_RANGE, g_knob[k_LFO5_fq] );
     LFO6_INC = CV2increment_lfo(curent_config.c_LFO6_RANGE, g_knob[k_LFO6_fq] );
 
     LFO7_INC = CV2increment_lfo(curent_config.c_LFO7_RANGE, g_knob[k_LFO7_fq]);
-    LFO7_WF =  g_pot_audio[k_LFO7_wf] += coef_audio_to_block * g_pot_increment[k_LFO7_wf]; 
-    LFO7_SYM =  g_pot_audio[k_LFO7_sym] += coef_audio_to_block * g_pot_increment[k_LFO7_sym]; 
+    LFO7_WF =  g_pot_audio[k_LFO7_wf] += coef_audio_to_block * g_pot_increment[k_LFO7_wf];
+    LFO7_SYM =  g_pot_audio[k_LFO7_sym] += coef_audio_to_block * g_pot_increment[k_LFO7_sym];
 
     // buffered Audio Loop
     for(uint32_t i = 0; i < size; ) // size = 2* 48 : block audio de 1ms
@@ -105,10 +105,10 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
     {
 		sig=0.f;
 		sommeADSR = 0.f;
-		
+
         if ((i & 0b111) == 0) // Sample Rate LFO = SR/4 (facteur 8 a cause du cannal droit et gauche)
             LFO();
-        
+
         // filtre les PWM en audio, car on les utilise pour toutes les voies de polyphonie
 		g_pot_audio[k_VCO1_wfm] += g_pot_increment[k_VCO1_wfm];
 		g_pot_audio[k_VCO2_wfm] += g_pot_increment[k_VCO2_wfm];
@@ -142,7 +142,7 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
         { // pour toutes les voies de polyphonie
             float sound;
             sommeADSR += ADSR(j);
-            
+
             g_Modulation[LFO1_OUT] = g_LFO1_AR[j];
             g_Modulation[LFO1_OUT+modulation_source_last] = -g_LFO1_AR[j];
             g_Modulation[LFO2_OUT] = g_LFO2_AR[j];
@@ -171,10 +171,10 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
         sig = effect1(sig);
         sig = effect2(sig);
 
-        VCF2(sig); 
-        sig *= g_pot_audio[k_GAIN] * g_pot_audio[k_GAIN]; 
-		sig*= 0.5; 
-        if(fabs(sig)>=1.f) g_clip = 1.f; else g_clip =  _fmax(fabs(sig)*0.3f, g_clip - 0.0001f); 
+        VCF2(sig);
+        sig *= g_pot_audio[k_GAIN] * g_pot_audio[k_GAIN];
+		sig*= 0.5;
+        if(fabs(sig)>=1.f) g_clip = 1.f; else g_clip =  _fmax(fabs(sig)*0.3f, g_clip - 0.0001f);
 
         out[i++] = sig; // droite
         out[i++] = -sig; // gauche
@@ -201,7 +201,7 @@ int main(void)
 // initialisation des memoires
 ////////////////////////////////////////////////////////////////////////
 	if (true) { // normal operation
-		load_config(13); // only for the calibration 
+		load_config(13); // only for the calibration
 		g_CV1_offset = curent_config.c_CV1_offset;
 		g_CV2_offset = curent_config.c_CV2_offset;
 		g_CV1_gain = curent_config.c_CV1_gain;
@@ -215,7 +215,7 @@ int main(void)
 // hardware test
 ////////////////////////////////////////////////////////////////////////
 	//if(true) // test only
-    if( dsy_gpio_read(&HW_test) == 0) 
+    if( dsy_gpio_read(&HW_test) == 0)
     { // test mode
         hw.StartAudio(AudioCallbackTest); // just for testing the audio dac
         while(1) // on est en mode de test
@@ -242,18 +242,18 @@ int main(void)
         get_pot(i); // get potentiometters value and filter them
         get_keyboard(); // test keyboard and display leds accordingly;
         get_midi(); // test reception de midi data
-       
+
        // test shutdown
-        if (!dsy_gpio_read(&low_power_pin)) { // si l'allim passe en dessous des 7V, 
-			// on arrete le son et tout les process qui prennent du temps ou du courant, 
+        if (!dsy_gpio_read(&low_power_pin)) { // si l'allim passe en dessous des 7V,
+			// on arrete le son et tout les process qui prennent du temps ou du courant,
 			// ensuite, on sauve la config actuel pendant les qqs ms restante de courant ds les condensateurs
-			
+
 			hw.test_out(true); // for oscillo debug only
 			hw.StopAudio(); //stop audio
 			set_all_led(0,0,0,0,0); //extinction des leds analogique pour economiser du courant
 			write_binary_led(0); // extinction des leds du clavier
 			hw.test_out(false);
-			
+
 			hw.seed.qspi.Write(save_pos, sizeof(CONFIGURATION), (uint8_t*)&curent_config); // 4.5ms
 
 			while(true) { // boucle pour montrer la fin  de la procedure de sauvegarde
@@ -261,6 +261,6 @@ int main(void)
 				hw.test_out(false); hw.seed.SetLed(false);
 			}
 		}
-		
+
     } // everything else is done on the audio interuption
 }
