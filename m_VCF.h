@@ -24,14 +24,14 @@
 // Algorithms for Virtual Analog Synthesis †"
 // CMJ302
 
-inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod1, float mod2) {
+inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod1, float mod2)
     float tmp = 0.f;
     float mod_fq = 0.f;
     float mod_q = 0.f;
 	float res = g_pot_audio[k_VCF1_q] ;
 
 	    // Utiliser des pointeurs locaux pour réduire les accès mémoire
-    voice& myvoice = allvoice[j];
+    //voice& myvoice = allvoice[j];
 
 /*
     if(curent_config.c_VCF1_MOD1_TYPE == 0)
@@ -55,7 +55,7 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
 
     float freq = fq+ (48.f*mod_fq) + (24.f*g_Modulation[MIDI_expression]);
     tmp = curent_config.c_VCF1_pitch_TRACK;
-    freq += tmp * 0.5f * (myvoice.v_pitch-12.f);
+    freq += tmp * 0.5f * (allvoice[j].v_pitch-12.f);
     freq = _fclamp(freq, -128, 138);
     freq = CV2freq(freq);
 
@@ -70,46 +70,46 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
 
 	Q *= 1.2f; // pour aller plus loin ds la resonnance
 
-	_fonepole(myvoice.v_VCF1_filter, input1, 10000.f*OneOverSR); // on baisse les hautes frequences pour reduire le repliement ds la non linéarité
-	input1 = myvoice.v_VCF1_filter;
+	_fonepole(allvoice[j].v_VCF1_filter, input1, 10000.f*OneOverSR); // on baisse les hautes frequences pour reduire le repliement ds la non linéarité
+	input1 = allvoice[j].v_VCF1_filter;
 
-    float feedback = Q * ( myvoice.v_VCF1_last_output4 - (0.5f * input1) ); // feedback
+    float feedback = Q * ( allvoice[j].v_VCF1_last_output4 - (0.5f * input1) ); // feedback
 
     input1 -= feedback;
     input1 = _tanh(input1); // distortion
 
 
-    float output1 = (input1 + 0.3f * myvoice.v_VCF1_last_input1)*(1.f/1.3f); // 4 * 6dB filter
-    myvoice.v_VCF1_last_input1 = input1;
-    tmp = myvoice.v_VCF1_last_output1;
+    float output1 = (input1 + 0.3f * allvoice[j].v_VCF1_last_input1)*(1.f/1.3f); // 4 * 6dB filter
+    allvoice[j].v_VCF1_last_input1 = input1;
+    tmp = allvoice[j].v_VCF1_last_output1;
     output1 -= tmp;
     output1 *= g;
     output1 += tmp;
-    myvoice.v_VCF1_last_output1 = output1;
+    allvoice[j].v_VCF1_last_output1 = output1;
 
-    float output2 = (output1 + 0.3f * myvoice.v_VCF1_last_input2)*(1.f/1.3f);
-    myvoice.v_VCF1_last_input2 = output1;
-    tmp = myvoice.v_VCF1_last_output2;
+    float output2 = (output1 + 0.3f * allvoice[j].v_VCF1_last_input2)*(1.f/1.3f);
+    allvoice[j].v_VCF1_last_input2 = output1;
+    tmp = allvoice[j].v_VCF1_last_output2;
     output2 -= tmp;
     output2 *= g;
     output2 += tmp;
-    myvoice.v_VCF1_last_output2 = output2;
+    allvoice[j].v_VCF1_last_output2 = output2;
 
-    float output3 = (output2 + 0.3f * myvoice.v_VCF1_last_input3)*(1.f/1.3f);
-    myvoice.v_VCF1_last_input3 = output2;
-    tmp = myvoice.v_VCF1_last_output3;
+    float output3 = (output2 + 0.3f * allvoice[j].v_VCF1_last_input3)*(1.f/1.3f);
+    allvoice[j].v_VCF1_last_input3 = output2;
+    tmp = allvoice[j].v_VCF1_last_output3;
     output3 -= tmp;
     output3 *= g;
     output3 += tmp;
-    myvoice.v_VCF1_last_output3 = output3;
+    allvoice[j].v_VCF1_last_output3 = output3;
 
-    float output4 = (output3 + 0.3f * myvoice.v_VCF1_last_input4)*(1.f/1.3f);
-    myvoice.v_VCF1_last_input4 = output3;
-    tmp = myvoice.v_VCF1_last_output4;
+    float output4 = (output3 + 0.3f * allvoice[j].v_VCF1_last_input4)*(1.f/1.3f);
+    allvoice[j].v_VCF1_last_input4 = output3;
+    tmp = allvoice[j].v_VCF1_last_output4;
     output4 -= tmp;
     output4 *= g;
     output4 += tmp;
-    myvoice.v_VCF1_last_output4 = output4;
+    allvoice[j].v_VCF1_last_output4 = output4;
 
     switch (curent_config.c_VCF1_TYPE) {
     case 0 :
@@ -125,6 +125,7 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
     case 5 :
         return 2.f * (input1 - 4.f * (output1 + output3) + 6.f *  output2 + output4);
     }
+    return 0; // just pour eviter un warning
 }
 
 float g_VCF2_last_input1 = 0.f;
