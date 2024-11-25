@@ -102,9 +102,9 @@
 const float table_MIDI_fq[] = {1.f/32.f, 1.f/16.f, 1.f/8.f, 0.25, 0.5, 1, 2, 4, 8, 16, 32};
 const int table_step[] = {1, 2, 3, 4, 8, 16};
 const uint32_t table_midi_order[] = {k_VCO1_fq,  k_VCO1_wfm, k_VCO1_mod1, k_VCO1_mod2, k_VCO1_mod3, k_VCO2_fq, k_VCO2_wfm,
-	 k_VCO2_mod1, k_VCO2_mod2, k_VCO2_mod3, k_VCO3_fq, k_VCO3_wfm, k_VCO3_mod1, k_VCO3_mod2, k_VCO3_mod3, k_MIX1, 
-	 k_MIX2, k_MIX3, k_VCF1_fq, k_VCF1_q, k_VCF1_mod1, k_VCF1_mod2, k_ADSR_a, k_ADSR_d, k_ADSR_s, k_ADSR_r, k_LFO1_fq, 
-	 k_LFO1_mod, k_LFO4_fq, k_LFO2_fq, k_LFO2_mod, k_LFO5_fq, k_LFO3_fq, k_LFO3_mod, k_LFO6_fq, k_LFO7_fq, k_LFO7_wf, 
+	 k_VCO2_mod1, k_VCO2_mod2, k_VCO2_mod3, k_VCO3_fq, k_VCO3_wfm, k_VCO3_mod1, k_VCO3_mod2, k_VCO3_mod3, k_MIX1,
+	 k_MIX2, k_MIX3, k_VCF1_fq, k_VCF1_q, k_VCF1_mod1, k_VCF1_mod2, k_ADSR_a, k_ADSR_d, k_ADSR_s, k_ADSR_r, k_LFO1_fq,
+	 k_LFO1_mod, k_LFO4_fq, k_LFO2_fq, k_LFO2_mod, k_LFO5_fq, k_LFO3_fq, k_LFO3_mod, k_LFO6_fq, k_LFO7_fq, k_LFO7_wf,
 	 k_LFO7_sym, k_EFFECT1_wet, k_EFFECT1_p1, k_EFFECT1_p2, k_EFFECT2_wet, k_EFFECT2_p1, k_VCF2_fq, k_VCF2_mod, k_GAIN};
 
 // potentiomettres:
@@ -122,8 +122,8 @@ float g_MIDI_LFO_increment;
 float g_MIDI_led_time;
 
 // Random
-int32_t g_randomSeed_v; 
-int32_t g_randomSeed_u; 
+int32_t g_randomSeed_v;
+int32_t g_randomSeed_u;
 
 // chaos :
 #define nb_thomas_attractor 3*16 // 16 for LFO 1 to 3
@@ -170,7 +170,7 @@ enum MOD_DESTINATION {
     LFO1_MOD, LFO2_MOD, LFO3_MOD,
     EFFECT1_MOD, EFFECT2_MOD,
     VCF2_MOD1,
-    modulation_destination_last    
+    modulation_destination_last
 };
 
 enum thomas_attractor {
@@ -179,7 +179,7 @@ enum thomas_attractor {
 
 enum MOD_TYPE { MOD_FM_exp, MOD_FM_Qtz, MOD_FM_lin, MOD_AM, MOD_PM, MOD_CLIP, MOD_WF, modulation_type_last }; // VCO modulation
 enum ADSR_MOD { Attack, Decay, Release, Release2};
-enum LFO_WF { WF_AR, WF_sin, WF_tri, WF_square, WF_ramp, WF_saw, WF_spike, WF_step, WF_noise }; 
+enum LFO_WF { WF_AR, WF_sin, WF_tri, WF_square, WF_ramp, WF_saw, WF_spike, WF_step, WF_noise };
 enum LFO_Mix_algo { LFO_Mix, LFO_AM, LFO_FM, LFO_PM, LFO_CLIP, LFO_Fold, LFO_Xor, LFO_FILTER, LFO_RESET, LFO_SYNC, LFO_GATE, LFO_TH, LFO_RndLoop, LFO_nb_algo}; // LFO modulation
 enum MENU_switch {MENU_VCO1, MENU_VCO2, MENU_VCO3, MENU_VCF1, MENU_ADSR, MENU_LFO1, MENU_LFO2, MENU_LFO3,
         MENU_LFO4, MENU_LFO5, MENU_LFO6, MENU_LFO7, MENU_MIDI, MENU_CV1, MENU_CV2, MENU_EFFECTS, MENU_LOAD, MENU_SAVE, MENU_LOAD_SAVE };
@@ -193,8 +193,8 @@ struct CONFIGURATION
 	// CV calibration
 	float c_CV1_offset = 0.f;
 	float c_CV2_offset = 0.f;
-	float c_CV1_gain = 1.f; 
-	
+	float c_CV1_gain = 1.f;
+
     // VCO
     uint32_t c_VCO1_WF ;
     uint32_t c_VCO1_RANGE ;
@@ -255,7 +255,7 @@ struct CONFIGURATION
 };
 
 // configuration actuel
-CONFIGURATION curent_config; // configuration actuel 
+CONFIGURATION curent_config; // configuration actuel
 
 // modulations, LFO
 float g_Modulation[2*modulation_source_last]; // valeur des diferentes g_Modulation
@@ -271,7 +271,7 @@ struct voice
         // -1 : on vient de l'utiliser
         // -2 : celle qui a ete utilisé juste avant, etc
     uint32_t v_GATE_source; // 0 = Kb int, 1 = MIDI, 2 = v_GATE logic
-    float  v_pitch; 
+    float  v_pitch;
     uint32_t v_GATE; // GATE on/off
 // VCO1
     float v_VCO1_phase = 0.f;
@@ -299,6 +299,8 @@ struct voice
 // ADSR
     uint32_t v_ADSR_mode = Release;
     float v_ADSR_out = 0.f;
+// MIDI
+	float amplitude = 1.f;
 };
 
 voice allvoice[nb_voice]; // declaration des memoires des voies de polyphonie

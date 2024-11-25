@@ -18,7 +18,7 @@
 // voice source : 0 = Kb, 1 = MIDI, 2 = CV gate
 uint32_t g_new_gate = 0;
 
-void add_voice(uint32_t my_GATE_source, int32_t my_pitch) {
+void add_voice(uint32_t my_GATE_source, int32_t my_pitch, float amplitude) {
     uint32_t empty = 0;
     uint32_t used = 0;
     uint32_t i;
@@ -51,6 +51,7 @@ void add_voice(uint32_t my_GATE_source, int32_t my_pitch) {
             //if( reuse_voice == 0) allvoice[i].v_ADSR_out = 0.; // on reset l'envelope ssi on ne reutilise pas la voie
             allvoice[i].v_pitch = my_pitch;
             allvoice[i].v_GATE = 1;
+            allvoice[i].amplitude = amplitude;
         } else {
             if (voice_to_use_priority < 0) { // si la nouvelle voie etait deja actif avant (et dc avais une priorité negative
                 if ( (allvoice[i].v_priority > voice_to_use_priority) && (allvoice[i].v_priority < 0) ) allvoice[i].v_priority -= 1;
@@ -94,7 +95,7 @@ void remove_voice(uint32_t my_GATE_source, int32_t my_pitch) {
     }
 }
 
-inline uint32_t test_voice(int32_t pitch) { 
+inline uint32_t test_voice(int32_t pitch) {
     uint32_t on = 0;
 
     for (uint32_t i=nb_voice; i--;) {

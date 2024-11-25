@@ -213,9 +213,9 @@ inline void get_keyboard() { // recupere les information des 6 capteurs capaciti
     kb_data[0] = 0;
     if (g_time < 0) return; // on execute la fonction seulement si c'est le bon moment
                             // g_time est incrémenté ds la boucle audio
-    g_menu_count++; 
+    g_menu_count++;
     g_menu_count = (g_menu_count > 1000000)? 1000000:g_menu_count; // temps depuis le dernier changement
-    
+
     switch(g_state_kb) {
     case 0:
         key_and_led(); // update configuration and leds
@@ -224,10 +224,10 @@ inline void get_keyboard() { // recupere les information des 6 capteurs capaciti
         g_change_any_key = 0;
         break;
     case 1:
-        if(dsy_gpio_read(&Kb1_int) != 1) 
+        if(dsy_gpio_read(&Kb1_int) != 1)
         {	// si on as un changement a tester
 			g_change_any_key = 1;
-			if(i2c_kb.ReadDataAtAddress(136, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK) 
+			if(i2c_kb.ReadDataAtAddress(136, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK)
 			{
 				ui_tmp = g_switch1;
 				ui_tmp &= 0xFFFFFF00; // clear current bits
@@ -238,14 +238,14 @@ inline void get_keyboard() { // recupere les information des 6 capteurs capaciti
 				i2c_kb.Init(i2c_kb.GetConfig()); // reinit I2C driver, and do this test again
 				g_time = -2 * block_per_ms;
 			}
-		} 
+		}
 		g_state_kb++;
 		break;
     case 2 :
-        if(dsy_gpio_read(&Kb1_int) != 1) 
+        if(dsy_gpio_read(&Kb1_int) != 1)
         {
 			g_change_any_key = 1;
-			if(i2c_kb.ReadDataAtAddress(138, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK) 
+			if(i2c_kb.ReadDataAtAddress(138, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK)
 			{
 				ui_tmp = g_switch1;
 				ui_tmp &= 0xFFFF00FF; // clear current bits
@@ -256,14 +256,14 @@ inline void get_keyboard() { // recupere les information des 6 capteurs capaciti
 				i2c_kb.Init(i2c_kb.GetConfig());
 				g_time = -2 * block_per_ms;
 			}
-		} 
+		}
 		g_state_kb++;
 		break;
     case 3 :
-		if(dsy_gpio_read(&Kb1_int) != 1) 
+		if(dsy_gpio_read(&Kb1_int) != 1)
 		{
 			g_change_any_key = 1;
-			if(i2c_kb.ReadDataAtAddress(140, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK) 
+			if(i2c_kb.ReadDataAtAddress(140, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK)
 			{
 				ui_tmp = g_switch1;
 				ui_tmp &= 0xFF00FFFF; // clear current bits
@@ -274,14 +274,14 @@ inline void get_keyboard() { // recupere les information des 6 capteurs capaciti
 				i2c_kb.Init(i2c_kb.GetConfig());
 				g_time = -2 * block_per_ms;
 			}
-		} 
+		}
 		g_state_kb++;
 		break;
     case 4 :
-		if(dsy_gpio_read(&Kb1_int) != 1) 
+		if(dsy_gpio_read(&Kb1_int) != 1)
 		{
 			g_change_any_key = 1;
-			if(i2c_kb.ReadDataAtAddress(142, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK) 
+			if(i2c_kb.ReadDataAtAddress(142, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK)
 			{
 				ui_tmp = g_switch1;
 				ui_tmp &= 0x00FFFFFF; // clear current bits
@@ -292,14 +292,14 @@ inline void get_keyboard() { // recupere les information des 6 capteurs capaciti
 				i2c_kb.Init(i2c_kb.GetConfig());
 				g_time = -2 * block_per_ms;
 			}
-		} 
+		}
 		g_state_kb++;
 		break;
     case 5 :
-        if(dsy_gpio_read(&Kb2_int) != 1)  
+        if(dsy_gpio_read(&Kb2_int) != 1)
         {
 			g_change_any_key = 1;
-			if(i2c_led.ReadDataAtAddress(136, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK) 
+			if(i2c_led.ReadDataAtAddress(136, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK)
 			{
 				ui_tmp = g_switch2;
 				ui_tmp &= 0xFFFFFF00; // clear current bits
@@ -310,14 +310,14 @@ inline void get_keyboard() { // recupere les information des 6 capteurs capaciti
 				i2c_led.Init(i2c_led.GetConfig());
 				g_time = -2 * block_per_ms;
 			}
-		} 
+		}
 		g_state_kb++;
 		break;
     case 6:
-        if(dsy_gpio_read(&Kb2_int) != 1)  
+        if(dsy_gpio_read(&Kb2_int) != 1)
         {
 			g_change_any_key = 1;
-			if(i2c_led.ReadDataAtAddress(142, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK) 
+			if(i2c_led.ReadDataAtAddress(142, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK)
 			{
 				ui_tmp = g_switch2;
 				ui_tmp &= 0xFFFF00FF; // clear current bits
@@ -327,8 +327,8 @@ inline void get_keyboard() { // recupere les information des 6 capteurs capaciti
 			} else {
 				i2c_led.Init(i2c_led.GetConfig());
 				g_time = -2 * block_per_ms;
-			}	
-		} 
+			}
+		}
 		g_state_kb++;
 		break;
 	case 7:
@@ -337,17 +337,17 @@ inline void get_keyboard() { // recupere les information des 6 capteurs capaciti
 		int32_t i;
 		if (g_change_any_key == 0) { g_state_kb++; break; }
 		g_change_any_key = 0;
-		
+
 		l_switch1 = g_switch1;
 		l_switch2 = g_switch2;
-		
+
 		switch_keyboard = -1;
 		switch_keyboard_bit = 0;
 		switch_modulation = -1;
 		switch_configuration = -1;
-		
-		g_menu_count = 0;	// raz du  temps depuis le dernier changement 
-		
+
+		g_menu_count = 0;	// raz du  temps depuis le dernier changement
+
 		if (l_switch1 & (1<<BIT_KEY_SEL_VCO1)) switch_configuration = MENU_VCO1;
 		if (l_switch1 & (1<<BIT_KEY_SEL_VCO2)) switch_configuration = MENU_VCO2;
 		if (l_switch1 & (1<<BIT_KEY_SEL_VCO3)) switch_configuration = MENU_VCO3;
@@ -366,11 +366,11 @@ inline void get_keyboard() { // recupere les information des 6 capteurs capaciti
 
 		if ( (l_switch1 & (1<<BIT_KEY_SAVE))  && (l_switch1 & (1<<BIT_KEY_LOAD)) ) switch_configuration = MENU_LOAD_SAVE;
 
-		if (l_switch2 & (1<<BIT_KEY_SEL_MIDI)) switch_configuration = MENU_MIDI; 
+		if (l_switch2 & (1<<BIT_KEY_SEL_MIDI)) switch_configuration = MENU_MIDI;
 		if (l_switch2 & (1<<BIT_KEY_SEL_CV1))  switch_configuration = MENU_CV1;
 		if (l_switch2 & (1<<BIT_KEY_SEL_CV2))  switch_configuration = MENU_CV2;
-		g_switch_configuration = switch_configuration; 
-		
+		g_switch_configuration = switch_configuration;
+
 		if (l_switch1 & (1<<BIT_KEY_VCO1_MOD1)) switch_modulation = VCO1_MOD1;
 		if (l_switch1 & (1<<BIT_KEY_VCO1_MOD2)) switch_modulation = VCO1_MOD2;
 		if (l_switch1 & (1<<BIT_KEY_VCO1_MOD3)) switch_modulation = VCO1_MOD3;
@@ -399,7 +399,7 @@ inline void get_keyboard() { // recupere les information des 6 capteurs capaciti
 		g_switch_keyboard_bit = switch_keyboard_bit;
 		g_switch_keyboard = switch_keyboard;
 		g_state_kb++;
-        g_time = 0; 
+        g_time = 0;
         break;
     case 8:
         g_state_kb = 0; // retour au debut
@@ -416,7 +416,7 @@ void change_key(uint32_t current_key_bit) {
             pitch = i+12*curent_config.c_KEYBOARD_octave; //
             if(curent_config.c_KEYBOARD_toggle == 0) {  // mode normal
                 if ( (current_key_bit>>i) & 1 ) { // appuie sur la touche : note on
-                    add_voice(0, pitch);
+                    add_voice(0, pitch, 1.f);
                 }
                 else {
                     remove_voice(0, pitch); // on relache : note off
@@ -427,7 +427,7 @@ void change_key(uint32_t current_key_bit) {
                     if (test_voice(pitch))
                         remove_voice(0, pitch); // remove si la voie etait on
                     else
-                        add_voice(0, pitch); // on l'ajoute sinon
+                        add_voice(0, pitch, 1.f); // on l'ajoute sinon
                 }
             }
         }
@@ -455,7 +455,7 @@ void set_modulation_negatif (uint32_t switch_modulation, uint32_t new_mod, uint3
 			curent_config.c_Modulation_Source[switch_modulation] = new_mod;
 	}
 }
- 
+
  void set_modulation_special (uint32_t switch_modulation, uint32_t new_mod, uint32_t change_time) {
 	if(!change_time) {
 		uint32_t uint_tmp2 = curent_config.c_Modulation_Source[switch_modulation];
@@ -466,7 +466,7 @@ void set_modulation_negatif (uint32_t switch_modulation, uint32_t new_mod, uint3
 		set_modulation( switch_modulation, new_mod + tmp, 0);
 	}
  }
- 
+
 int keyboard_all() { // gere le clavier : change les configs si besion and return le mode d'affichage des leds :
     // 0 : mode normal
     // 1 : mode modulation
@@ -486,7 +486,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
     change_configuration = (g_last_switch_configuration != switch_configuration);
     change_time = ((g_menu_count > 1000) && (g_menu_count < 1000000)); // pour tester lkes appuie long
     if (change_time) g_menu_count=1000000; // on ne traite qu'une fois le "change_time"
-        
+
     g_last_switch_modulation = switch_modulation;
     g_last_switch_configuration = switch_configuration;
     g_last_switch_keyboard = switch_keyboard;
@@ -496,7 +496,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
     pressed_keyboard = (switch_keyboard>=0);
     pressed_modulation = (switch_modulation>=0);
     pressed_configuration = (switch_configuration>=0);
-    
+
     if (!change_keyboard && !change_modulation && !change_configuration && !change_time)  return 3; // si rien n'a changé, on ne fait rien de neuf
 
 	if (change_time && !(pressed_modulation && pressed_configuration) ) return 3; // si change_time, alors il n'y a qu'un cas qui nous interesse
@@ -552,7 +552,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
                 // ce n'est pas une modulation...
             break;
             case MENU_ADSR:
-				set_modulation_negatif(switch_modulation, ADSR_OUT, change_time); 
+				set_modulation_negatif(switch_modulation, ADSR_OUT, change_time);
             break;
             case MENU_LFO1:
 				set_modulation_negatif(switch_modulation, LFO1_OUT, change_time);
@@ -685,7 +685,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
         case MENU_VCO3 :
             if (switch_keyboard <= 8)
  				if(curent_config.c_VCO3_WF == (uint32_t)switch_keyboard) curent_config.c_VCO3_WF=9;
-                else curent_config.c_VCO3_WF = switch_keyboard;               
+                else curent_config.c_VCO3_WF = switch_keyboard;
             else {
                 switch (switch_keyboard-9) {
                 case 0 :
@@ -712,7 +712,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 				if (switch_keyboard <= 8)
 					curent_config.c_VCF1_pitch_TRACK = switch_keyboard - 6;
 				else if (switch_keyboard >= 11)
-					curent_config.c_VCF2_TYPE = switch_keyboard - 11;				
+					curent_config.c_VCF2_TYPE = switch_keyboard - 11;
 			}
 			break;
         case MENU_ADSR :
@@ -836,7 +836,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 				if 	(curent_config.c_EFFECT2_TYPE != (uint32_t)switch_keyboard) {
 					curent_config.c_EFFECT2_TYPE = switch_keyboard;
 					}
-				else curent_config.c_EFFECT2_TYPE = 6;                
+				else curent_config.c_EFFECT2_TYPE = 6;
             }
             break;
         case MENU_LOAD :
@@ -857,7 +857,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 				break;
 				case 2: // load random config
 					random_config();
-				break;				
+				break;
 			}
 			break;
         }
@@ -870,7 +870,7 @@ void key_and_led(){ // test keyboard and update leds
     uint32_t led_mode = keyboard_all();
     if (led_mode == 3) led_mode = g_last_led_state;
     else g_last_led_state = led_mode;
-    
+
     switch (led_mode) {
     case 0 :
         leds_mode_normal();
@@ -951,7 +951,7 @@ void midi_in(uint32_t MIDI_data) {
                 // we have a full midi message
                 if ( ( g_MIDI_status == 0x90) &&  (MIDI_data2 != 0) ) // note on
                 {
-                    add_voice(1, MIDI_data1-60);
+                    add_voice(1, MIDI_data1-60, (float)MIDI_data2/127.f);
                     //g_Modulation[MIDI_vel] = MIDI_data2;
                 }
                 if ( ( (g_MIDI_status == 0x90) &&  (MIDI_data2 == 0) ) || ( g_MIDI_status == 0x80 ) )
@@ -969,26 +969,26 @@ void midi_in(uint32_t MIDI_data) {
                     if (MIDI_data1 == 01) { // mod wheel
                         tmpf = (float)((MIDI_data2 << 7)+ g_MIDI_MODWHEEL_LSB);
                         tmpf = ( tmpf * 0.00006103515f); // 14 bit de 0 a 1
-                        g_Modulation[MIDI_modulation] = tmpf;      
-                        g_Modulation[MIDI_modulation + modulation_source_last] = -tmpf;      
+                        g_Modulation[MIDI_modulation] = tmpf;
+                        g_Modulation[MIDI_modulation + modulation_source_last] = -tmpf;
                     }
-                    if (MIDI_data1 == 11) { 
+                    if (MIDI_data1 == 11) {
 						tmpf = (float)((MIDI_data2 << 7) + g_MIDI_exprssion_LSB) * 0.00006103515f;  // positif seulement
 						g_Modulation[MIDI_expression] = tmpf;
 						}
                     if (MIDI_data1 == 33) { g_MIDI_MODWHEEL_LSB = MIDI_data2; }  // mod wheel LSB
                     if (MIDI_data1 == 99) { g_RNPN_addresse_MSB = MIDI_data2; }
                     if (MIDI_data1 == 98) { g_RNPN_addresse_LSB = MIDI_data2; }
-                    if (MIDI_data1 == 6 ) { 
-						g_RNPN_value_MSB = MIDI_data2; 
+                    if (MIDI_data1 == 6 ) {
+						g_RNPN_value_MSB = MIDI_data2;
 						uint_tmp = g_RNPN_addresse_LSB + (g_RNPN_addresse_MSB << 7);
                         if (uint_tmp < nb_potentiometer) {
 							uint_tmp = table_midi_order[uint_tmp];
                             g_midi_parameter[uint_tmp] = (g_RNPN_value_MSB << 7) * 0.00006103515f;
                         }
 					}
-                    if (MIDI_data1 == 38) { 
-						g_RNPN_value_LSB = MIDI_data2; 
+                    if (MIDI_data1 == 38) {
+						g_RNPN_value_LSB = MIDI_data2;
                         uint_tmp = g_RNPN_addresse_LSB + (g_RNPN_addresse_MSB << 7);
                         if (uint_tmp < nb_potentiometer) {
 							uint_tmp = table_midi_order[uint_tmp];
@@ -1020,7 +1020,7 @@ inline void get_analog_in() {
 
     analog_gate = dsy_gpio_read(&gate_pin);
     if (g_analog_gate > analog_gate) remove_voice(2, 0);
-    if (g_analog_gate < analog_gate) add_voice(2, 0);
+    if (g_analog_gate < analog_gate) add_voice(2, 0, 1.f);
     g_analog_gate = analog_gate;
 }
 
@@ -1031,8 +1031,8 @@ inline void get_analog_in() {
 inline void get_midi() {
 	if(hw.midi.Readable()) // MIDI in
 		midi_in(hw.midi.Rx()); // analyse les datas midi qu'on reçoit
-	if(!hw.midi.RxActive()) { // In case of UART Error, (particularly overrun error), UART disables itself. 
-		hw.midi.FlushRx(); // Flush the buff, 
+	if(!hw.midi.RxActive()) { // In case of UART Error, (particularly overrun error), UART disables itself.
+		hw.midi.FlushRx(); // Flush the buff,
 		hw.midi.StartRx(); // and restart.
 	}
 }

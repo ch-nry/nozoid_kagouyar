@@ -35,7 +35,7 @@ float ADSR(uint32_t j) {
 	//float D = g_pot_audio[k_ADSR_d];
 	float S = g_pot_audio[k_ADSR_s];
 	//float R = g_pot_audio[k_ADSR_r];
-	
+
     float tmp=0.;
     float ADSR_out = allvoice[j].v_ADSR_out;
     float ADSR_goal = 0.f;;
@@ -69,7 +69,7 @@ float ADSR(uint32_t j) {
 			}
 		break;
 	}
-	
+
     switch (ADSR_mode) {
     case Attack :
         tmp = g_pot_audio[k_ADSR_a];
@@ -105,10 +105,11 @@ float ADSR(uint32_t j) {
 
 inline float VCA(uint32_t j, float sound) { // each voice gain
     if (curent_config.c_VCA_TYPE == 0) {
-        return sound * allvoice[j].v_ADSR_out * allvoice[j].v_ADSR_out;
+        return sound * allvoice[j].v_ADSR_out * allvoice[j].v_ADSR_out * allvoice[j].amplitude;
+;
     } else {
         _fonepole(allvoice[j].v_LPG_last, sound, _fmin(1.,CV2freq(-80.f + allvoice[j].v_ADSR_out * 208.f)*(1.f/12000.f)));
-        return allvoice[j].v_LPG_last;
+        return allvoice[j].v_LPG_last * allvoice[j].amplitude;
     }
 }
 
