@@ -35,10 +35,10 @@ float ADSR(uint32_t j) {
 	//float D = g_pot_audio[k_ADSR_d];
 	float S = g_pot_audio[k_ADSR_s];
 	//float R = g_pot_audio[k_ADSR_r];
-	
+
     float tmp=0.;
     float ADSR_out = allvoice[j].v_ADSR_out;
-    float ADSR_goal = 0.f;;
+    float ADSR_goal = 0.f;
     uint32_t ADSR_LOOP = curent_config.c_ADSR_LOOP; // local variable for optimisation
     uint32_t ADSR_mode = allvoice[j].v_ADSR_mode; // local variable
 
@@ -69,7 +69,7 @@ float ADSR(uint32_t j) {
 			}
 		break;
 	}
-	
+
     switch (ADSR_mode) {
     case Attack :
         tmp = g_pot_audio[k_ADSR_a];

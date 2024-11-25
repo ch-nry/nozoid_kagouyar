@@ -29,20 +29,33 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
     float mod_fq = 0.f;
     float mod_q = 0.f;
 	float res = g_pot_audio[k_VCF1_q] ;
-	
-    if(curent_config.c_VCF1_MOD1_TYPE == 0) 
+
+	    // Utiliser des pointeurs locaux pour réduire les accès mémoire
+    voice& myvoice = allvoice[j];
+
+/*
+    if(curent_config.c_VCF1_MOD1_TYPE == 0)
         mod_fq += g_pot_audio[k_VCF1_mod1] * g_Modulation[curent_config.c_Modulation_Source[VCF1_MOD1]];
     else
         mod_q  += g_pot_audio[k_VCF1_mod1] * g_Modulation[curent_config.c_Modulation_Source[VCF1_MOD1]];
-   
-    if(curent_config.c_VCF1_MOD2_TYPE == 0) 
+
+    if(curent_config.c_VCF1_MOD2_TYPE == 0)
         mod_fq += g_pot_audio[k_VCF1_mod2] * g_Modulation[curent_config.c_Modulation_Source[VCF1_MOD2]];
-    else 
+    else
         mod_q  += g_pot_audio[k_VCF1_mod2] * g_Modulation[curent_config.c_Modulation_Source[VCF1_MOD2]];
+*/
+	//cursor
+	const float mod1_value = g_pot_audio[k_VCF1_mod1] * g_Modulation[curent_config.c_Modulation_Source[VCF1_MOD1]];
+    const float mod2_value = g_pot_audio[k_VCF1_mod2] * g_Modulation[curent_config.c_Modulation_Source[VCF1_MOD2]];
+
+    mod_fq += !curent_config.c_VCF1_MOD1_TYPE ? mod1_value : 0.f;
+    mod_q  += curent_config.c_VCF1_MOD1_TYPE ? mod1_value : 0.f;
+    mod_fq += !curent_config.c_VCF1_MOD2_TYPE ? mod2_value : 0.f;
+    mod_q  += curent_config.c_VCF1_MOD2_TYPE ? mod2_value : 0.f;
 
     float freq = fq+ (48.f*mod_fq) + (24.f*g_Modulation[MIDI_expression]);
     tmp = curent_config.c_VCF1_pitch_TRACK;
-    freq += tmp * 0.5f * (allvoice[j].v_pitch-12.f);
+    freq += tmp * 0.5f * (myvoice.v_pitch-12.f);
     freq = _fclamp(freq, -128, 138);
     freq = CV2freq(freq);
 
@@ -54,81 +67,92 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
     Q *= 1.0029f + omega*(0.0526f + omega * (-0.0926f  + omega*0.0218f));
 
     input1 *= 0.5; // limitation de l'amplitude d'entrée pour ne pas trop distordre le signal avant le filtre
-	
+
 	Q *= 1.2f; // pour aller plus loin ds la resonnance
-	
-	_fonepole(allvoice[j].v_VCF1_filter, input1, 10000.f*OneOverSR); // on baisse les hautes frequences pour reduire le repliement ds la non linéarité
-	input1 = allvoice[j].v_VCF1_filter;
-	
-    float feedback = Q * ( allvoice[j].v_VCF1_last_output4 - (0.5f * input1) ); // feedback
+
+	_fonepole(myvoice.v_VCF1_filter, input1, 10000.f*OneOverSR); // on baisse les hautes frequences pour reduire le repliement ds la non linéarité
+	input1 = myvoice.v_VCF1_filter;
+
+    float feedback = Q * ( myvoice.v_VCF1_last_output4 - (0.5f * input1) ); // feedback
 
     input1 -= feedback;
     input1 = _tanh(input1); // distortion
 
-    float output1 = (input1 + 0.3f * allvoice[j].v_VCF1_last_input1)*(1.f/1.3f); // 4 * 6dB filter
-    allvoice[j].v_VCF1_last_input1 = input1;
-    tmp = allvoice[j].v_VCF1_last_output1;
+/*
+    float output1 = (input1 + 0.3f * myvoice.v_VCF1_last_input1)*(1.f/1.3f); // 4 * 6dB filter
+    myvoice.v_VCF1_last_input1 = input1;
+    tmp = myvoice.v_VCF1_last_output1;
     output1 -= tmp;
     output1 *= g;
     output1 += tmp;
-    allvoice[j].v_VCF1_last_output1 = output1;
+    myvoice.v_VCF1_last_output1 = output1;
 
-    float output2 = (output1 + 0.3f * allvoice[j].v_VCF1_last_input2)*(1.f/1.3f);
-    allvoice[j].v_VCF1_last_input2 = output1;
-    tmp = allvoice[j].v_VCF1_last_output2;
+    float output2 = (output1 + 0.3f * myvoice.v_VCF1_last_input2)*(1.f/1.3f);
+    myvoice.v_VCF1_last_input2 = output1;
+    tmp = myvoice.v_VCF1_last_output2;
     output2 -= tmp;
     output2 *= g;
     output2 += tmp;
-    allvoice[j].v_VCF1_last_output2 = output2;
+    myvoice.v_VCF1_last_output2 = output2;
 
-    float output3 = (output2 + 0.3f * allvoice[j].v_VCF1_last_input3)*(1.f/1.3f);
-    allvoice[j].v_VCF1_last_input3 = output2;
-    tmp = allvoice[j].v_VCF1_last_output3;
+    float output3 = (output2 + 0.3f * myvoice.v_VCF1_last_input3)*(1.f/1.3f);
+    myvoice.v_VCF1_last_input3 = output2;
+    tmp = myvoice.v_VCF1_last_output3;
     output3 -= tmp;
     output3 *= g;
     output3 += tmp;
-    allvoice[j].v_VCF1_last_output3 = output3;
+    myvoice.v_VCF1_last_output3 = output3;
 
-    float output4 = (output3 + 0.3f * allvoice[j].v_VCF1_last_input4)*(1.f/1.3f);
-    allvoice[j].v_VCF1_last_input4 = output3;
-    tmp = allvoice[j].v_VCF1_last_output4;
+    float output4 = (output3 + 0.3f * myvoice.v_VCF1_last_input4)*(1.f/1.3f);
+    myvoice.v_VCF1_last_input4 = output3;
+    tmp = myvoice.v_VCF1_last_output4;
     output4 -= tmp;
     output4 *= g;
     output4 += tmp;
-    allvoice[j].v_VCF1_last_output4 = output4;
+    myvoice.v_VCF1_last_output4 = output4;
+*/
+	// cursor
+    #define PROCESS_STAGE(output, last_input, last_output) \
+        output = (input + 0.3f * last_input) * (1.f/1.3f); \
+        last_input = input; \
+        float tmp = last_output; \
+        output -= tmp; \
+        output *= g; \
+        output += tmp; \
+        last_output = output
+
+    float output1, output2, output3, output4;
+
+    PROCESS_STAGE(output1, v.v_VCF1_last_input1, v.v_VCF1_last_output1);
+    PROCESS_STAGE(output2, v.v_VCF1_last_input2, v.v_VCF1_last_output2);
+    PROCESS_STAGE(output3, v.v_VCF1_last_input3, v.v_VCF1_last_output3);
+    PROCESS_STAGE(output4, v.v_VCF1_last_input4, v.v_VCF1_last_output4);
+
+    #undef PROCESS_STAGE
 
     switch (curent_config.c_VCF1_TYPE) {
     case 0 :
-        tmp = output4;
-        break;
+        return 2.f * output4;
     case 1 :
-        tmp = output2;
-        break;
+        return 2.f * output2;
     case 2 :
-        tmp = output1 + output1 - output2 - output2;
-        break;
+        return 2.f * ( output1 + output1 - output2 - output2);
     case 3 :
-        tmp = 4.f * (output2 - output3 - output3 + output4);
-        break;
+        return 8.f * (output2 - output3 - output3 + output4);
     case 4 :
-        tmp = input1 - output1 - output1 + output2;
-        break;
+        return 2.f * (input1 - output1 - output1 + output2);
     case 5 :
-        tmp = input1 - 4.f * (output1 + output3) + 6.f *  output2 + output4;
-        break;
+        return 2.f * (input1 - 4.f * (output1 + output3) + 6.f *  output2 + output4);
     }
- 
-    return 2.f*tmp; // facteur 2 pour compenser le gain d'entré
 }
-
 
 float g_VCF2_last_input1 = 0.f;
 float g_VCF2_last_input2 = 0.f;
 float g_VCF2_out = 0.f;
 
-inline void VCF2(float &input) { 
-	float fq = 127.f * ( g_pot_audio[k_VCF2_fq] += g_pot_increment[k_VCF2_fq]); 
-	float mod1 =  g_pot_audio[k_VCF2_mod] += g_pot_increment[k_VCF2_mod]; 
+inline void VCF2(float &input) {
+	const float fq = 127.f * ( g_pot_audio[k_VCF2_fq] += g_pot_increment[k_VCF2_fq]);
+	const float mod1 =  g_pot_audio[k_VCF2_mod] += g_pot_increment[k_VCF2_mod];
 
     float filter_fq = mod1 * g_Modulation[curent_config.c_Modulation_Source[VCF2_MOD1]];
     filter_fq *= 48.f;
@@ -139,9 +163,13 @@ inline void VCF2(float &input) {
     _fonepole(g_VCF2_last_input1, input,              filter_fq);
     _fonepole(g_VCF2_last_input2, g_VCF2_last_input1, filter_fq);
 
+/*
     if(curent_config.c_VCF2_TYPE) {
         input = input - g_VCF2_last_input2;
     } else {
         input = g_VCF2_last_input2;
     }
+*/
+    //cursor
+    input = curent_config.c_VCF2_TYPE ? (input - g_VCF2_last_input2) : g_VCF2_last_input2;
 }
