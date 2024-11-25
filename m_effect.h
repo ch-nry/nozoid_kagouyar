@@ -25,15 +25,14 @@ float g_effect1_phase;
 float g_effect1_last_out = 0.f;
 float g_effect1_param_filter = 0.f;
 float g_effect1_param_filter2 = 0.f;
-float g_grain1_speed, g_grain2_speed;
 float g_old_distance = 0.f, g_vitesse = 0.f, g_decole = 0.f, g_old_sound_out = 0.f;
 
 //daisysp::DelayLine<float, 48000*4> DSY_SDRAM_BSS g_delay_effect1; // SDRAM
-//daisysp::DelayLine<float, 10000>  g_delay_effect3; 	
+//daisysp::DelayLine<float, 10000>  g_delay_effect3;
 
 /*union Delay_line {
-	daisysp::DelayLine<int16_t, 72000*2>  g_delay_effect1; 
-	daisysp::DelayLine<float, 72000>  g_delay_effect3; 	
+	daisysp::DelayLine<int16_t, 72000*2>  g_delay_effect1;
+	daisysp::DelayLine<float, 72000>  g_delay_effect3;
 } delayline ;
 */
 
@@ -48,7 +47,7 @@ inline void delay1_clear(){
 	for (int i=0; i<delay1_sizef; i++) g_delay1.delay1_float[i] = 0.f;
 	g_delay1_pos = 0;
 }
-	
+
 inline void delay1_write_f(float in){
 	int32_t l_delay1_pos = g_delay1_pos % delay1_sizef;
 	g_delay1.delay1_float[l_delay1_pos] = in;
@@ -56,7 +55,7 @@ inline void delay1_write_f(float in){
 	l_delay1_pos %= delay1_sizef;
 	g_delay1_pos = l_delay1_pos;
 }
-	
+
 inline float delay1_read_f(float delay){
 	int32_t delay_integral   = static_cast<int32_t>(delay);
 	float   delay_fractional = delay - static_cast<float>(delay_integral);
@@ -65,7 +64,7 @@ inline float delay1_read_f(float delay){
 	const float b = g_delay1.delay1_float[(delay_integral + 1) % delay1_sizef];
 	return a + (b - a) * delay_fractional;
 }
-	
+
 inline void delay1_write_i(float  in){
 	int32_t l_delay1_pos = g_delay1_pos; // % delay1_sizei// inutil car sizei > sizef
 	g_delay1.delay1_int[l_delay1_pos] = f2s16(in/3.f);
@@ -73,7 +72,7 @@ inline void delay1_write_i(float  in){
 	l_delay1_pos %= delay1_sizei;
 	g_delay1_pos = l_delay1_pos;
 }
-	
+
 inline float delay1_read_i(float delay){
 	int32_t delay_integral   = static_cast<int32_t>(delay);
 	float   delay_fractional = delay - static_cast<float>(delay_integral);
@@ -82,7 +81,7 @@ inline float delay1_read_i(float delay){
 	const float b = s162f(g_delay1.delay1_int[(delay_integral + 1) % delay1_sizei]);
 	return 3.f*(a + (b - a) * delay_fractional);
 }
-	
+
 
 inline float effect1(float sound_in) { //, float wet, float param1, float param2) {
 	float wet = g_pot_audio[k_EFFECT1_wet] += g_pot_increment[k_EFFECT1_wet];
@@ -118,7 +117,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
         //break;
     case 2 : // FREEZE : small delay (wet : feedback / param1 : time / param2 : time modulation) : flanger / chorus / doubler : OK
         param1M = _fclamp(param1 + param2_mod, 0.f, 1.f);
-        tmp = param1M * 50000.f + 6.f; 
+        tmp = param1M * 50000.f + 6.f;
         //delayline.g_delay_effect1.SetDelay(tmp);
         //sound_out = mix(sound_in , g_delay_effect1.Read(), wet);
         //delayline.g_delay_effect1.Write(_fclamp(sound_out, -3.f, 3.f));
@@ -126,7 +125,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		delay1_write_f(_fclamp(sound_out, -3.f, 3.f));
         return sound_out;
         //break;
-        
+
     case 3 : // KS (wet :  attenuation (gain/filtre) , param1 : frequence, param2 : mod frequence) : OK
         tmp = 48000.f/CV2freq(param1M*127.f);
         tmp += 5.f;
@@ -143,7 +142,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
         return sound_out;
         //break;
     case 4 : // chorus : ( WET + feedback, TIME, WET modulation) : OK
-		param1 *= 1200.f;// 1/8 du temps max du chorus, en echantillons 
+		param1 *= 1200.f;// 1/8 du temps max du chorus, en echantillons
         g_effect1_phase = wrap(g_effect1_phase + (0.005f/48000.f)); // LFO : vitesse de variation du temps du chorus
         effect1_phase = g_effect1_phase;
         sound_out = 0.f; //sound_in;
@@ -159,7 +158,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
         //g_delay_effect3.SetDelay(1.f + (_cos_positiv_loop(0.71f + effect1_phase*7.f)+7.3f) * param1);
         //sound_out -= g_delay_effect3.Read();
         sound_out -= delay1_read_f(1.f + (_cos_positiv_loop(0.71f + effect1_phase*7.f)+7.3f) * param1);
-        sound_out *= 0.5f;        
+        sound_out *= 0.5f;
         sound_out = sound_in + _tanh(wetM*sound_out);
         //g_delay_effect3.Write(sound_out);
         delay1_write_f(sound_out);
@@ -190,7 +189,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 			g_old_sound_out = sound_in;
 		}
 		else if (abs(tmp) > (param1*0.5f)) { // trop de diference entre entrée et sortie, on décole
-			g_decole = 1.f;			
+			g_decole = 1.f;
 		}
 		if ( g_decole == 1.f) { // si decollé : a quelle vitesse on retourne pour recoller
 			g_vitesse += 0.1* wetM*wetM*tmp;
@@ -221,9 +220,9 @@ inline float effect2(float sound_in) { //, float param, float param1) {
 	float effect2_phase;
     float wet = param + param1 * g_Modulation[curent_config.c_Modulation_Source[EFFECT2_MOD]];
     wet = _fclamp(wet, 0., 1.);
-    
+
     switch(curent_config.c_EFFECT2_TYPE) {
-    case 0: // disto : OK 
+    case 0: // disto : OK
         tmp = wet*(wet+1.f);
         tmp = wet*wet;
         tmp = wet*wet*sound_in*150.f;
@@ -248,7 +247,7 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         sound_out = g_delay_effect2.Read();
         return sound_out;
     case 4 : // granular sub frequency generator : OK
-        g_delay_effect2.Write(sound_in); 
+        g_delay_effect2.Write(sound_in);
         effect2_phase = g_effect2_phase + 0.00020833333f; // 100ms pour 1 grain
         if (effect2_phase>1.f) {
             effect2_phase = effect2_phase-1.f;
@@ -261,7 +260,7 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         g_delay_effect2.SetDelay(2400.f * effect2_phase);
         sound_out  += g_delay_effect2.Read() *  (1.f-_cos(effect2_phase));
 
-        return mix(sound_in, sound_out*0.5, wet);        
+        return mix(sound_in, sound_out*0.5, wet);
     case 5: // compresseur- attenuateur :
     //  qd pas de modulation, que faire avec param???
         tmp = fabs(sound_in);
@@ -274,9 +273,9 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         tmp2 = tmp*param*param*param*20.f;
         tmp2 = (tmp + tmp2) / (1.f + fabs(tmp2));             // new volume
         sound_out = sound_in * tmp2/tmp;        // compress
-        
+
         sound_out *= _fclamp(1.f - param1 * (1.f-g_Modulation[curent_config.c_Modulation_Source[EFFECT2_MOD]]), 0.f, 1.f); // attenuation
-        
+
         return sound_out;
 	case 6 : //rien, utilisé lors du changement d'effet
 		return sound_in;

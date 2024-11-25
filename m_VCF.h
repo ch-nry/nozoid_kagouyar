@@ -29,15 +29,15 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
     float mod_fq = 0.f;
     float mod_q = 0.f;
 	float res = g_pot_audio[k_VCF1_q] ;
-	
-    if(curent_config.c_VCF1_MOD1_TYPE == 0) 
+
+    if(curent_config.c_VCF1_MOD1_TYPE == 0)
         mod_fq += g_pot_audio[k_VCF1_mod1] * g_Modulation[curent_config.c_Modulation_Source[VCF1_MOD1]];
     else
         mod_q  += g_pot_audio[k_VCF1_mod1] * g_Modulation[curent_config.c_Modulation_Source[VCF1_MOD1]];
-   
-    if(curent_config.c_VCF1_MOD2_TYPE == 0) 
+
+    if(curent_config.c_VCF1_MOD2_TYPE == 0)
         mod_fq += g_pot_audio[k_VCF1_mod2] * g_Modulation[curent_config.c_Modulation_Source[VCF1_MOD2]];
-    else 
+    else
         mod_q  += g_pot_audio[k_VCF1_mod2] * g_Modulation[curent_config.c_Modulation_Source[VCF1_MOD2]];
 
     float freq = fq+ (48.f*mod_fq) + (24.f*g_Modulation[MIDI_expression]);
@@ -54,12 +54,12 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
     Q *= 1.0029f + omega*(0.0526f + omega * (-0.0926f  + omega*0.0218f));
 
     input1 *= 0.5; // limitation de l'amplitude d'entrée pour ne pas trop distordre le signal avant le filtre
-	
+
 	Q *= 1.2f; // pour aller plus loin ds la resonnance
-	
+
 	_fonepole(allvoice[j].v_VCF1_filter, input1, 10000.f*OneOverSR); // on baisse les hautes frequences pour reduire le repliement ds la non linéarité
 	input1 = allvoice[j].v_VCF1_filter;
-	
+
     float feedback = Q * ( allvoice[j].v_VCF1_last_output4 - (0.5f * input1) ); // feedback
 
     input1 -= feedback;
@@ -117,7 +117,7 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
         tmp = input1 - 4.f * (output1 + output3) + 6.f *  output2 + output4;
         break;
     }
- 
+
     return 2.f*tmp; // facteur 2 pour compenser le gain d'entré
 }
 
@@ -126,9 +126,9 @@ float g_VCF2_last_input1 = 0.f;
 float g_VCF2_last_input2 = 0.f;
 float g_VCF2_out = 0.f;
 
-inline void VCF2(float &input) { 
-	float fq = 127.f * ( g_pot_audio[k_VCF2_fq] += g_pot_increment[k_VCF2_fq]); 
-	float mod1 =  g_pot_audio[k_VCF2_mod] += g_pot_increment[k_VCF2_mod]; 
+inline void VCF2(float &input) {
+	float fq = 127.f * ( g_pot_audio[k_VCF2_fq] += g_pot_increment[k_VCF2_fq]);
+	float mod1 =  g_pot_audio[k_VCF2_mod] += g_pot_increment[k_VCF2_mod];
 
     float filter_fq = mod1 * g_Modulation[curent_config.c_Modulation_Source[VCF2_MOD1]];
     filter_fq *= 48.f;
@@ -139,9 +139,6 @@ inline void VCF2(float &input) {
     _fonepole(g_VCF2_last_input1, input,              filter_fq);
     _fonepole(g_VCF2_last_input2, g_VCF2_last_input1, filter_fq);
 
-    if(curent_config.c_VCF2_TYPE) {
-        input = input - g_VCF2_last_input2;
-    } else {
-        input = g_VCF2_last_input2;
-    }
+    input = curent_config.c_VCF2_TYPE ? (input - g_VCF2_last_input2) : g_VCF2_last_input2;
+
 }
