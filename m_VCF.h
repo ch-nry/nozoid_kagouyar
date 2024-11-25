@@ -78,7 +78,7 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
     input1 -= feedback;
     input1 = _tanh(input1); // distortion
 
-
+/*
     float output1 = (input1 + 0.3f * myvoice.v_VCF1_last_input1)*(1.f/1.3f); // 4 * 6dB filter
     myvoice.v_VCF1_last_input1 = input1;
     tmp = myvoice.v_VCF1_last_output1;
@@ -110,6 +110,25 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
     output4 *= g;
     output4 += tmp;
     myvoice.v_VCF1_last_output4 = output4;
+*/
+	// cursor
+    #define PROCESS_STAGE(output, last_input, last_output) \
+        output = (input + 0.3f * last_input) * (1.f/1.3f); \
+        last_input = input; \
+        float tmp = last_output; \
+        output -= tmp; \
+        output *= g; \
+        output += tmp; \
+        last_output = output
+
+    float output1, output2, output3, output4;
+
+    PROCESS_STAGE(output1, v.v_VCF1_last_input1, v.v_VCF1_last_output1);
+    PROCESS_STAGE(output2, v.v_VCF1_last_input2, v.v_VCF1_last_output2);
+    PROCESS_STAGE(output3, v.v_VCF1_last_input3, v.v_VCF1_last_output3);
+    PROCESS_STAGE(output4, v.v_VCF1_last_input4, v.v_VCF1_last_output4);
+
+    #undef PROCESS_STAGE
 
     switch (curent_config.c_VCF1_TYPE) {
     case 0 :

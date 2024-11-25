@@ -47,7 +47,7 @@
 #define save_pos  0x90000000 + (14*4096)
 
 static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle::InterleavingOutputBuffer out, size_t size) {
-    hw.test_out(true); // write test_out pin;  10µs la premiere partie
+    //hw.test_out(true); // write test_out pin;  10µs la premiere partie
     g_time++;
     g_led_blink += 1<<25; // on laisse les overflow passer de negatif a positif
 
@@ -183,7 +183,7 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
         out[i++] = sig; // droite
         out[i++] = -sig; // gauche
     }
-    hw.test_out(false);
+    //hw.test_out(false);
 }
 
 int main(void)

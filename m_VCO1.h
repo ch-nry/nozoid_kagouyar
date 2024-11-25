@@ -84,7 +84,7 @@ inline float VCO1(uint32_t j, float frequency) {
     g_Modulation[VCO1_SIN] = _cos(VCO1_phase_local); // g_Modulation sinus
     g_Modulation[VCO1_SQUARE] = (VCO1_phase_local > 0.5f)? 1.f : -1.f; // g_Modulation square
     g_Modulation[VCO1_TRI] = fabs(4.f*VCO1_phase_local-2.f)-1.f;
-    const float ramp = VCO1_phase_local + VCO1_phase_local - 1.f; // ramp (saw up)
+    const ramp = VCO1_phase_local + VCO1_phase_local - 1.f; // ramp (saw up)
     g_Modulation[VCO1_RAMP] = ramp;
     g_Modulation[VCO1_SAW] = -ramp; // saw down
 
@@ -175,7 +175,7 @@ inline float VCO1(uint32_t j, float frequency) {
 //    out = _fmin(out, VCO1_clip);
 //    out = _fmax(out, -1.1f);
     // cursor
-    out = _fclamp(out, -1.1f, VCO1_clip);
+    out = _fclamp(out, -1.1f, VCO1.clip);
 
 
     g_Modulation[VCO1_OUT] = out;
