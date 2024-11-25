@@ -18,10 +18,6 @@
 //#define proto2 // commenter pour la version final
 // #define fabien // CV1 et CV2 switch pour faire octave + et octave -
 
-// TODO : passer les #define en constexp
-// mettre un max de variable en const (cf effect de cursor)
-
-
 #include <stdio.h>
 #include <string.h>
 #include "daisysp.h"

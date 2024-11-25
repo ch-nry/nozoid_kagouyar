@@ -15,8 +15,6 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
-//cursor : virer cette variable intermediare
-
 #define modulation_VCO1(VCO_mod, VCO_MOD)                                           \
     modulation_value = VCO_mod;                                                     \
     modulation_value *= g_Modulation[curent_config.c_Modulation_Source[VCO_MOD]];   \
@@ -61,7 +59,7 @@ inline float VCO1(uint32_t j, float frequency) {
     float modulation_value;
     float PWM = g_pot_audio[k_VCO1_wfm];
 	float tmpf;
-
+	
     // Modulation
     modulation_VCO1(g_pot_audio[k_VCO1_mod1], VCO1_MOD1)
     modulation_VCO1(g_pot_audio[k_VCO1_mod2], VCO1_MOD2)
@@ -72,33 +70,33 @@ inline float VCO1(uint32_t j, float frequency) {
     vco_pitch += (int)((12.f*VCO1_FM_Qtz)+0.5f);
 
     VCO1_pitch(allvoice[j], vco_pitch); // sauve ou rapele la valeur de vco1 pour les pitch des vco2 et 3 syncro sur le 1 (cf fonction.h)
-    const float freq = CV2freq(vco_pitch) + VCO1_FM_lin * 2000.f;// freq peux etre negative, ou nulle
-
-    float increment = freq*OneOverSR;
+    float freq = CV2freq(vco_pitch) + VCO1_FM_lin * 2000.f;// freq peux etre negative, ou nulle
+	
+    float increment = freq*OneOverSR; 
     increment += (increment == 0) * 1e-10; // increment ne doit pas etre nul car on a plein de /increment plus tard.
     float phase2, tmp, out=0.f;
 
     float VCO1_phase_local = wrap2(allvoice[j].v_VCO1_phase + increment);
     allvoice[j].v_VCO1_phase = VCO1_phase_local;
-
+    
     g_Modulation[VCO1_SIN] = _cos(VCO1_phase_local); // g_Modulation sinus
     g_Modulation[VCO1_SQUARE] = (VCO1_phase_local > 0.5f)? 1.f : -1.f; // g_Modulation square
     g_Modulation[VCO1_TRI] = fabs(4.f*VCO1_phase_local-2.f)-1.f;
-    const ramp = VCO1_phase_local + VCO1_phase_local - 1.f; // ramp (saw up)
-    g_Modulation[VCO1_RAMP] = ramp;
-    g_Modulation[VCO1_SAW] = -ramp; // saw down
+    tmp = VCO1_phase_local + VCO1_phase_local - 1.f; // ramp (saw up)
+    g_Modulation[VCO1_RAMP] = tmp;
+    g_Modulation[VCO1_SAW] = -tmp; // saw down
 
     VCO1_PM *= 4.f;
     VCO1_phase_local += VCO1_PM;
     //increment =  abs(_floor(VCO1_phase_local-old_phase)); // should we compute this increment after PM?
     VCO1_phase_local -= _floor(VCO1_phase_local); // car on peux aller ds le negatif, ou aller au dela de 2 a cause des multiples modulations
 	VCO1_phase_local = _fclamp(VCO1_phase_local, 0.f,1.f); // inutil, mais au cas ou...
-
+	
     float PWM_local = _fclamp(PWM + VCO1_mod_PWM, 0.f, 1.f);
 
     switch(curent_config.c_VCO1_WF) {
     case 0 : //sin
-        phase2 = _sin(VCO1_phase_local);
+        phase2 = _sin(VCO1_phase_local); 
         _fonepole(allvoice[j].v_VCO1_filter1, phase2, 6000.f*OneOverSR);
         phase2 = _cos_loop(VCO1_phase_local + allvoice[j].v_VCO1_filter1 * PWM_local * 0.4f);
         _fonepole(allvoice[j].v_VCO1_filter2, phase2, 0.5f);
@@ -110,7 +108,7 @@ inline float VCO1(uint32_t j, float frequency) {
         out = _cos_loop((0.7f+3.5f*PWM_local) * allvoice[j].v_VCO1_filter1 + 0.33f );
         break;
     case 2 : // tri
-        out = tri_bl(VCO1_phase_local, increment, allvoice[j].v_VCO1_filter1);
+        out = tri_bl(VCO1_phase_local, increment, allvoice[j].v_VCO1_filter1); 
         tmpf = 1.f - 0.5f*(PWM_local*(1.f+_cos(VCO1_phase_local)));
         out +=1.f;
         out *= tmpf * tmpf;
@@ -128,7 +126,7 @@ inline float VCO1(uint32_t j, float frequency) {
         break;
     case 5 :  // noise filter
         tmp = 2.f*_rnd_f()-1.f;
-        _fonepole(allvoice[j].v_VCO1_filter1, tmp, abs(_fmin(increment*15.f, 1.f)));
+        _fonepole(allvoice[j].v_VCO1_filter1, tmp, abs(_fmin(increment*15.f, 1.f)));  
         tmp = CV2freq(60.f + PWM_local * 60.f)*(1.f/13000.f);
         _fonepole(allvoice[j].v_VCO1_filter2, allvoice[j].v_VCO1_filter1, tmp);
         out = 2.f * (allvoice[j].v_VCO1_filter2-allvoice[j].v_VCO1_filter1);
@@ -162,7 +160,7 @@ inline float VCO1(uint32_t j, float frequency) {
             tmp *= (3.45f+0.51f*PWM_local) * (1.f-tmp);
             allvoice[j].v_VCO1_last[1] = tmp;
         }
-        out = 2.f*(allvoice[j].v_VCO1_last[1]) -1.f;
+        out = 2.f*(allvoice[j].v_VCO1_last[1]) -1.f; 
         break;
 	case 9:
 	    out=0.f;
@@ -170,14 +168,11 @@ inline float VCO1(uint32_t j, float frequency) {
 	    allvoice[j].v_VCO1_last[1] = 0;
 	    break;
     }
-    out *= VCO1_AM;
+    out *= VCO1_AM; 
 
-//    out = _fmin(out, VCO1_clip);
-//    out = _fmax(out, -1.1f);
-    // cursor
-    out = _fclamp(out, -1.1f, VCO1.clip);
-
-
+    out = _fmin(out, VCO1_clip); 
+    out = _fmax(out, -1.1f);
+    
     g_Modulation[VCO1_OUT] = out;
     return out;
 }

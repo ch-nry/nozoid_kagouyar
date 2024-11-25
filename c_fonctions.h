@@ -17,7 +17,6 @@
 
 void delay1_clear();
 
-//cursor : passer cette table en const
 float table_CV2freq[269];
 
 ////////////////////////////////////////////////////
@@ -79,7 +78,6 @@ inline uint32_t _rnd_ui() {
     g_randomSeed_u = u;
 
     return (v << 16) + (u & 65535);
-
 }
 
 inline int32_t _rnd_i() {
@@ -338,7 +336,7 @@ inline float tri_bl(float phase, float increment, float &last_out) {
 	// Leaky Integrator:
 	// y[n] = A + x[n] + (1 - A) * y[n-1]
 	out       = increment * out + (1.0f - increment) * last_out;
-	last_out = out;
+	last_out = out; 
     return 4.f*out;
 }
 
@@ -360,17 +358,17 @@ void init_variables() {
 	do {tmp = hw.knobs_[k_CV1].Process_ch();} // on sort de l'initialisation, on attend d'avoir une valeur
 	while (tmp == 0 );
 	g_randomSeed_u = (tmp<<15)+tmp; // on compte sur le bruit de fond pour generer une seed aleatoire
-
+	
 	do {tmp = hw.knobs_[k_CV2].Process_ch();} // on sort de l'initialisation, on attend d'avoir une valeur
 	while (tmp == 0 );
 	g_randomSeed_v = (tmp<<15)+tmp; // idem
-
+	    
     // mtof table initialisation in RAM
     init_table_CV2freq();
 
     // keyboard
     g_state_kb = 7; // force le recalcul des boutons etc
-
+	
     //MIDI
     for (i=0; i<nb_potentiometer; i++) g_midi_parameter[i] = 0.;
 
@@ -386,7 +384,7 @@ void init_variables() {
     g_Modulation_Reset[NONE_OUT] = 0;
 }
 
-void random_config() {
+void random_config() {	
     curent_config.c_VCO1_RANGE = 2;
     curent_config.c_VCO2_RANGE = 2;
     curent_config.c_VCO2_LINK = 0;
@@ -403,7 +401,7 @@ void random_config() {
 	curent_config.c_VCO1_WF = _rnd_ui()%9;
     curent_config.c_VCO2_WF =  _rnd_ui()%9;
     curent_config.c_VCO3_WF =  _rnd_ui()%9;
-
+    
     curent_config.c_LFO1_WF = 1 + _rnd_ui()%8;
     curent_config.c_LFO2_WF = 1 + _rnd_ui()%8;
     curent_config.c_LFO3_WF = 1 + _rnd_ui()%8;
@@ -421,7 +419,7 @@ void random_config() {
 
 	curent_config.c_EFFECT1_TYPE = 7;
 	delay1_clear();
-    curent_config.c_EFFECT1_TYPE = _rnd_ui()%7;
+    curent_config.c_EFFECT1_TYPE = _rnd_ui()%7; 
     curent_config.c_EFFECT2_TYPE = _rnd_ui()%6;
 
     for (uint32_t i=0; i<VCF1_MOD1; i++) { // pour tout les VCO
@@ -438,9 +436,9 @@ void random_config() {
     }
 }
 
-void empty_config() {
+void empty_config() {	     
 	curent_config.c_Version = memory_id;
-	curent_config.c_MIDI_channel = -1;
+	curent_config.c_MIDI_channel = -1; 
 
     curent_config.c_VCO1_WF = 0;
     curent_config.c_VCO1_RANGE = 2;
@@ -497,7 +495,7 @@ void empty_config() {
      curent_config.c_Modulation_Source[VCF1_MOD1] = NONE_OUT;
      curent_config.c_Modulation_Source[VCF1_MOD2] = NONE_OUT;
      curent_config.c_Modulation_Source[VCF2_MOD1] = NONE_OUT;
-
+   
     curent_config.c_Modulation_Source[LFO1_MOD] = LFO1_OUT;
     curent_config.c_Modulation_Source[LFO2_MOD] = LFO2_OUT;
     curent_config.c_Modulation_Source[LFO3_MOD] = LFO3_OUT;
@@ -508,7 +506,7 @@ void empty_config() {
 
 void standard_config() {
     curent_config.c_Version = memory_id;
-	curent_config.c_MIDI_channel = -1;
+	curent_config.c_MIDI_channel = -1; 
 
     curent_config.c_VCO1_WF = 4;
     curent_config.c_VCO1_RANGE = 2;
@@ -606,8 +604,8 @@ void save_config(uint32_t slot) {
 
 int load_config(uint32_t slot)
 {
-	CONFIGURATION tmp_config;
-
+	CONFIGURATION tmp_config; 
+	
     memcpy(&tmp_config, reinterpret_cast<void*>(0x90000000 + (slot * 4096)), sizeof(CONFIGURATION));
     if (tmp_config.c_Version != memory_id) {
 		standard_config(); // la structure memoire n'est pas bonne, la memoire est vide, on charge une config par defaut
@@ -618,7 +616,7 @@ int load_config(uint32_t slot)
 		}
 		return(0); //id not valid
 	}
-	else { // la memoire est valide, mais on met les elements un par un afin de rester ds le bon range,
+	else { // la memoire est valide, mais on met les elements un par un afin de rester ds le bon range, 
 		//pour d'etre sur qu'on a des valeurs correct meme si il y a eu des erreurs de lecture/ecriture
 	uint32_t i;
 	if (slot == 13) { // uniquement utilisé pour la calibration des CV
@@ -699,7 +697,6 @@ inline void get_pot(uint32_t i) {
         g_filter_index[i] = index;
         out = g_pot16[i];
         diff = raw_value - out;
-
         if (diff > 0) {
             g_filter_moins[i][index] = 0;
             g_filter_plus[i][index]  = diff;
@@ -707,29 +704,22 @@ inline void get_pot(uint32_t i) {
             g_filter_moins[i][index] = diff;
             g_filter_plus[i][index]  = 0;
         }
-
         value_min = g_filter_moins[i][0];
         value_max = g_filter_plus[i][0];
         for (j=1; j < filter_order; j++) {
             value_min = value_min>g_filter_moins[i][j]?value_min:g_filter_moins[i][j];
             value_max = value_max<g_filter_plus[i][j]?value_max:g_filter_plus[i][j];
         }
-        /*if (value_max > -value_min) {
+        if (value_max > -value_min) {
             diff = (value_max>=64)? value_max-60:value_max>>4;
         } else {
             diff = (value_min<=-64)? value_min+60:value_min>>4;
-        }*/
-        //cursor
-        diff = (value_max > -value_min) ?
-           ((value_max >= 64) ? value_max - 60 : value_max >> 4) :
-           ((value_min <= -64) ? value_min + 60 : value_min >> 4);
-
-
+        }
         out += diff;
         g_pot16[i] = out;
         tmpf = (float) out;
         tmpf -= 150.f;
-        tmpf = _fmax(tmpf,0.f);
+        tmpf = _fmax(tmpf,0.f); 
         tmpf *= 1.f/65300.f; // pour etre sur d'etre entre 0. et 1.
         tmpf +=  g_midi_parameter[i];
         tmpf= _fmin(tmpf,1.f);

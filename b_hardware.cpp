@@ -127,8 +127,7 @@ dsy_gpio test_pin, gate_pin, Kb1_int, Kb2_int, HW_test, low_power_pin;
 
 I2CHandle i2c_led, i2c_kb;
 
-//cursor a ajouté le const
-static const constexpr I2CHandle::Config i2c_led_config
+static constexpr I2CHandle::Config i2c_led_config
     = {I2CHandle::Config::Peripheral::I2C_1,
        {{DSY_GPIOB, 8}, {DSY_GPIOB, 9}},
        I2CHandle::Config::Speed::I2C_400KHZ}; //I2C_1MHZ};
@@ -136,8 +135,7 @@ static const constexpr I2CHandle::Config i2c_led_config
 static LedDriverPca9685<1, false>::DmaBuffer DMA_BUFFER_MEM_SECTION
     led_dma_buffer_a, led_dma_buffer_b;
 
-//cursor a ajouté le const
-static const constexpr I2CHandle::Config i2c_kb_config
+static constexpr I2CHandle::Config i2c_kb_config
     = {I2CHandle::Config::Peripheral::I2C_4,
        {{DSY_GPIOB, 6}, {DSY_GPIOB, 7}},
        I2CHandle::Config::Speed::I2C_400KHZ};
@@ -183,7 +181,7 @@ void Kagouyar::InitKnobs()
     seed.adc.Init(adc_cfg, 8, daisy::AdcHandle::OVS_4);// Oversampling to 32x -> 200Hz update for all knob (en theory)
 	// 8 -> on mesure 8 pot actualisé par ms, 166Hz en pratique pour l'update des pots
 	// 4 -> 12 pot par ms, 250Hz d'actualisation
-
+	
     for(int i = 0; i < 48; i++){ knobs_[i].Init(seed.adc.GetMuxPtr(i/8, i%8), seed.AudioCallbackRate()); }
 
     knobs_[48].Init(seed.adc.GetPtr(6), seed.AudioCallbackRate());
@@ -229,8 +227,8 @@ void Kagouyar::InitMidi()
 	MidiUartTransport::Config midi_config;
 	midi_config.periph = UartHandler::Config::Peripheral::USART_1;
 	midi_config.rx     = {DSY_GPIOB, 15};
-    midi_config.tx     = {DSY_GPIOB, 14};
-
+    midi_config.tx     = {DSY_GPIOB, 14}; 
+    
     midi.Init(midi_config);
 }
 
@@ -255,12 +253,12 @@ inline void Kagouyar::InitPin()
     Kb2_int.mode = DSY_GPIO_MODE_INPUT;
     Kb2_int.pull = DSY_GPIO_NOPULL;
     dsy_gpio_init(&Kb2_int);
-
+    
     HW_test.pin = seed.GetPin(PIN_HW_TEST);
     HW_test.mode = DSY_GPIO_MODE_INPUT;
     HW_test.pull = DSY_GPIO_PULLUP;
     dsy_gpio_init(&HW_test);
-
+    
     low_power_pin.pin = seed.GetPin(PIN_LOW_POWER);
     low_power_pin.mode = DSY_GPIO_MODE_INPUT;
     low_power_pin.pull = DSY_GPIO_PULLUP;
