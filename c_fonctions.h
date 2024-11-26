@@ -277,6 +277,7 @@ float Interpolation_Curve(float phase, uint32_t WF, float *last_point) { // inte
 
 // for VCO band limited waveform
 
+/*
 inline float Polyblep2(float increment, float phase) {
     float t = phase;
     if(t < increment) {
@@ -291,7 +292,24 @@ inline float Polyblep2(float increment, float phase) {
         return 0.0f;
     }
 }
+*/
 
+inline float Polyblep2(const float increment, const float phase) {
+    const float t = phase;
+    if (t >= increment && t - 1.f <= -increment) {
+        return 0.0f;
+    }
+
+    if (t < increment) {
+        const float normalizedT = t / increment;
+        return normalizedT * (2.f - normalizedT) - 1.0f;
+    }
+
+    const float normalizedT = (t - 1.0f) / increment;
+    return normalizedT * (normalizedT + 2.f) + 1.0f;
+}
+
+/*
 inline float Polyblep(float increment, float _phase)
 {
     float phase = _phase;
@@ -322,6 +340,41 @@ inline float Polyblep(float increment, float _phase)
             return (-2.f/24.f) + phase * ((2.f/6.f) + phase * ( (-2.f/4.f) + phase * ((2.f/6.f) + phase * (-2.f/24.f))));
         }
     }
+}
+*/
+
+
+inline float Polyblep(const float increment, const float phase)
+{
+    if (phase > 0.5f) {
+        const float invertedPhase = 1.f - phase;
+
+        if (invertedPhase > 2.f * increment) {
+            return 0.0f;
+        }
+
+        if (invertedPhase < increment) {
+            const float t = invertedPhase / increment;
+            const float t2 = t * t;
+            return 1.f + t * (-4.f/3.f + t2 * (2.f/3.f - t * (2.f/8.f)));
+        }
+
+        const float t = (invertedPhase - increment) / increment;
+        return (2.f/24.f) + t * (-2.f/6.f + t * (2.f/4.f + t * (-2.f/6.f + t * (2.f/24.f))));
+    }
+
+    if (phase > 2.f * increment) {
+        return 0.0f;
+    }
+
+    if (phase < increment) {
+        const float t = phase / increment;
+        const float t2 = t * t;
+        return -1.f + t * (4.f/3.f + t2 * (-2.f/3.f + t * (2.f/8.f)));
+    }
+
+    const float t = (phase - increment) / increment;
+    return (-2.f/24.f) + t * (2.f/6.f + t * (-2.f/4.f + t * (2.f/6.f + t * (-2.f/24.f))));
 }
 
 inline float saw_bl(float phase, float increment) {
