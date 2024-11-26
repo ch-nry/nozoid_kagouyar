@@ -58,10 +58,15 @@ inline float _fmin(float a, float b)
     return r;
 }
 
-inline float _fabs(x)
+/*inline float _fabs(x)
 {
 	return (x>0)? x:-x;
+}*/
+inline float _fabs(x)
+{
+	return _fmax(x,-x);
 }
+
 
 // quick clamp
 inline float _fclamp(float in, float min, float max) {
