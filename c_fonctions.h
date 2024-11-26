@@ -112,7 +112,7 @@ inline float _tanh_clip(float index){
 
 inline float _cos(float index) { // index from 0 to 1 only
 // 6 multiplications
-  float x=index-0.5;
+  float x=index-0.5f;
   float x2=x*x;
 
   return -0.99999944f + x2 * (19.73903275f + x2 * (-64.93054874f + x2 * (85.29509341f + x2 * (-58.90779707f + x2 * 21.27414825f))));
@@ -128,7 +128,7 @@ inline float _cos_loop(float index) { //
 
 inline float _sin(float index) { // index from 0 to 1 only
 // 6 multiplication
-  float x=index-0.5;
+  float x=index-0.5f;
   float x2=x*x;
 
   return x * (-6.28308759f +x2*(41.33318714f + x2*(-81.39900318f + x2*(74.66885164f - x2*33.1532588f))));
@@ -245,7 +245,7 @@ float Interpolation_Curve(float phase, uint32_t WF, float *last_point) { // inte
     case WF_AR:
         return 0.f; // should never came here
     case WF_sin:
-        out = 0.5f + _cos(phase*0.5f) * 0.5f;
+        out = 0.5f + _cos(phase*0.5) * 0.5;
         out *= last_point[1] - last_point[0];
         out += last_point[0];
         return out;
@@ -346,7 +346,7 @@ inline float Polyblep(float increment, float _phase)
 
 inline float Polyblep(const float increment, const float phase)
 {
-    if (phase > 0.5f) {
+    if (phase > 0.5) {
         const float invertedPhase = 1.f - phase;
 
         if (invertedPhase > 2.f * increment) {
@@ -402,7 +402,7 @@ void init_variables() {
         g_thomasX[i] = 3.f * _rnd_f();
         g_thomasY[i] = 3.f * _rnd_f();
         g_thomasZ[i] = 3.f * _rnd_f();
-        for (j=0; j<100; j++) thomas(i, 0.5, 0.3);
+        for (j=0; j<100; j++) thomas(i, 0.5f, 0.3f);
     }
     for (i=0; i<nb_voice; i++) { // pour les oscilateur logistic
         allvoice[i].v_VCO1_last[1] = _rnd_f();

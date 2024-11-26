@@ -146,21 +146,13 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
         g_effect1_phase = wrap(g_effect1_phase + (0.005f/48000.f)); // LFO : vitesse de variation du temps du chorus
         effect1_phase = g_effect1_phase;
         sound_out = 0.f; //sound_in;
-        //g_delay_effect3.SetDelay(1.f + (_cos_positiv_loop(             effect1_phase*5.f)+1.f) * param1);
-        //sound_out  += g_delay_effect3.Read();
         sound_out += delay1_read_f(1.f + (_cos_positiv_loop(             effect1_phase*5.f)+1.f) * param1);
-        //g_delay_effect3.SetDelay(1.f + (_cos_positiv_loop(0.23f + effect1_phase*5.f)+1.f) * param1);
-        //sound_out -= g_delay_effect3.Read();
         sound_out -= delay1_read_f(1.f + (_cos_positiv_loop(0.23f +  effect1_phase*5.f)+1.f) * param1);
-        //g_delay_effect3.SetDelay(1.f + (_cos_positiv_loop(0.57f + effect1_phase*3.f)+5.2f) * param1);
-        //sound_out += g_delay_effect3.Read();
 		sound_out += delay1_read_f(1.f + (_cos_positiv_loop(0.57f + effect1_phase*3.f)+5.2f) * param1);
-        //g_delay_effect3.SetDelay(1.f + (_cos_positiv_loop(0.71f + effect1_phase*7.f)+7.3f) * param1);
-        //sound_out -= g_delay_effect3.Read();
         sound_out -= delay1_read_f(1.f + (_cos_positiv_loop(0.71f + effect1_phase*7.f)+7.3f) * param1);
-        sound_out *= 0.5f;
+        sound_out *= 0.5;
         sound_out = sound_in + _tanh(wetM*sound_out);
-        //g_delay_effect3.Write(sound_out);
+
         delay1_write_f(sound_out);
         return sound_out;
     case 5 : // ring delay : WET : amplitude du feedback; param1 : temps de delay ; param2 : frequence du ring
@@ -188,7 +180,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 			g_vitesse = 0.f;
 			g_old_sound_out = sound_in;
 		}
-		else if (abs(tmp) > (param1*0.5f)) { // trop de diference entre entrée et sortie, on décole
+		else if (abs(tmp) > (param1*0.5)) { // trop de diference entre entrée et sortie, on décole
 			g_decole = 1.f;
 		}
 		if ( g_decole == 1.f) { // si decollé : a quelle vitesse on retourne pour recoller
