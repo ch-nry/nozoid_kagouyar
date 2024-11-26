@@ -58,6 +58,11 @@ inline float _fmin(float a, float b)
     return r;
 }
 
+inline float _fabs(x)
+{
+	return (x>0)? x:-x;
+}
+
 // quick clamp
 inline float _fclamp(float in, float min, float max) {
     return _fmin(_fmax(in, min), max);
@@ -108,6 +113,19 @@ inline float _tanh(float x) {
 
 inline float _tanh_clip(float index){
     return _tanh(  _fclamp(index,-3.f, 3.f) );
+}
+
+inline float fast_cos(float index) { // index from 0 to 1 only
+  const float x = 4. * (_fmax(index,0.5f)-_min(index, 0.5)) -1.f;
+  return 2*x-x*fabs(x);
+}
+
+inline float fast_cos_positiv_loop(float index) { // positive index only
+    return _cos(wrap(index));
+}
+
+inline float fast_cos_loop(float index) { //
+    return _cos(wrap2(index) );
 }
 
 inline float _cos(float index) { // index from 0 to 1 only
@@ -390,7 +408,7 @@ inline float tri_bl(float phase, float increment, float &last_out) {
 	// y[n] = A + x[n] + (1 - A) * y[n-1]
 	out       = increment * out + (1.0f - increment) * last_out;
 	last_out = out;
-    return 4.f*out;
+    return 4.*out;
 }
 
 void init_variables() {
