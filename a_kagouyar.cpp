@@ -15,6 +15,9 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
+// optimisation : tout les nombre float sont marqué comme float : 0.6f
+// sauf les * 0.5 (le compilateur utilise des decalages de bits???)
+
 #define proto2 // commenter pour la version final
 // #define fabien // CV1 et CV2 switch pour faire octave + et octave -
 
