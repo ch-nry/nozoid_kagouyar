@@ -15,9 +15,6 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
-
-// TODO : tester un S&H a vitesse audio, et mettre un slew rate pour "filtrer"
-
 #define delay1_sizef 72000
 #define delay1_sizei 144000
 
