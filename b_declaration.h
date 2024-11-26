@@ -44,7 +44,7 @@
 
 #define nb_potentiometer 48
 #define nb_CV 50
-#define coef_CV_to_audio_filter 0.002
+#define coef_CV_to_audio_filter 0.002f
 #define coef_audio_to_block block_size
 
 #define nb_voice 4

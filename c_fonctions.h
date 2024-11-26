@@ -296,7 +296,7 @@ inline float Polyblep(float increment, float _phase)
 {
     float phase = _phase;
 
-    if (phase > 0.5) {
+    if (phase > 0.5f) {
         phase = 1.f-phase;
 
         if (phase > 2.f * increment) return 0.0f;
@@ -330,7 +330,7 @@ inline float saw_bl(float phase, float increment) {
 
 inline float tri_bl(float phase, float increment, float &last_out) {
 	float out;
-	out = phase < 0.5 ? 1.0f : -1.0f;
+	out = phase < 0.5f ? 1.0f : -1.0f;
 	out += Polyblep2(increment, phase);
 	out -= Polyblep2(increment, wrap(phase + 0.5f));
 	// Leaky Integrator:
@@ -344,12 +344,12 @@ void init_variables() {
     uint32_t i,j;
   	uint32_t tmp;
 
-    for (i=0; i<modulation_source_last; i++) g_Modulation[i] = 0.;
+    for (i=0; i<modulation_source_last; i++) g_Modulation[i] = 0.f;
     for (i=0; i<nb_thomas_attractor; i++) {
         g_thomasX[i] = 3.f * _rnd_f();
         g_thomasY[i] = 3.f * _rnd_f();
         g_thomasZ[i] = 3.f * _rnd_f();
-        for (j=0; j<100; j++) thomas(i, 0.5, 0.3);
+        for (j=0; j<100; j++) thomas(i, 0.5f, 0.3f);
     }
     for (i=0; i<nb_voice; i++) { // pour les oscilateur logistic
         allvoice[i].v_VCO1_last[1] = _rnd_f();
