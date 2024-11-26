@@ -89,7 +89,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 	float param2 = _fclamp(g_pot_audio[k_EFFECT1_p2] += g_pot_increment[k_EFFECT1_p2], 0.f, 1.f);
 
     float sound_out = 0.f;
-    float tmp = 0.f;
+    float tmp = 0;
     float effect1_phase;
 
     float param2_mod = param2 * g_Modulation[curent_config.c_Modulation_Source[EFFECT1_MOD]];

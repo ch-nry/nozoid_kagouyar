@@ -51,7 +51,7 @@ inline void LFO7(float increment, float WF, float sym) {
     out = _fclamp(out, -1.f, 1.f);
     g_Modulation[LFO7_OUT] = out;
     g_Modulation[LFO7_OUT + modulation_source_last] = -out;
-    g_Modulation[LFO7_OUT_FILTER] += 0.003f * (out - g_Modulation[LFO7_OUT_FILTER]);
+    g_Modulation[LFO7_OUT_FILTER] += 0.003 * (out - g_Modulation[LFO7_OUT_FILTER]);
 }
 
 void LFO()

@@ -43,7 +43,7 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
     float freq = fq+ (48.f*mod_fq) + (24.f*g_Modulation[MIDI_expression]);
     tmp = curent_config.c_VCF1_pitch_TRACK;
     freq += tmp * 0.5f * (allvoice[j].v_pitch-12.f);
-    freq = _fclamp(freq, -128f, 138f);
+    freq = _fclamp(freq, -128, 138);
     freq = CV2freq(freq);
 
     float omega = freq * (TWOPI_F/48000.f);
@@ -54,7 +54,6 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
     Q *= 1.0029f + omega*(0.0526f + omega * (-0.0926f  + omega*0.0218f));
 
     input1 *= 0.5; // limitation de l'amplitude d'entrée pour ne pas trop distordre le signal avant le filtre
-    // TODO : mettre ca sur les gain qui snt calculé moins souvent
 
 	Q *= 1.2f; // pour aller plus loin ds la resonnance
 
@@ -120,7 +119,6 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
     }
 
     return 2.f*tmp; // facteur 2 pour compenser le gain d'entré
-    //TODO : mettre le 2 ds le switch pour resuire le cout cpu
 }
 
 
@@ -135,7 +133,7 @@ inline void VCF2(float &input) {
     float filter_fq = mod1 * g_Modulation[curent_config.c_Modulation_Source[VCF2_MOD1]];
     filter_fq *= 48.f;
     filter_fq += fq;
-    filter_fq = _fclamp(filter_fq, -127.f, 127.5f);
+    filter_fq = _fclamp(filter_fq, -127, 127.5);
     filter_fq = CV2freq(filter_fq)*(1.f/13000.f);
 
     _fonepole(g_VCF2_last_input1, input,              filter_fq);

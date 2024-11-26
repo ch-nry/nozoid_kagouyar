@@ -20,7 +20,7 @@ float g_LFO1_AR[nb_voice+1];
 float g_phase_LFO1_div;
 uint32_t g_LFO1_last_step, g_LFO1_reset;
 
-inline void LFO1(float fq, float mix_factor, float increment) {
+inline void LFO1(float fq, float mix_factor, float increment) { 
     float modulation = 0.f;
 
     if (curent_config.c_LFO1_WF == WF_AR) {
@@ -78,7 +78,7 @@ inline void LFO1(float fq, float mix_factor, float increment) {
         case LFO_FM : // ok
             {
                 WF1 = g_Modulation[source_addresse];
-                float l_increment = increment * CV2freq( -36.3763f + WF1 * mix_factor * 50.f);
+                float l_increment = increment * CV2freq( -36.3763 + WF1 * mix_factor * 50.f);
 
                 phase = g_Modulation_Phase[LFO1_OUT] + l_increment;                               // calcul de la phase
                 overflow_phase = _floor(phase);
@@ -440,5 +440,5 @@ inline void LFO4(float increment) {
     tmp = LFO_compute_WF(phase, curent_config.c_LFO4_WF, g_LFO4_noise, g_Modulation_Reset[LFO4_OUT]);
     g_Modulation[LFO4_OUT] = tmp;
     g_Modulation[LFO4_OUT+modulation_source_last] = -tmp;
-    g_Modulation[LFO4_OUT_FILTER] += 0.003f * (tmp - g_Modulation[LFO4_OUT_FILTER]);
+    g_Modulation[LFO4_OUT_FILTER] += 0.003 * (tmp - g_Modulation[LFO4_OUT_FILTER]);
 }
