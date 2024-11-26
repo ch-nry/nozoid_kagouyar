@@ -229,7 +229,7 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         //sound_out = sign(sound_out) * (1.5f - 1.5f/(2.f*fabs(sound_out) + 1.f));
         sound_out = _floor(sound_out/wet)*wet;
         //sound_out = sign(sound_out) * (-0.5f - 0.75f/(fabs(sound_out)-1.5f)); // Pq ca ne marche pas???
-        return mix(sound_in, sound_out, fmin(1.f,10.f*wet));
+        return mix(sound_in, sound_out, _fmin(1.f,10.f*wet));
     case 3: // auto doppler : on utilise le son comme temps de delay : OK
         g_delay_effect2.Write(sound_in);
         tmp = wet * 10000.f;
