@@ -99,26 +99,27 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
 
     switch (curent_config.c_VCF1_TYPE) {
     case 0 :
-        tmp = output4;
+        tmp = 2.f * output4;
         break;
     case 1 :
-        tmp = output2;
+        tmp = 2.f * output2;
         break;
     case 2 :
-        tmp = output1 + output1 - output2 - output2;
+        tmp =  2.f * (output1 + output1 - output2 - output2);
         break;
     case 3 :
-        tmp = 4.f * (output2 - output3 - output3 + output4);
+        tmp = 8.f * (output2 - output3 - output3 + output4);
         break;
     case 4 :
-        tmp = input1 - output1 - output1 + output2;
+        tmp = 2.f * (input1 - output1 - output1 + output2);
         break;
     case 5 :
-        tmp = input1 - 4.f * (output1 + output3) + 6.f *  output2 + output4;
+        tmp = 2.f * (input1 - 4.f * (output1 + output3) + 6.f *  output2 + output4);
         break;
     }
 
-    return 2.f*tmp; // facteur 2 pour compenser le gain d'entré
+    //return 2.f*tmp; // facteur 2 pour compenser le gain d'entré
+	return tmp; // inclus dans le switch
 }
 
 
