@@ -20,7 +20,7 @@ float g_LFO1_AR[nb_voice+1];
 float g_phase_LFO1_div;
 uint32_t g_LFO1_last_step, g_LFO1_reset;
 
-inline void LFO1(float fq, float mix_factor, float increment) { 
+inline void LFO1(float fq, float mix_factor, float increment) {
     float modulation = 0.f;
 
     if (curent_config.c_LFO1_WF == WF_AR) {
@@ -28,6 +28,11 @@ inline void LFO1(float fq, float mix_factor, float increment) {
             float tmp = allvoice[j].v_GATE >= 1;
             float time = tmp?ADSR_time2filter(fq) : ADSR_time2filter(mix_factor);
             _fonepole(g_LFO1_AR[j], tmp, time);
+			//TODO :
+			//float const tmp = allvoice[j].v_GATE >= 1;
+            //float cost time = ADSR_time2filter(tmp?fq : mix_factor);
+            //_fonepole(g_LFO1_AR[j], tmp, time);
+
             modulation += g_LFO1_AR[j];
         }
         modulation *= 1.f/nb_voice;
