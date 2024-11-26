@@ -30,7 +30,7 @@ inline void LFO1(float fq, float mix_factor, float increment) {
             _fonepole(g_LFO1_AR[j], tmp, time);
 			//TODO :
 			//float const tmp = allvoice[j].v_GATE >= 1;
-            //float cost time = ADSR_time2filter(tmp?fq : mix_factor);
+            //float const time = ADSR_time2filter(tmp?fq : mix_factor);
             //_fonepole(g_LFO1_AR[j], tmp, time);
 
             modulation += g_LFO1_AR[j];
