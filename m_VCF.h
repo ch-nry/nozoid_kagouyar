@@ -49,13 +49,13 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
     float omega = freq * (TWOPI_F/48000.f);
     float g = omega * (0.9892f + omega*(-0.4342f + omega*(0.1381f + omega * -0.0202f)));
 
-    float Q = 4.f * _fclamp(res + mod_q, 0.f, 1.f);
+    float Q = 4.5f * _fclamp(res + mod_q, 0.f, 1.f);
     // resonance frequency compensation
     Q *= 1.0029f + omega*(0.0526f + omega * (-0.0926f  + omega*0.0218f));
 
     input1 *= 0.5; // limitation de l'amplitude d'entrée pour ne pas trop distordre le signal avant le filtre
 
-	Q *= 1.2f; // pour aller plus loin ds la resonnance
+	Q *= 1.01f; // ??? c'est plus lent si je vire cette ligne!!!
 
 	_fonepole(allvoice[j].v_VCF1_filter, input1, 10000.f*OneOverSR); // on baisse les hautes frequences pour reduire le repliement ds la non linéarité
 	input1 = allvoice[j].v_VCF1_filter;
