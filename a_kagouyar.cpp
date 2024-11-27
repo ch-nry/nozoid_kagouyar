@@ -107,14 +107,14 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
     LFO7_SYM =  g_pot_audio[k_LFO7_sym] += coef_audio_to_block * g_pot_increment[k_LFO7_sym];
 
     // buffered Audio Loop
-    for(uint32_t i = 0; i < size; ) // size = 2* 48 : block audio de 1ms
+    for(uint32_t i = 0; i < size; ) // size = 2* 24 : block audio de 0.5ms
     // cad on actualise les potentiomettres a 1KHz
     {
 		sig=0.f;
 		sommeADSR = 0.f;
 
         if ((i & 0b111) == 0) // Sample Rate LFO = SR/4 (facteur 8 a cause du cannal droit et gauche)
-            LFO(); // SR = 4KHz
+            LFO(); // SR = 12KHz
 
         // filtre les PWM en audio, car on les utilise pour toutes les voies de polyphonie
 		g_pot_audio[k_VCO1_wfm] += g_pot_increment[k_VCO1_wfm];
