@@ -22,8 +22,8 @@
 
 // optimisation : mettre des variables en DTCM_MEM_SECTION ?
 
-#define block_size 48
-#define block_per_ms 1 // (48/block_size) // combien de bock audio par ms, pour calcul du temps
+#define block_size 24
+#define block_per_ms 0.5f // (48/block_size) // combien de bock audio par ms, pour calcul du temps
 #define filter_order 4 // pour les pot et CV in
 
 #ifndef SAMPLE_RATE
