@@ -22,6 +22,10 @@
 
 // optimisation : mettre des variables en DTCM_MEM_SECTION ?
 
+#define software_led_version 0b0000000010 // pour l'affichage de version en mode debug
+// Les 3 led MSB servent a indiquer la présence d'une calibration des CVs
+
+
 #define block_size 24
 #define block_per_ms 0.5f // (48/block_size) // combien de bock audio par ms, pour calcul du temps
 #define filter_order 4 // pour les pot et CV in
@@ -39,8 +43,6 @@
 //#define uint2float 2.32830643e-010f
 
 #define memory_id 0xABCDEF04 // identifiant unique pour verifier l'integrité des memoires
-#define software_led_version 0b0000000001 // pour l'affichage de version en mode debug
-// Les 3 led MSB servent a indiquer la présence d'une calibration des CVs
 
 #define nb_potentiometer 48
 #define nb_CV 50
@@ -131,6 +133,9 @@ volatile float g_thomasX[nb_thomas_attractor], g_thomasY[nb_thomas_attractor], g
 
 // affichage de la sauvegarde des memoires sur le clavier
 int32_t g_last_load_save  = -1;
+// affichage des animations
+uint32_t led_time = 0;
+
 
 // sheduller :
 volatile int32_t g_time;
