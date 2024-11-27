@@ -62,7 +62,8 @@ inline float _fmin(float a, float b)
 {
 	return (x>0)? x:-x;
 }*/
-inline float _fabs(x)
+
+inline float _fabs(float x)
 {
 	return _fmax(x,-x);
 }
@@ -121,16 +122,16 @@ inline float _tanh_clip(float index){
 }
 
 inline float fast_cos(float index) { // index from 0 to 1 only
-  const float x = 4. * (_fmax(index,0.5f)-_min(index, 0.5)) -1.f;
+  const float x = 4. * (_fmax(index,0.5f)-_fmin(index, 0.5)) -1.f;
   return 2*x-x*fabs(x);
 }
 
 inline float fast_cos_positiv_loop(float index) { // positive index only
-    return _cos(wrap(index));
+    return fast_cos(wrap(index));
 }
 
 inline float fast_cos_loop(float index) { //
-    return _cos(wrap2(index) );
+    return fast_cos(wrap2(index) );
 }
 
 inline float _cos(float index) { // index from 0 to 1 only
