@@ -114,7 +114,7 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
 		sommeADSR = 0.f;
 
         if ((i & 0b111) == 0) // Sample Rate LFO = SR/4 (facteur 8 a cause du cannal droit et gauche)
-            LFO();
+            LFO(); // SR = 4KHz
 
         // filtre les PWM en audio, car on les utilise pour toutes les voies de polyphonie
 		g_pot_audio[k_VCO1_wfm] += g_pot_increment[k_VCO1_wfm];
@@ -241,6 +241,9 @@ int main(void)
 // main loop
 ////////////////////////////////////////////////////////////////////////
     while(1) { // loop for low piority task
+
+		// hw.test_out(i>20); // test de performance
+
         if(++i > nb_CV) {
 			i=0;
 		    get_analog_in(); // analog gate and CV in
