@@ -143,10 +143,10 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
         g_effect1_phase = wrap(g_effect1_phase + (0.005f/48000.f)); // LFO : vitesse de variation du temps du chorus
         effect1_phase = g_effect1_phase;
         sound_out = 0.f; //sound_in;
-        sound_out += delay1_read_f(1.f + (fast_cos_loop(             effect1_phase*5.f)+1.f) * param1);
-        sound_out -= delay1_read_f(1.f + (fast_cos_loop(0.23f +  effect1_phase*5.f)+1.f) * param1);
-		sound_out += delay1_read_f(1.f + (fast_cos_loop(0.57f + effect1_phase*3.f)+5.2f) * param1);
-        sound_out -= delay1_read_f(1.f + (fast_cos_loop(0.71f + effect1_phase*7.f)+7.3f) * param1);
+        sound_out += delay1_read_f(10.f + (fast_cos_loop(             effect1_phase*5.f)+1.01f) * param1);
+        sound_out  -= delay1_read_f(22.f + (fast_cos_loop(0.23f +  effect1_phase*4.f)+1.31f) * param1);
+		sound_out += delay1_read_f(35.f + (fast_cos_loop(0.57f + effect1_phase*3.f)+1.22f) * param1);
+        sound_out  -= delay1_read_f(56.f + (fast_cos_loop(0.71f + effect1_phase*7.f)+1.13f) * param1);
         sound_out *= 0.5;
         sound_out = sound_in + _tanh(wetM*sound_out);
 
