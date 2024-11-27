@@ -533,8 +533,11 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 			if (switch_configuration == MENU_CV1)   curent_config.c_KEYBOARD_octave = _fmin(curent_config.c_KEYBOARD_octave+1, 2);
 			if (switch_configuration == MENU_CV2)   curent_config.c_KEYBOARD_octave = _fmax(curent_config.c_KEYBOARD_octave-1, -3);
 			#endif
+			if (switch_configuration == MENU_LOAD)   led_time = 0;
+			if (switch_configuration == MENU_SAVE)   led_time = 0;
 			return 2;
 		}
+
         // on as donc une touche du clavier seul
         if (change_keyboard == 0) return 0; // seul une touche de clavier est apuyé, mais c'est une touche de configuration ou de selection qui a changé : c'est un reste de la configuration que l'on viens de relacher : on ne la gere pas
         // defaut : c'est une touche du clavier qui a ete appuyé
