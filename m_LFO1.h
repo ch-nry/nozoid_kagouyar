@@ -28,10 +28,9 @@ inline void LFO1(float fq, float mix_factor, float increment) {
             float tmp = allvoice[j].v_GATE >= 1;
             float time = tmp?ADSR_time2filter(fq) : ADSR_time2filter(mix_factor);
             _fonepole(g_LFO1_AR[j], tmp, time);
-			//TODO :
-			//float const tmp = allvoice[j].v_GATE >= 1;
-            //float const time = ADSR_time2filter(tmp?fq : mix_factor);
-            //_fonepole(g_LFO1_AR[j], tmp, time);
+			// Je comprend pas pouquoi cela est plus lent :
+            //float time = tmp?fq : mix_factor;
+            //_fonepole(g_LFO1_AR[j], tmp, ADSR_time2filter(time));
 
             modulation += g_LFO1_AR[j];
         }
