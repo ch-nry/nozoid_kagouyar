@@ -64,5 +64,5 @@ void LFO()
     LFO4(LFO4_INC);
     LFO5(LFO5_INC);
     LFO6(LFO6_INC);
-    LFO7(LFO7_INC, LFO7_WF, _fclamp(0.,1.,(1.1*LFO7_SYM)-0.05)   );
+    LFO7(LFO7_INC, LFO7_WF, LFO7_SYM);
 }
