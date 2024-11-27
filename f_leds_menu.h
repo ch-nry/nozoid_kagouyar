@@ -61,7 +61,7 @@ uint32_t led_time;
             ((int32_t)1 << BIT_LED_MENU_KEY2) + ((int32_t)1 << BIT_LED_MENU_KEY3) + ((int32_t)1 << BIT_LED_MENU_KEY4) + (1 << BIT_LED_MENU_KEY5) + \
             ((int32_t)1 << BIT_LED_MENU_KEY6) + ((int32_t)1 << BIT_LED_MENU_KEY7) + ((int32_t)1 << BIT_LED_MENU_KEY8) + (1 << BIT_LED_MENU_KEY9) + \
             ((int32_t)1 << BIT_LED_MENU_KEY10) + ((int32_t)1 << BIT_LED_MENU_KEY11) + ((int32_t)1 << BIT_LED_MENU_KEY12))
-            
+
 const uint32_t table_led_key[] = { BIT_LED_MENU_KEY0, BIT_LED_MENU_KEY1, BIT_LED_MENU_KEY2, BIT_LED_MENU_KEY3,   \
     BIT_LED_MENU_KEY4, BIT_LED_MENU_KEY5, BIT_LED_MENU_KEY6, BIT_LED_MENU_KEY7, BIT_LED_MENU_KEY8,          \
     BIT_LED_MENU_KEY9, BIT_LED_MENU_KEY10, BIT_LED_MENU_KEY11, BIT_LED_MENU_KEY12,  \
@@ -78,7 +78,7 @@ LED_MIDI, LED_CV1, LED_CV2, LED_notused};
 
 float g_clip;
 
-void leds_mode_normal() { 
+void leds_mode_normal() {
     hw.led_driver_.SetLed_ch(LED_VCO1, (float)0.f);
     hw.led_driver_.SetLed_ch(LED_VCO2, (float)0.f);
     hw.led_driver_.SetLed_ch(LED_VCO3, (float)0.f);
@@ -101,7 +101,7 @@ void leds_mode_normal() {
     hw.led_driver_.SetLed_ch(LED_CV1,  (float)(0.55f + g_Modulation[CV1_OUT]*0.45f));
     hw.led_driver_.SetLed_ch(LED_CV2,  (float)(0.55f + g_Modulation[CV2_OUT]*0.45f));
     hw.led_driver_.SetLed_ch(LED_GAIN, g_clip);
-    
+
     g_MIDI_led_time = _fmax(0.f, g_MIDI_led_time - 0.02f);
 
     hw.led_driver_.SwapBuffersAndTransmit();
@@ -132,7 +132,7 @@ void leds_key_modulation(uint32_t my_modulation) { // switch de choix de la sour
 		if ( (tmp <modulation_source_last) || (g_led_blink>0)  ) // soit on as une modulation positive, soit on affiche une fois sur deux a cause du blink
 			hw.led_driver_.SetLed_ch(table_led_modulation[tmp % modulation_source_last], 1.f );
 	}
-		
+
     switch (my_modulation) { // leds du clavier : ligne et configuration
         case VCO1_MOD1:
         case VCO1_MOD2:
@@ -301,22 +301,22 @@ void leds_key_configuration(uint32_t my_menu_switch) { // led lorsque on appuie 
             led_keyboard = ALL_KB_LEDS;
         }
     break;
-    case MENU_LOAD: 
+    case MENU_LOAD:
         // light all key leds
         led_keyboard = ALL_KB_LEDS;
         if ( (g_last_load_save >= 0) && (g_last_load_save < 13) ) led_keyboard &= ~(1 << table_led_key[g_last_load_save]);
         led_keyboard |= 1<<table_led_key[13 + ((led_time++>>4)%7)];
     break;
-    case MENU_SAVE: 
+    case MENU_SAVE:
     // light all key leds
         led_keyboard = ALL_KB_LEDS;
         if ( (g_last_load_save >= 0) && (g_last_load_save < 13) ) led_keyboard &= ~(1 << table_led_key[g_last_load_save]);
         led_keyboard |= 1<<table_led_key[19 - ((led_time++>>4)%7)];
     break;
     case MENU_LOAD_SAVE: // reset curent config
-        led_keyboard |= 1 << BIT_LED_MENU_KEY0;
-        led_keyboard |= 1 << BIT_LED_MENU_KEY1;
-        led_keyboard |= 1 << BIT_LED_MENU_KEY2;
+        if (animation1_time > 0)	animation1_time--; else led_keyboard |= 1 << BIT_LED_MENU_KEY0;
+        if (animation2_time > 0)	animation2_time--; else led_keyboard |= 1 << BIT_LED_MENU_KEY1;
+        if (animation3_time > 0)	animation3_time--; else led_keyboard |= 1 << BIT_LED_MENU_KEY2;
     break;
     }
     write_binary_led(led_keyboard);

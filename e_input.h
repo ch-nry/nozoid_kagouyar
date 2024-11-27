@@ -185,6 +185,11 @@ uint32_t g_last_led_state = 0; // mode de fonctionement des leds
 // 2 : affichage des valeurs de modulation du menu de configuration
 // 3 : aucun changement, on reste sur le mode precedent
 
+uint32_t animation1_time = 0;
+uint32_t animation2_time = 0;
+uint32_t animation3_time = 0;
+
+
 ///////////////////////////////////////////////////////
 // analogue in
 ///////////////////////////////////////////////////////
@@ -851,12 +856,15 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 			switch (switch_keyboard) {
 				case 0: // load empty config
 					empty_config();
+					animation1_time = 70;
 				break;
 				case 1: // load standard config
 					standard_config();
+					animation2_time = 70;
 				break;
 				case 2: // load random config
 					random_config();
+					animation3_time = 70;
 				break;
 			}
 			break;
