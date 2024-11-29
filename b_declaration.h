@@ -22,9 +22,12 @@
 
 // optimisation : mettre des variables en DTCM_MEM_SECTION ?
 
+
+
 #define software_led_version 0b0000000010 // pour l'affichage de version en mode debug
 // Les 3 led MSB servent a indiquer la présence d'une calibration des CVs
-
+// les 2 suivant sont la version majeur
+//les 8 suivant la version mineur
 
 #define block_size 24
 #define block_per_ms 0.5f // (48/block_size) // combien de bock audio par ms, pour calcul du temps
