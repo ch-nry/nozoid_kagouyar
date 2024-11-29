@@ -18,10 +18,6 @@
 // optimisation : tout les nombre float sont marqué comme float : 0.6f
 // sauf les * 0.5 (le compilateur utilise des decalages de bits???)
 
-// verifier fabs ves _fabs
-// tester fast_cos et le mettre la ou c'est possible
-
-
 #define proto2 // commenter pour la version final
 // #define fabien // CV1 et CV2 switch pour faire octave + et octave -
 
