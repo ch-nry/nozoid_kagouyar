@@ -74,6 +74,9 @@ inline float VCO1(uint32_t j, float frequency) {
 
     float increment = freq*OneOverSR;
     increment += (increment == 0) * 1e-10; // increment ne doit pas etre nul car on a plein de /increment plus tard.
+    //increment = _fmax(increment, 1e-10f); // bcp plus lent!
+	//increment = (increment == 0)?  1e-10f : increment; // plus lent
+	//increment = (increment == 0)?  1e-10 : increment; // lent
     float phase2, tmp, out=0.f;
 
     float VCO1_phase_local = wrap2(allvoice[j].v_VCO1_phase + increment);
@@ -109,7 +112,7 @@ inline float VCO1(uint32_t j, float frequency) {
         break;
     case 2 : // tri
         out = tri_bl(VCO1_phase_local, increment, allvoice[j].v_VCO1_filter1);
-        tmpf = 1.f - 0.5*(PWM_local*PWM_local*(1.f+fast_cos(VCO1_phase_local)));
+        tmpf = 1.f - 0.5f*(PWM_local*PWM_local*(1.f+fast_cos(VCO1_phase_local)));
         out +=1.f;
         tmpf *= tmpf;
         out *= tmpf * tmpf;
@@ -118,11 +121,11 @@ inline float VCO1(uint32_t j, float frequency) {
     case 3 :  // rectangle
         //phase2 = VCO1_phase_local + (1.f-PWM_local)*0.5f;
         //if (phase2 >= 1.f) phase2 -= 1.f;
-        phase2 = wrap(VCO1_phase_local + (1.f-PWM_local)*0.5);
+        phase2 = wrap(VCO1_phase_local + (1.f-PWM_local)*0.5f);
         out = (saw_bl(VCO1_phase_local,increment) - saw_bl(phase2,increment));
         break;
     case 4 :  // double saw
-        phase2 = wrap(VCO1_phase_local + PWM_local*0.5);
+        phase2 = wrap(VCO1_phase_local + PWM_local*0.5f);
         out = (saw_bl(VCO1_phase_local,increment) + saw_bl(phase2, increment) ) / (2.f-PWM_local) ;
         break;
     case 5 :  // noise filter
