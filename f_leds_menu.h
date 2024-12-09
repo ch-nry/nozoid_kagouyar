@@ -303,13 +303,13 @@ void leds_key_configuration(uint32_t my_menu_switch) { // led lorsque on appuie 
         // light all key leds
         led_keyboard = ALL_KB_LEDS;
         if ( (g_last_load_save >= 0) && (g_last_load_save < 13) ) led_keyboard &= ~(1 << table_led_key[g_last_load_save]);
-        led_keyboard |= 1<<table_led_key[13 + ((led_time++>>6)%7)];
+        led_keyboard |= 1<<table_led_key[13 + ((led_time++>>5)%7)];
     break;
     case MENU_SAVE:
     // light all key leds
         led_keyboard = ALL_KB_LEDS;
         if ( (g_last_load_save >= 0) && (g_last_load_save < 13) ) led_keyboard &= ~(1 << table_led_key[g_last_load_save]);
-        led_keyboard |= 1<<table_led_key[19 - ((led_time++>>6)%7)];
+        led_keyboard |= 1<<table_led_key[19 - ((led_time++>>5)%7)];
     break;
     case MENU_LOAD_SAVE: // reset curent config
         if (animation1_time > 0)	animation1_time--; else led_keyboard |= 1 << BIT_LED_MENU_KEY0;
