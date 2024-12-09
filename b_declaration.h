@@ -104,7 +104,7 @@
 #define k_CV1           			48
 #define k_CV2           			49
 
-const float table_MIDI_fq[] = {1.f/32.f, 1.f/16.f, 1.f/8.f, 0.25, 0.5, 1, 2, 4, 8, 16, 32};
+const float table_MIDI_fq[] = {1.f/32.f, 1.f/16.f, 1.f/8.f, 0.25f, 0.5f, 1.f, 2.f, 4.f, 8.f, 16.f, 32.f};
 const int table_step[] = {1, 2, 3, 4, 8, 16};
 const uint32_t table_midi_order[] = {k_VCO1_fq,  k_VCO1_wfm, k_VCO1_mod1, k_VCO1_mod2, k_VCO1_mod3, k_VCO2_fq, k_VCO2_wfm,
 	 k_VCO2_mod1, k_VCO2_mod2, k_VCO2_mod3, k_VCO3_fq, k_VCO3_wfm, k_VCO3_mod1, k_VCO3_mod2, k_VCO3_mod3, k_MIX1,
@@ -116,9 +116,9 @@ const uint32_t table_midi_order[] = {k_VCO1_fq,  k_VCO1_wfm, k_VCO1_mod1, k_VCO1
 __attribute__((section(".dtcmram"))) float g_pot_increment[nb_CV]; // utilisé pour le filtre IIR en audio
 __attribute__((section(".dtcmram"))) float g_pot_audio[nb_CV]; // valeur des pots mais filtré en audio
 __attribute__((section(".dtcmram"))) uint32_t g_pot16[nb_CV]; // filtre en 16 bit
-__attribute__((section(".dtcmram"))) uint32_t g_filter_index[nb_CV];
-__attribute__((section(".dtcmram"))) int32_t g_filter_moins[nb_CV][filter_order];
-__attribute__((section(".dtcmram"))) int32_t g_filter_plus[nb_CV][filter_order];
+uint32_t g_filter_index[nb_CV];
+int32_t g_filter_moins[nb_CV][filter_order];
+int32_t g_filter_plus[nb_CV][filter_order];
 
 // MIDI
 float g_midi_parameter[nb_CV];
