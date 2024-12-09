@@ -113,12 +113,12 @@ const uint32_t table_midi_order[] = {k_VCO1_fq,  k_VCO1_wfm, k_VCO1_mod1, k_VCO1
 	 k_LFO7_sym, k_EFFECT1_wet, k_EFFECT1_p1, k_EFFECT1_p2, k_EFFECT2_wet, k_EFFECT2_p1, k_VCF2_fq, k_VCF2_mod, k_GAIN};
 
 // potentiomettres:
-float g_pot_increment[nb_CV]; // utilisé pour le filtre IIR en audio
-float g_pot_audio[nb_CV]; // valeur des pots mais filtré en audio
-uint32_t g_pot16[nb_CV]; // filtre en 16 bit
-uint32_t g_filter_index[nb_CV];
-int32_t g_filter_moins[nb_CV][filter_order];
-int32_t g_filter_plus[nb_CV][filter_order];
+__attribute__((section(".dtcmram"))) float g_pot_increment[nb_CV]; // utilisé pour le filtre IIR en audio
+__attribute__((section(".dtcmram"))) float g_pot_audio[nb_CV]; // valeur des pots mais filtré en audio
+__attribute__((section(".dtcmram"))) uint32_t g_pot16[nb_CV]; // filtre en 16 bit
+__attribute__((section(".dtcmram"))) uint32_t g_filter_index[nb_CV];
+__attribute__((section(".dtcmram"))) int32_t g_filter_moins[nb_CV][filter_order];
+__attribute__((section(".dtcmram"))) int32_t g_filter_plus[nb_CV][filter_order];
 
 // MIDI
 float g_midi_parameter[nb_CV];
