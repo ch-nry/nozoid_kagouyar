@@ -36,6 +36,7 @@ inline void _fonepole(float &out, float in, float coeff) {
 c/o stephen mccaul
 */
 
+
 inline float _fmax(float a, float b)
 {
     float r;
@@ -46,6 +47,14 @@ inline float _fmax(float a, float b)
 #endif // __arm__
     return r;
 }
+
+/* a tester
+inline float _fmax(float a, float b)
+{
+    return  b + (a > b) *(a-b);
+}
+*/
+
 
 inline float _fmin(float a, float b)
 {
