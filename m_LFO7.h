@@ -40,7 +40,7 @@ inline void LFO7(float increment, float WF, float sym) {
 
     float forme = WF * 3.f;                                 // on separe en 4 WF : tri / sin / tanh(sin) / square
     float forme1 = _fmin(forme,1.f);                        // tri a sinus
-    float forme2 = _fclamp(forme-1.f,0.f,2.f)*0.5;         // sinus a disto(sin)
+    float forme2 = _fclamp(forme-1.f,0.f,2.f)*0.5f;         // sinus a disto(sin)
 
     out = (out + out) -1.f;  // triangle
     out = mix(out, _sin_positiv_loop(2.f + out*0.25f), forme1);   // interpolation entre triangle et sinus
@@ -51,7 +51,7 @@ inline void LFO7(float increment, float WF, float sym) {
     out = _fclamp(out, -1.f, 1.f);
     g_Modulation[LFO7_OUT] = out;
     g_Modulation[LFO7_OUT + modulation_source_last] = -out;
-    g_Modulation[LFO7_OUT_FILTER] += 0.003 * (out - g_Modulation[LFO7_OUT_FILTER]);
+    g_Modulation[LFO7_OUT_FILTER] += 0.003f * (out - g_Modulation[LFO7_OUT_FILTER]);
 }
 
 void LFO()

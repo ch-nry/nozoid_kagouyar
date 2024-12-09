@@ -60,7 +60,7 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
 	_fonepole(allvoice[j].v_VCF1_filter, input1, 10000.f*OneOverSR); // on baisse les hautes frequences pour reduire le repliement ds la non linéarité
 	input1 = allvoice[j].v_VCF1_filter;
 
-    float feedback = Q * ( allvoice[j].v_VCF1_last_output4 - (0.5 * input1) ); // feedback
+    float feedback = Q * ( allvoice[j].v_VCF1_last_output4 - (0.5f * input1) ); // feedback
 
     input1 -= feedback;
     input1 = _tanh(input1); // distortion
@@ -134,7 +134,7 @@ inline void VCF2(float &input) {
     float filter_fq = mod1 * g_Modulation[curent_config.c_Modulation_Source[VCF2_MOD1]];
     filter_fq *= 48.f;
     filter_fq += fq;
-    filter_fq = _fclamp(filter_fq, -127, 127.5);
+    filter_fq = _fclamp(filter_fq, -127.f, 127.5f);
     filter_fq = CV2freq(filter_fq)*(1.f/13000.f);
 
     _fonepole(g_VCF2_last_input1, input,              filter_fq);

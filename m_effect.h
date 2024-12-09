@@ -86,7 +86,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 	float param2 = _fclamp(g_pot_audio[k_EFFECT1_p2] += g_pot_increment[k_EFFECT1_p2], 0.f, 1.f);
 
     float sound_out = 0.f;
-    float tmp = 0;
+    float tmp = 0.f;
     float effect1_phase;
 
     float param2_mod = param2 * g_Modulation[curent_config.c_Modulation_Source[EFFECT1_MOD]];
@@ -181,7 +181,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 			g_decole = 1.f;
 		}
 		if ( g_decole == 1.f) { // si decollé : a quelle vitesse on retourne pour recoller
-			g_vitesse += 0.1* wetM*wetM*tmp;
+			g_vitesse += 0.1f* wetM*wetM*tmp;
 			g_old_sound_out += g_vitesse;
 		}
 		return _fclamp(g_old_sound_out, -3.f, 3.f);
