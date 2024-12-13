@@ -46,8 +46,8 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
     freq = _fclamp(freq, -128.f, 138.f);
     freq = CV2freq(freq);
 
-    float omega = freq * (TWOPI_F/48000.f);
-    float g = omega * (0.9892 + omega*(-0.4342 + omega*(0.1381 + omega * -0.0202)));
+    float const omega = freq * (TWOPI_F/48000.f);
+    float const g = omega * (0.9892 + omega*(-0.4342 + omega*(0.1381 + omega * -0.0202)));
 
     float Q = 4.5f * _fclamp(res + mod_q, 0., 1.);
     // resonance frequency compensation
@@ -60,41 +60,37 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
 	_fonepole(allvoice[j].v_VCF1_filter, input1, 10000.f*OneOverSR); // on baisse les hautes frequences pour reduire le repliement ds la non linéarité
 	input1 = allvoice[j].v_VCF1_filter;
 
-    float feedback = Q * ( allvoice[j].v_VCF1_last_output4 - (0.5f * input1) ); // feedback
+    float const feedback = Q * ( allvoice[j].v_VCF1_last_output4 - (0.5f * input1) ); // feedback
 
     input1 -= feedback;
     input1 = _tanh(input1); // distortion
 
     float output1 = (input1 + 0.3f * allvoice[j].v_VCF1_last_input1)*(1.f/1.3f); // 4 * 6dB filter
     allvoice[j].v_VCF1_last_input1 = input1;
-    tmp = allvoice[j].v_VCF1_last_output1;
-    output1 -= tmp;
+    output1 -= allvoice[j].v_VCF1_last_output1;
     output1 *= g;
-    output1 += tmp;
+    output1 += allvoice[j].v_VCF1_last_output1;
     allvoice[j].v_VCF1_last_output1 = output1;
 
     float output2 = (output1 + 0.3f * allvoice[j].v_VCF1_last_input2)*(1.f/1.3f);
     allvoice[j].v_VCF1_last_input2 = output1;
-    tmp = allvoice[j].v_VCF1_last_output2;
-    output2 -= tmp;
+    output2 -= allvoice[j].v_VCF1_last_output2;
     output2 *= g;
-    output2 += tmp;
+    output2 += allvoice[j].v_VCF1_last_output2;
     allvoice[j].v_VCF1_last_output2 = output2;
 
     float output3 = (output2 + 0.3f * allvoice[j].v_VCF1_last_input3)*(1.f/1.3f);
     allvoice[j].v_VCF1_last_input3 = output2;
-    tmp = allvoice[j].v_VCF1_last_output3;
-    output3 -= tmp;
+    output3 -= allvoice[j].v_VCF1_last_output3;
     output3 *= g;
-    output3 += tmp;
+    output3 += allvoice[j].v_VCF1_last_output3;
     allvoice[j].v_VCF1_last_output3 = output3;
 
     float output4 = (output3 + 0.3f * allvoice[j].v_VCF1_last_input4)*(1.f/1.3f);
     allvoice[j].v_VCF1_last_input4 = output3;
-    tmp = allvoice[j].v_VCF1_last_output4;
-    output4 -= tmp;
+    output4 -= allvoice[j].v_VCF1_last_output4;
     output4 *= g;
-    output4 += tmp;
+    output4 += allvoice[j].v_VCF1_last_output4;
     allvoice[j].v_VCF1_last_output4 = output4;
 
     switch (curent_config.c_VCF1_TYPE) {
