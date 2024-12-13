@@ -104,7 +104,7 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
 
     // buffered Audio Loop
     for(uint32_t i = 0; i < size; ) // size = 2* 24 : block audio de 0.5ms
-    // cad on actualise les potentiomettres a 1KHz
+    // cad on actualise les potentiomettres a 2KHz, meme si le dac est a 200Hz
     {
 		sig=0.f;
 		sommeADSR = 0.f;
