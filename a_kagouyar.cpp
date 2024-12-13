@@ -158,6 +158,7 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
             sound += mix2  * VCO2(j, VCO2_fq);
             sound += mix3  * VCO3(j, VCO3_fq);
             sound = VCF1(j, VCF1_fq, sound);
+
             sig += VCA(j, sound);
         }
 

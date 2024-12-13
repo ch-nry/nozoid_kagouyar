@@ -32,7 +32,7 @@ inline void LFO1(float fq, float mix_factor, float increment) {
             _fonepole(g_LFO1_AR[j], tmp, time);
             modulation += g_LFO1_AR[j];
         }
-        modulation *= 1.f/nb_voice;
+        modulation = nb_voice;
         g_LFO1_AR[nb_voice] = modulation;
         g_Modulation[LFO1_OUT] = modulation;
         g_Modulation_Phase[LFO1_OUT] = modulation;
