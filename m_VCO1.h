@@ -35,7 +35,7 @@
         VCO1_PM += modulation_value ;                                               \
         break;                                                                      \
     case MOD_CLIP :                                                                 \
-        VCO1_clip -= modulation_value + VCO_mod + _fmax(0., VCO_mod-0.5)*4.0;    \
+        VCO1_clip -= modulation_value + VCO_mod + _fmax(0.f, VCO_mod-0.5f)*4.0f;    \
         break;                                                                      \
     case MOD_WF :                                                                   \
         VCO1_mod_PWM += modulation_value;                                           \
@@ -46,134 +46,134 @@
 #define v_VCO1_filter1 v_VCO1_last[0]
 #define v_VCO1_filter2 v_VCO1_last[1]
 
-inline double VCO1(uint32_t j, double frequency) {
+inline float VCO1(uint32_t j, float frequency) {
 
-    double VCO1_AM = 1.;
-    double VCO1_FM_lin = 0.;
-    double VCO1_FM_exp = 0.;
-    double VCO1_FM_Qtz = 0.;
-    double VCO1_PM = 0.;
-    double VCO1_mod_PWM = 0.;
-    double VCO1_clip = 1.1;
-    double modulation_value;
-    double PWM = g_pot_audio[k_VCO1_wfm];
+    float VCO1_AM = 1.f;
+    float VCO1_FM_lin = 0.f;
+    float VCO1_FM_exp = 0.f;
+    float VCO1_FM_Qtz = 0.f;
+    float VCO1_PM = 0.f;
+    float VCO1_mod_PWM = 0.f;
+    float VCO1_clip = 1.1f;
+    float modulation_value;
+    float PWM = g_pot_audio[k_VCO1_wfm];
 
     // Modulation
     modulation_VCO1(g_pot_audio[k_VCO1_mod1], VCO1_MOD1)
     modulation_VCO1(g_pot_audio[k_VCO1_mod2], VCO1_MOD2)
     modulation_VCO1(g_pot_audio[k_VCO1_mod3], VCO1_MOD3)
 
-    double vco_pitch = frequency + 48. * VCO1_FM_exp;
+    float vco_pitch = frequency + 48.f * VCO1_FM_exp;
     vco_pitch += allvoice[j].v_pitch;
-    vco_pitch += (int)((12.*VCO1_FM_Qtz)+0.5);
+    vco_pitch += (int)((12.f*VCO1_FM_Qtz)+0.5f);
 
     VCO1_pitch(allvoice[j], vco_pitch); // sauve ou rapele la valeur de vco1 pour les pitch des vco2 et 3 syncro sur le 1 (cf fonction.h)
-    double freq = CV2req(vco_pitch) + VCO1_FM_lin * 2000.;// freq peux etre negative, ou nulle
+    float freq = CV2freq(vco_pitch) + VCO1_FM_lin * 2000.f;// freq peux etre negative, ou nulle
 
-    double increment = freq*OneOverSR;
+    float increment = freq*OneOverSR;
     increment += (increment == 0) * 1e-10; // increment ne doit pas etre nul car on a plein de /increment plus tard.
-    //increment = _fmax(increment, 1e-10); // bcp plus lent!
-	//increment = (increment == 0)?  1e-10 : increment; // plus lent
+    //increment = _fmax(increment, 1e-10f); // bcp plus lent!
+	//increment = (increment == 0)?  1e-10f : increment; // plus lent
 	//increment = (increment == 0)?  1e-10 : increment; // lent
-    double phase2, tmp, out=0.;
+    float phase2, tmp, out=0.f;
 
-    double VCO1_phase_local = wrap2(allvoice[j].v_VCO1_phase + increment);
+    float VCO1_phase_local = wrap2(allvoice[j].v_VCO1_phase + increment);
     allvoice[j].v_VCO1_phase = VCO1_phase_local;
 
     g_Modulation[VCO1_SIN] = _cos(VCO1_phase_local); // g_Modulation sinus
-    g_Modulation[VCO1_SQUARE] = (VCO1_phase_local > 0.5)? 1. : -1.; // g_Modulation square
-    g_Modulation[VCO1_TRI] = fabs(4.*VCO1_phase_local-2.)-1.;
-    double ramp = VCO1_phase_local + VCO1_phase_local - 1.; // ramp (saw up)
+    g_Modulation[VCO1_SQUARE] = (VCO1_phase_local > 0.5f)? 1.f : -1.f; // g_Modulation square
+    g_Modulation[VCO1_TRI] = fabs(4.f*VCO1_phase_local-2.f)-1.f;
+    float ramp = VCO1_phase_local + VCO1_phase_local - 1.f; // ramp (saw up)
     g_Modulation[VCO1_RAMP] = ramp;
     g_Modulation[VCO1_SAW] = -ramp; // saw down
 
-    VCO1_PM *= 4.;
+    VCO1_PM *= 4.f;
     VCO1_phase_local += VCO1_PM;
     //increment =  abs(_floor(VCO1_phase_local-old_phase)); // should we compute this increment after PM?
     VCO1_phase_local -= _floor(VCO1_phase_local); // car on peux aller ds le negatif, ou aller au dela de 2 a cause des multiples modulations
-	VCO1_phase_local = _fclamp(VCO1_phase_local, 0.,1.); // inutil, mais au cas ou...
+	VCO1_phase_local = _fclamp(VCO1_phase_local, 0.f,1.f); // inutil, mais au cas ou...
 
-    double PWM_local = _fclamp(PWM + VCO1_mod_PWM, 0., 1.);
-	double tmpf;
+    float PWM_local = _fclamp(PWM + VCO1_mod_PWM, 0.f, 1.f);
+	float tmpf;
 
     switch(curent_config.c_VCO1_WF) {
     case 0 : //sin
         phase2 = _sin(VCO1_phase_local);
-        _fonepole(allvoice[j].v_VCO1_filter1, phase2, 6000.*OneOverSR);
-        phase2 = _cos_loop(VCO1_phase_local + allvoice[j].v_VCO1_filter1 * PWM_local * 0.4);
-        _fonepole(allvoice[j].v_VCO1_filter2, phase2, 0.5);
+        _fonepole(allvoice[j].v_VCO1_filter1, phase2, 6000.f*OneOverSR);
+        phase2 = _cos_loop(VCO1_phase_local + allvoice[j].v_VCO1_filter1 * PWM_local * 0.4f);
+        _fonepole(allvoice[j].v_VCO1_filter2, phase2, 0.5f);
 		out = allvoice[j].v_VCO1_filter2;
         break;
     case 1 : //multi sin
         phase2 = _sin(VCO1_phase_local);
-        _fonepole(allvoice[j].v_VCO1_filter1, phase2, 600.*OneOverSR);
-        out = _cos_loop((0.7+3.5*PWM_local) * allvoice[j].v_VCO1_filter1 + 0.33 );
+        _fonepole(allvoice[j].v_VCO1_filter1, phase2, 600.f*OneOverSR);
+        out = _cos_loop((0.7f+3.5f*PWM_local) * allvoice[j].v_VCO1_filter1 + 0.33f );
         break;
     case 2 : // tri
-        tmpf = 1. - 0.5*(PWM_local*PWM_local*(1.+fast_cos(VCO1_phase_local)));
+        tmpf = 1.f - 0.5f*(PWM_local*PWM_local*(1.f+fast_cos(VCO1_phase_local)));
         tmpf *= tmpf;
         out = tri_bl(VCO1_phase_local, increment, allvoice[j].v_VCO1_filter1);
-        out +=1.;
+        out +=1.f;
         out *= tmpf * tmpf;
-        out -= 1.;
+        out -= 1.f;
         break;
     case 3 :  // rectangle
-        //phase2 = VCO1_phase_local + (1.-PWM_local)*0.5;
-        //if (phase2 >= 1.) phase2 -= 1.;
-        phase2 = wrap(VCO1_phase_local + (1.-PWM_local)*0.5);
+        //phase2 = VCO1_phase_local + (1.f-PWM_local)*0.5f;
+        //if (phase2 >= 1.f) phase2 -= 1.f;
+        phase2 = wrap(VCO1_phase_local + (1.f-PWM_local)*0.5f);
         out = (saw_bl(VCO1_phase_local,increment) - saw_bl(phase2,increment));
         break;
     case 4 :  // double saw
-        phase2 = wrap(VCO1_phase_local + PWM_local*0.5);
-        out = (saw_bl(VCO1_phase_local,increment) + saw_bl(phase2, increment) ) / (2.-PWM_local) ;
+        phase2 = wrap(VCO1_phase_local + PWM_local*0.5f);
+        out = (saw_bl(VCO1_phase_local,increment) + saw_bl(phase2, increment) ) / (2.f-PWM_local) ;
         break;
     case 5 :  // noise filter
-        tmp = 2.*_rnd_f()-1.;
-        _fonepole(allvoice[j].v_VCO1_filter1, tmp, abs(_fmin(increment*15., 1.)));
-        tmp = CV2req(60. + PWM_local * 60.)*(1./13000.);
+        tmp = 2.f*_rnd_f()-1.f;
+        _fonepole(allvoice[j].v_VCO1_filter1, tmp, abs(_fmin(increment*15.f, 1.f)));
+        tmp = CV2freq(60.f + PWM_local * 60.f)*(1.f/13000.f);
         _fonepole(allvoice[j].v_VCO1_filter2, allvoice[j].v_VCO1_filter1, tmp);
-        out = 2. * (allvoice[j].v_VCO1_filter2-allvoice[j].v_VCO1_filter1);
+        out = 2.f * (allvoice[j].v_VCO1_filter2-allvoice[j].v_VCO1_filter1);
         break;
     case 6 :  // noise downsampled
-        if ( (wrap(4.*VCO1_phase_local)) < abs(4.*increment) ) {
-            phase2 = 2.*_rnd_f() -1.;
+        if ( (wrap(4.f*VCO1_phase_local)) < abs(4.f*increment) ) {
+            phase2 = 2.f*_rnd_f() -1.f;
             allvoice[j].v_VCO1_filter1 = phase2;
         }
-        tmp = CV2req( 0. + (1.-PWM_local) * 180.) * (1./27000.);
+        tmp = CV2freq( 0.f + (1.f-PWM_local) * 180.f) * (1.f/27000.f);
         _fonepole(allvoice[j].v_VCO1_filter2, allvoice[j].v_VCO1_filter1, tmp);
         out = allvoice[j].v_VCO1_filter2;
         break;
     case 7 : // random + interpolation lineaire
-        tmp = wrap(4.*VCO1_phase_local); // 4 time * frequency
-        if ( (tmp/4.) < increment ) {
+        tmp = wrap(4.f*VCO1_phase_local); // 4 time * frequency
+        if ( (tmp/4.f) < increment ) {
             allvoice[j].v_VCO1_last[0] = allvoice[j].v_VCO1_last[1];
-            allvoice[j].v_VCO1_last[1] = 2.*(_rnd_f() - 0.5);
+            allvoice[j].v_VCO1_last[1] = 2.f*(_rnd_f() - 0.5f);
         }
         out = mix( allvoice[j].v_VCO1_last[0], allvoice[j].v_VCO1_last[1], tmp); // linear interpolation
-        out *= mix(1.,out*out,PWM_local);
-        out *= mix(1.,out*out,PWM_local);
-        out *= mix(1.,out*out,PWM_local);
+        out *= mix(1.f,out*out,PWM_local);
+        out *= mix(1.f,out*out,PWM_local);
+        out *= mix(1.f,out*out,PWM_local);
         break;
     case 8 : // logistic oscillator, no interpolation
-        if ( (wrap(4.*VCO1_phase_local)) < 4.*increment ) {
+        if ( (wrap(4.f*VCO1_phase_local)) < 4.f*increment ) {
             tmp = allvoice[j].v_VCO1_last[1];
             if ((tmp <= 0)||(tmp>=1)) tmp = _rnd_f(); //on peut avoir des nb qui sont en dehors des paramettres de la logistic, en venant d'une autre forme d'onde
             allvoice[j].v_VCO1_last[0] = tmp;
             PWM_local +=  PWM_local*PWM_local;
-            tmp *= (3.45+0.51*PWM_local) * (1.-tmp);
+            tmp *= (3.45f+0.51f*PWM_local) * (1.f-tmp);
             allvoice[j].v_VCO1_last[1] = tmp;
         }
-        out = 2.*(allvoice[j].v_VCO1_last[1]) -1.;
+        out = 2.f*(allvoice[j].v_VCO1_last[1]) -1.f;
         break;
 	case 9:
-	    out=0.;
+	    out=0.f;
 	    allvoice[j].v_VCO1_last[0] = 0;
 	    allvoice[j].v_VCO1_last[1] = 0;
 	    break;
     }
     out *= VCO1_AM;
 
-    out = _fclamp(out, -1.1, VCO1_clip); //plus rapide que seul le min!
+    out = _fclamp(out, -1.1f, VCO1_clip); //plus rapide que seul le min!
     //out = _fmax(out, VCO1_clip);
     //out = fmax(out, VCO1_clip);
 

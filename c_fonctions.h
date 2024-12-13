@@ -18,7 +18,7 @@
 void delay1_clear();
 
 //__attribute__((section(".dtcmram")))
-double table_CV2req[269];
+float table_CV2freq[269];
 
 ////////////////////////////////////////////////////
 // from daisysp
@@ -29,63 +29,63 @@ coeff can be calculated:
 coeff = 1.0 / (time * sample_rate) ; where time is in seconds
 i.e : f/fs
 */
-inline void _fonepole(double &out, double in, double coeff) {
+inline void _fonepole(float &out, float in, float coeff) {
     out += coeff * (in - out);
 }
 
-/** efficient doubleing point min/max
+/** efficient floating point min/max
 c/o stephen mccaul
 */
 
 
-inline double _fmax(double a, double b)
+inline float _fmax(float a, float b)
 {
-    double r;
-//#ifdef __arm__
-//    asm("vmaxnm.32 %[d], %[n], %[m]" : [d] "=t"(r) : [n] "t"(a), [m] "t"(b) :);
-//#else
+    float r;
+#ifdef __arm__
+    asm("vmaxnm.f32 %[d], %[n], %[m]" : [d] "=t"(r) : [n] "t"(a), [m] "t"(b) :);
+#else
     r = (a > b) ? a : b;
-//#endif // __arm__
+#endif // __arm__
     return r;
 }
 
 /* a tester
-inline double _fmax(double a, double b)
+inline float _fmax(float a, float b)
 {
     return  b + (a > b) *(a-b);
 }
 */
 
 
-inline double _fmin(double a, double b)
+inline float _fmin(float a, float b)
 {
-    double r;
-//#ifdef __arm__
-//    asm("vminnm.32 %[d], %[n], %[m]" : [d] "=t"(r) : [n] "t"(a), [m] "t"(b) :);
-//#else
+    float r;
+#ifdef __arm__
+    asm("vminnm.f32 %[d], %[n], %[m]" : [d] "=t"(r) : [n] "t"(a), [m] "t"(b) :);
+#else
     r = (a < b) ? a : b;
-//#endif // __arm__
+#endif // __arm__
     return r;
 }
 /*
-inline double _fabs(double x)
+inline float _fabs(float x)
 {
 	return (x>0)? x:-x;
 }
 */
 /*
-inline double _fabs(double x)
+inline float _fabs(float x)
 {
 	return _fmax(x,-x);
 }
 */
 
 // quick clamp
-inline double _fclamp(double in, double min, double max) {
+inline float _fclamp(float in, float min, float max) {
     return _fmin(_fmax(in, min), max);
 }
 
-inline double mix(double in1, double in2, double mix){ // mix from 0 to 1
+inline float mix(float in1, float in2, float mix){ // mix from 0 to 1
   return(in1 + (in2-in1) * mix); // return in1 when mix=0, and in2 when mix= 1
 }
 
@@ -106,83 +106,83 @@ inline int32_t _rnd_i() {
         return (int32_t)_rnd_ui();
 }
 
-inline double _rnd_f() { // from 0 to 1
-        return _rnd_ui() * 2.3283064e-010;
+inline float _rnd_f() { // from 0 to 1
+        return _rnd_ui() * 2.3283064e-010f;
 }
 
-inline int _floor(double x) {
+inline int _floor(float x) {
     return (int) x - (x < (int) x);
 }
 
-inline double wrap(double x) { // only for positive number, inversé pour les nombres negatifs
+inline float wrap(float x) { // only for positive number, inversé pour les nombres negatifs
   return x - (int)x;
 }
 
-inline double wrap2(double x) {
+inline float wrap2(float x) {
   return x - _floor(x);
 }
 
-inline double _tanh(double x) {
-  double x2 = x*x;
-  return x * ( 27. + x2 ) / ( 27. + 9. * x2 );
+inline float _tanh(float x) {
+  float x2 = x*x;
+  return x * ( 27.f + x2 ) / ( 27.f + 9.f * x2 );
 }
 
-inline double _tanh_clip(double index){
-    return _tanh(  _fclamp(index,-3., 3.) );
+inline float _tanh_clip(float index){
+    return _tanh(  _fclamp(index,-3.f, 3.f) );
 }
 
-inline double fast_cos(double index) { // index from 0 to 1 only
-  const double x = 4. * (_fmax(index,0.5)-_fmin(index, 0.5)) -1.;
-  return 2.*x-x*fabs(x);
+inline float fast_cos(float index) { // index from 0 to 1 only
+  const float x = 4. * (_fmax(index,0.5f)-_fmin(index, 0.5)) -1.f;
+  return 2.f*x-x*fabs(x);
 }
 
 /*
-inline double fast_cos_positiv_loop(double index) { // positive index only
+inline float fast_cos_positiv_loop(float index) { // positive index only
     return fast_cos(wrap(index));
 }
 */
-inline double fast_cos_loop(double index) { //
+inline float fast_cos_loop(float index) { //
     return fast_cos(wrap2(index) );
 }
 
-inline double _cos(double index) { // index from 0 to 1 only
+inline float _cos(float index) { // index from 0 to 1 only
 // 6 multiplications
-  double x=index-0.5;
-  double x2=x*x;
+  float x=index-0.5f;
+  float x2=x*x;
 
-  return -0.99999944 + x2 * (19.73903275 + x2 * (-64.93054874 + x2 * (85.29509341 + x2 * (-58.90779707 + x2 * 21.27414825))));
+  return -0.99999944f + x2 * (19.73903275f + x2 * (-64.93054874f + x2 * (85.29509341f + x2 * (-58.90779707f + x2 * 21.27414825f))));
 }
 /*
-inline double _cos_positiv_loop(double index) { // positive index only
+inline float _cos_positiv_loop(float index) { // positive index only
     return _cos(wrap(index));
 }
 */
-inline double _cos_loop(double index) { //
+inline float _cos_loop(float index) { //
     return _cos(wrap2(index) );
 }
 
-inline double _sin(double index) { // index from 0 to 1 only
+inline float _sin(float index) { // index from 0 to 1 only
 // 6 multiplication
-  double x=index-0.5;
-  double x2=x*x;
+  float x=index-0.5f;
+  float x2=x*x;
 
-  return x * (-6.28308759 +x2*(41.33318714 + x2*(-81.39900318 + x2*(74.66885164 - x2*33.1532588))));
+  return x * (-6.28308759f +x2*(41.33318714f + x2*(-81.39900318f + x2*(74.66885164f - x2*33.1532588f))));
 }
 
-inline double _sin_positiv_loop(double index) { // positive index only
+inline float _sin_positiv_loop(float index) { // positive index only
     return _sin(wrap(index));
 }
 
-inline double _sin_loop(double index) { //
+inline float _sin_loop(float index) { //
     return _sin(wrap2(index) );
 }
-inline double sign(double in) {
-	return ((in<0.)?-1. : 1.);
+inline float sign(float in) {
+	return ((in<0.f)?-1.f : 1.f);
 }
-void thomas(uint32_t i, double dt, double b) { // numero de l'attracteur a calculer
-    double dx = _sin_positiv_loop(11. + g_thomasY[i]) - b * g_thomasX[i]; // 11 : pour etre sur que le cos est positif
-    double dy = _sin_positiv_loop(11. + g_thomasZ[i]) - b * g_thomasY[i];
-    double dz = _sin_positiv_loop(11. + g_thomasX[i]) - b * g_thomasZ[i];
+void thomas(uint32_t i, float dt, float b) { // numero de l'attracteur a calculer
+    float dx = _sin_positiv_loop(11.f + g_thomasY[i]) - b * g_thomasX[i]; // 11 : pour etre sur que le cos est positif
+    float dy = _sin_positiv_loop(11.f + g_thomasZ[i]) - b * g_thomasY[i];
+    float dz = _sin_positiv_loop(11.f + g_thomasX[i]) - b * g_thomasZ[i];
     g_thomasX[i] += dx * dt;
     g_thomasY[i] += dy * dt;
     g_thomasZ[i] += dz * dt;
@@ -190,97 +190,97 @@ void thomas(uint32_t i, double dt, double b) { // numero de l'attracteur a calcu
 
 #define  write_binary_led(data) hw.binary_led.Write_data(data, 24)
 
-void init_table_CV2req() {
+void init_table_CV2freq() {
   int i;
   double power;
   power = pow(2.0,1/12.0);
   for (i=0; i<268; i++) {
-    table_CV2req[i] = pow(power, i-(128+69)) * 440.;
+    table_CV2freq[i] = pow(power, i-(128+69)) * 440.;
   }
 }
 
-inline double CV2req(double index) { // index from -128 to 139; 69 for 440Hz
-  double f_index = index;
-  f_index += 128.;
-  f_index = _fclamp(f_index, 0., 267. );
-  double index_entier = (int)(f_index);
+inline float CV2freq(float index) { // index from -128 to 139; 69 for 440Hz
+  float f_index = index;
+  f_index += 128.f;
+  f_index = _fclamp(f_index, 0.f, 267.f );
+  float index_entier = (int)(f_index);
   uint32_t i_index = (uint32_t)index_entier;
-  double index_reste = f_index-index_entier;
-  double inc1 = table_CV2req[i_index];
-  return inc1 * (1. + .0577622650 * index_reste) ;
+  float index_reste = f_index-index_entier;
+  float inc1 = table_CV2freq[i_index];
+  return inc1 * (1.f + .0577622650f * index_reste) ;
 }
 
-inline double CV2increment_lfo(uint32_t range, double cv) {
+inline float CV2increment_lfo(uint32_t range, float cv) {
     switch (range) { // Frequence des LFO = SR/2
     case 0: // low
-        return  CV2req((92. * cv) -115.)*4.*OneOverSR; // 92x -115 : (0.01 a 2)
+        return  CV2freq((92.f * cv) -115.f)*4.f*OneOverSR; // 92x -115 : (0.01 a 2)
     case 1: // med
-        return  CV2req((80. * cv) -64.)*4.*OneOverSR; //  80x -64 (0.2 to 20)
+        return  CV2freq((80.f * cv) -64.f)*4.f*OneOverSR; //  80x -64 (0.2 to 20)
     case 2: // high
-        return  CV2req((104. * cv) -24.)*4.*OneOverSR; // 104x -24 (2 to 800)
+        return  CV2freq((104.f * cv) -24.f)*4.f*OneOverSR; // 104x -24 (2 to 800)
     case 3: // sync midi
-        return table_MIDI_fq[(int)(cv*10.999)] * g_MIDI_LFO_increment;
+        return table_MIDI_fq[(int)(cv*10.999f)] * g_MIDI_LFO_increment;
     }
     return  0; // never used
 }
 
-inline double VCO_CV_range(uint32_t range, double cv) {
+inline float VCO_CV_range(uint32_t range, float cv) {
     switch (range) {
     case 0:
-        return (127. * cv) - 70.;
+        return (127.f * cv) - 70.f;
     case 1:
-        return (14.04 * cv) + 52.98;
+        return (14.04f * cv) + 52.98f;
     case 2:
-        return (100. * cv);
+        return (100.f * cv);
     }
-    return  0.;
+    return  0.f;
 }
 
-double LFO_compute_WF(double phase, uint32_t WF, double *last, uint32_t reset) {
+float LFO_compute_WF(float phase, uint32_t WF, float *last, uint32_t reset) {
     switch (WF) {
     case WF_AR:
-        return 0.; // not used
+        return 0.f; // not used
     case WF_sin:
         return _sin(phase);
     case WF_tri:
-        return 1. - 2.*(fabs(2.*wrap(phase+0.25) - 1.));
+        return 1.f - 2.f*(fabs(2.f*wrap(phase+0.25f) - 1.f));
     case WF_square:
-        return (phase < 0.5)? 1.:-1.;
+        return (phase < 0.5f)? 1.f:-1.f;
     case WF_ramp:
-        return (phase + phase) - 1.;
+        return (phase + phase) - 1.f;
     case WF_saw:
-        return 1. - (phase + phase);
+        return 1.f - (phase + phase);
     case WF_spike:
         {
-            double tmpf;
-            tmpf = fabs(2.*wrap(phase+0.275) - 1.);
+            float tmpf;
+            tmpf = fabs(2.f*wrap(phase+0.275f) - 1.f);
             tmpf *= tmpf;
             tmpf *= tmpf;
-            return 2.*tmpf -1.;
+            return 2.f*tmpf -1.f;
         }
     case WF_step:
         if ( reset ) {
-            last[0] = (_rnd_f()-0.5)*2.;
+            last[0] = (_rnd_f()-0.5f)*2.f;
         }
         return last[0];
     case WF_noise:
         if ( reset ) {
             last[1] = last[0];
-            last[0] = (_rnd_f()-0.5)*2.;
+            last[0] = (_rnd_f()-0.5f)*2.f;
         }
-        return mix(last[1], last[0], phase*phase*(3.-2.*phase));
+        return mix(last[1], last[0], phase*phase*(3.f-2.f*phase));
     }
-    return(0.);
+    return(0.f);
 }
 
-double Interpolation_Curve(double phase, uint32_t WF, double *last_point) { // interpol through diferent points depending on the LFO waveform
-    double out;
+float Interpolation_Curve(float phase, uint32_t WF, float *last_point) { // interpol through diferent points depending on the LFO waveform
+    float out;
 
     switch (WF) {
     case WF_AR:
-        return 0.; // should never came here
+        return 0.f; // should never came here
     case WF_sin:
-        out = 0.5 + _cos(phase*0.5) * 0.5;
+        out = 0.5f + _cos(phase*0.5) * 0.5;
         out *= last_point[1] - last_point[0];
         out += last_point[0];
         return out;
@@ -290,11 +290,11 @@ double Interpolation_Curve(double phase, uint32_t WF, double *last_point) { // i
         out += last_point[1];
         return out;
     case WF_square:
-        return (phase > 0.5)? last_point[0]:last_point[1];
+        return (phase > 0.5f)? last_point[0]:last_point[1];
     case WF_ramp:
         return phase * last_point[0];
     case WF_saw:
-        return (1.-phase) * last_point[0];
+        return (1.f-phase) * last_point[0];
     case WF_spike:
         out = phase;
         out *= phase;
@@ -305,125 +305,125 @@ double Interpolation_Curve(double phase, uint32_t WF, double *last_point) { // i
     case WF_step:
         return last_point[0];
     case WF_noise: // interpolation cos avec 2 points
-        return mix(last_point[1], last_point[0], phase*phase*(3.-2.*phase));
+        return mix(last_point[1], last_point[0], phase*phase*(3.f-2.f*phase));
     }
-    return(0.); // not used
+    return(0.f); // not used
 }
 
 // for VCO band limited waveform
 
 /*
-inline double Polyblep2(double increment, double phase) {
-    double t = phase;
+inline float Polyblep2(float increment, float phase) {
+    float t = phase;
     if(t < increment) {
         t /= increment;
-        return t * (2. - t) - 1.0; // -t² + 2t -1
+        return t * (2.f - t) - 1.0f; // -t² + 2t -1
     }
-    else if(t - 1. > - increment) {
-        t = (t - 1.0) / increment;
-        return t * (t + 2.) + 1.0; // (t-1)(t+1)+1 = t²
+    else if(t - 1.f > - increment) {
+        t = (t - 1.0f) / increment;
+        return t * (t + 2.f) + 1.0f; // (t-1)(t+1)+1 = t²
     }
     else {
-        return 0.0;
+        return 0.0f;
     }
 }
 */
 
-inline double Polyblep2(const double increment, const double phase) {
-    const double t = phase;
-    if (t >= increment && t - 1. <= -increment) {
-        return 0.0;
+inline float Polyblep2(const float increment, const float phase) {
+    const float t = phase;
+    if (t >= increment && t - 1.f <= -increment) {
+        return 0.0f;
     }
 
     if (t < increment) {
-        const double normalizedT = t / increment;
-        return normalizedT * (2. - normalizedT) - 1.0;
+        const float normalizedT = t / increment;
+        return normalizedT * (2.f - normalizedT) - 1.0f;
     }
 
-    const double normalizedT = (t - 1.0) / increment;
-    return normalizedT * (normalizedT + 2.) + 1.0;
+    const float normalizedT = (t - 1.0f) / increment;
+    return normalizedT * (normalizedT + 2.f) + 1.0f;
 }
 
 /*
-inline double Polyblep(double increment, double _phase)
+inline float Polyblep(float increment, float _phase)
 {
-    double phase = _phase;
+    float phase = _phase;
 
     if (phase > 0.5) {
-        phase = 1.-phase;
+        phase = 1.f-phase;
 
-        if (phase > 2. * increment) return 0.0;
+        if (phase > 2.f * increment) return 0.0f;
         if (phase < increment) {
             phase /= increment;
-            return 1. + phase * ( (-4./3.) + phase * phase * ((2./3.) + phase * (-2./8.)));
+            return 1.f + phase * ( (-4.f/3.f) + phase * phase * ((2.f/3.f) + phase * (-2.f/8.f)));
         }
         else {
             phase -= increment;
             phase /= increment;
-            return (2./24.) + phase * ((-2./6.) + phase * ( (2./4.) + phase * ((-2./6.) + phase * (2./24.))));
+            return (2.f/24.f) + phase * ((-2.f/6.f) + phase * ( (2.f/4.f) + phase * ((-2.f/6.f) + phase * (2.f/24.f))));
         }
     }
     else {
-        if (phase > 2. * increment) return 0.0;
+        if (phase > 2.f * increment) return 0.0f;
         if (phase < increment) {
             phase /= increment;
-            return -1. + phase * ( (4./3.) + phase * phase * ((-2./3.) + phase * (2./8.)));
+            return -1.f + phase * ( (4.f/3.f) + phase * phase * ((-2.f/3.f) + phase * (2.f/8.f)));
         }
         else {
             phase -= increment;
             phase /= increment;
-            return (-2./24.) + phase * ((2./6.) + phase * ( (-2./4.) + phase * ((2./6.) + phase * (-2./24.))));
+            return (-2.f/24.f) + phase * ((2.f/6.f) + phase * ( (-2.f/4.f) + phase * ((2.f/6.f) + phase * (-2.f/24.f))));
         }
     }
 }
 */
 
 
-inline double Polyblep(const double increment, const double phase)
+inline float Polyblep(const float increment, const float phase)
 {
     if (phase > 0.5) {
-        const double invertedPhase = 1. - phase;
+        const float invertedPhase = 1.f - phase;
 
-        if (invertedPhase > 2. * increment) {
-            return 0.0;
+        if (invertedPhase > 2.f * increment) {
+            return 0.0f;
         }
 
         if (invertedPhase < increment) {
-            const double t = invertedPhase / increment;
-            const double t2 = t * t;
-            return 1. + t * (-4./3. + t2 * (2./3. - t * (2./8.)));
+            const float t = invertedPhase / increment;
+            const float t2 = t * t;
+            return 1.f + t * (-4.f/3.f + t2 * (2.f/3.f - t * (2.f/8.f)));
         }
 
-        const double t = (invertedPhase - increment) / increment;
-        return (2./24.) + t * (-2./6. + t * (2./4. + t * (-2./6. + t * (2./24.))));
+        const float t = (invertedPhase - increment) / increment;
+        return (2.f/24.f) + t * (-2.f/6.f + t * (2.f/4.f + t * (-2.f/6.f + t * (2.f/24.f))));
     }
 
-    if (phase > 2. * increment) {
-        return 0.0;
+    if (phase > 2.f * increment) {
+        return 0.0f;
     }
 
     if (phase < increment) {
-        const double t = phase / increment;
-        const double t2 = t * t;
-        return -1. + t * (4./3. + t2 * (-2./3. + t * (2./8.)));
+        const float t = phase / increment;
+        const float t2 = t * t;
+        return -1.f + t * (4.f/3.f + t2 * (-2.f/3.f + t * (2.f/8.f)));
     }
 
-    const double t = (phase - increment) / increment;
-    return (-2./24.) + t * (2./6. + t * (-2./4. + t * (2./6. + t * (-2./24.))));
+    const float t = (phase - increment) / increment;
+    return (-2.f/24.f) + t * (2.f/6.f + t * (-2.f/4.f + t * (2.f/6.f + t * (-2.f/24.f))));
 }
 
-inline double saw_bl(double phase, double increment) {
-  return (phase+phase - 1. - Polyblep(increment, phase));
+inline float saw_bl(float phase, float increment) {
+  return (phase+phase - 1.f - Polyblep(increment, phase));
 }
 
-inline double tri_bl(double phase, double increment, double &last_out) {
-	double out;
-	out = phase < 0.5 ? 1.0 : -1.0;
+inline float tri_bl(float phase, float increment, float &last_out) {
+	float out;
+	out = phase < 0.5 ? 1.0f : -1.0f;
 	out += Polyblep2(increment, phase);
-	out -= Polyblep2(increment, wrap(phase + 0.5));
+	out -= Polyblep2(increment, wrap(phase + 0.5f));
 	// Leaky Integrator:
 	// y[n] = A + x[n] + (1 - A) * y[n-1]
-	out       = increment * out + (1.0 - increment) * last_out;
+	out       = increment * out + (1.0f - increment) * last_out;
 	last_out = out;
     return 4.*out;
 }
@@ -434,10 +434,10 @@ void init_variables() {
 
     for (i=0; i<modulation_source_last; i++) g_Modulation[i] = 0.;
     for (i=0; i<nb_thomas_attractor; i++) {
-        g_thomasX[i] = 3. * _rnd_f();
-        g_thomasY[i] = 3. * _rnd_f();
-        g_thomasZ[i] = 3. * _rnd_f();
-        for (j=0; j<100; j++) thomas(i, 0.5, 0.3);
+        g_thomasX[i] = 3.f * _rnd_f();
+        g_thomasY[i] = 3.f * _rnd_f();
+        g_thomasZ[i] = 3.f * _rnd_f();
+        for (j=0; j<100; j++) thomas(i, 0.5f, 0.3f);
     }
     for (i=0; i<nb_voice; i++) { // pour les oscilateur logistic
         allvoice[i].v_VCO1_last[1] = _rnd_f();
@@ -452,7 +452,7 @@ void init_variables() {
 	g_randomSeed_v = (tmp<<15)+tmp; // idem
 
     // mtof table initialisation in RAM
-    init_table_CV2req();
+    init_table_CV2freq();
 
     // keyboard
     g_state_kb = 7; // force le recalcul des boutons etc
@@ -467,8 +467,8 @@ void init_variables() {
         allvoice[i].v_GATE = 0;
     }
 
-    g_Modulation[NONE_OUT] = 0.;
-    g_Modulation_Phase[NONE_OUT] = 0.;
+    g_Modulation[NONE_OUT] = 0.f;
+    g_Modulation_Phase[NONE_OUT] = 0.f;
     g_Modulation_Reset[NONE_OUT] = 0;
 }
 
@@ -698,9 +698,9 @@ int load_config(uint32_t slot)
     if (tmp_config.c_Version != memory_id) {
 		standard_config(); // la structure memoire n'est pas bonne, la memoire est vide, on charge une config par defaut
 		if (slot == 13) { // uniquement utilisé pour la calibration des CV
-			curent_config.c_CV1_offset = 0.;
-			curent_config.c_CV2_offset = 0.;
-			curent_config.c_CV1_gain = 1.;
+			curent_config.c_CV1_offset = 0.f;
+			curent_config.c_CV2_offset = 0.f;
+			curent_config.c_CV1_gain = 1.f;
 		}
 		return(0); //id not valid
 	}
@@ -759,20 +759,20 @@ int load_config(uint32_t slot)
 
 // --------------- VCO -------------------
 // on le met ici pour pouvoir avoir des fonctions diferentes pour chaques VCO (le reste du code est un copié-collé a la compilation)
-inline void VCO1_pitch(voice &myvoice, double &pitch) {
+inline void VCO1_pitch(voice &myvoice, float &pitch) {
     pitch += g_MIDI_pitchWHEEL;
     myvoice.v_VCO1_pitch = pitch;
 }
-inline void VCO2_pitch(voice &myvoice, double &pitch) {
-    if(curent_config.c_VCO2_LINK) pitch += myvoice.v_VCO1_pitch -(60. + myvoice.v_pitch); else pitch +=  g_MIDI_pitchWHEEL;
+inline void VCO2_pitch(voice &myvoice, float &pitch) {
+    if(curent_config.c_VCO2_LINK) pitch += myvoice.v_VCO1_pitch -(60.f + myvoice.v_pitch); else pitch +=  g_MIDI_pitchWHEEL;
 }
-inline void VCO3_pitch(voice &myvoice, double &pitch) {
-    if(curent_config.c_VCO3_LINK) pitch += myvoice.v_VCO1_pitch -(60. + myvoice.v_pitch); else pitch +=  g_MIDI_pitchWHEEL;
+inline void VCO3_pitch(voice &myvoice, float &pitch) {
+    if(curent_config.c_VCO3_LINK) pitch += myvoice.v_VCO1_pitch -(60.f + myvoice.v_pitch); else pitch +=  g_MIDI_pitchWHEEL;
 }
 
 inline void get_pot(uint32_t i) {
     uint32_t raw_value;
-    double tmpf;
+    float tmpf;
     uint32_t out, j, index;
     int32_t value_min, value_max, diff;
 
@@ -805,12 +805,12 @@ inline void get_pot(uint32_t i) {
 
         out += diff;
         g_pot16[i] = out;
-        tmpf = (double) out;
-        tmpf -= 150.;
-        tmpf = _fmax(tmpf,0.);
-        tmpf *= 1./65300.; // pour etre sur d'etre entre 0. et 1.
+        tmpf = (float) out;
+        tmpf -= 150.f;
+        tmpf = _fmax(tmpf,0.f);
+        tmpf *= 1.f/65300.f; // pour etre sur d'etre entre 0. et 1.
         tmpf +=  g_midi_parameter[i];
-        tmpf= _fmin(tmpf,1.);
+        tmpf= _fmin(tmpf,1.f);
         g_knob[i] = tmpf;
         g_pot_increment[i] = (tmpf - g_pot_audio[i]) * coef_CV_to_audio_filter;
     }
