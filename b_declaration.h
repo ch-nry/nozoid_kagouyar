@@ -20,7 +20,8 @@
 // v_variable : variable associé a une voie de polyphonie (ds la structure allvoice[])
 // c_variable : variable de configuration qui est ds la structure sauvegardé en EPROM
 
-// optimisation : mettre des variables en DTCM_MEM_SECTION ?
+
+// this code use an old and sligtly customized daisy lib.
 
 
 
