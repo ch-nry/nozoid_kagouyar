@@ -5,8 +5,8 @@ TARGET = Kagouyar
 CPP_SOURCES = a_kagouyar.cpp
 
 # Library Locations
-LIBDAISY_DIR = ../../daisy/git/libDaisy
-DAISYSP_DIR = ../../daisy/git/DaisySP
+LIBDAISY_DIR = ../git_daisy/libDaisy
+DAISYSP_DIR = ../git_daisy/DaisySP
 
 # Core location, and generic Makefile.
 SYSTEM_FILES_DIR = $(LIBDAISY_DIR)/core
