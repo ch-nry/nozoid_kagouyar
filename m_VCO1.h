@@ -21,7 +21,7 @@
 																					\
     switch (curent_config.c_Modulation_Type[VCO_MOD]) {                             \
     case MOD_FM_exp :                                                               \
-        VCO1_FM_exp += modulation_value ;                                           \
+        VCO1_FM_exp += modulation_value;                                           \
         break;                                                                      \
     case MOD_FM_Qtz :                                                               \
         VCO1_FM_Qtz += modulation_value ;                                           \
@@ -174,7 +174,7 @@ inline float VCO1(uint32_t j, float frequency) {
     }
     out *= VCO1_AM;
 
-    out = _fclamp(out, -1.1f, VCO1_clip);
+    out = _fclamp(out, -1.1f, VCO1_clip); //TODO remplace par un seul min
 
     g_Modulation[VCO1_OUT] = out;
     return out;
