@@ -66,7 +66,7 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
     VCO3_fq = VCO_CV_range(curent_config.c_VCO3_RANGE, g_pot_audio[k_VCO3_fq]);
 
 	g_pot_audio[k_VCF1_fq] += coef_audio_to_block * g_pot_increment[k_VCF1_fq];
-    VCF1_fq = 127.f * g_pot_audio[k_VCF1_fq];
+    VCF1_fq = 112.f * g_pot_audio[k_VCF1_fq];
     g_pot_audio[k_VCF1_q] += coef_audio_to_block * g_pot_increment[k_VCF1_q];
     g_pot_audio[k_VCF1_mod1] += coef_audio_to_block * g_pot_increment[k_VCF1_mod1];
     g_pot_audio[k_VCF1_mod2] += coef_audio_to_block * g_pot_increment[k_VCF1_mod2];
