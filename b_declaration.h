@@ -34,26 +34,26 @@
 #define block_per_ms 2.f // (48/block_size) // combien de bock audio par ms, pour calcul du temps
 #define filter_order 4 // pour les pot et CV in
 
+#define nb_voice 4
+
 #ifndef SAMPLE_RATE
 #define SAMPLE_RATE 48014.f
 #endif
 #define OneOverSR 1.f/SAMPLE_RATE
 
-#define PI_F 3.1415927410125732421875f
-#define TWOPI_F (2.0f * PI_F)
-#define HALFPI_F (PI_F * 0.5f)
-
-#define int2float 4.656612873e-010f
-//#define uint2float 2.32830643e-010f
-
 #define memory_id 0xABCDEF04 // identifiant unique pour verifier l'integrité des memoires
 
 #define nb_potentiometer 48
 #define nb_CV 50
-#define coef_CV_to_audio_filter 0.004
+#define coef_CV_to_audio_filter 0.004f
 #define coef_audio_to_block block_size
 
-#define nb_voice 4
+//#define PI_F 3.1415927410125732421875f
+//#define TWOPI_F (2.0f * PI_F)
+//#define HALFPI_F (PI_F * 0.5f)
+
+#define int2float 4.656612873e-010f
+//#define uint2float 2.32830643e-010f
 
 // ordre des potentiomettres
 #define k_VCO1_fq       		0
@@ -115,8 +115,8 @@ const uint32_t table_midi_order[] = {k_VCO1_fq,  k_VCO1_wfm, k_VCO1_mod1, k_VCO1
 
 // potentiomettres:
 __attribute__((section(".dtcmram"))) float g_pot_increment[nb_CV]; // utilisé pour le filtre IIR en audio
-__attribute__((section(".dtcmram"))) float g_pot_audio[nb_CV]; // valeur des pots mais filtré en audio
-__attribute__((section(".dtcmram"))) uint32_t g_pot16[nb_CV]; // filtre en 16 bit
+float g_pot_audio[nb_CV]; // valeur des pots mais filtré en audio
+uint32_t g_pot16[nb_CV]; // filtre en 16 bit
 uint32_t g_filter_index[nb_CV];
 int32_t g_filter_moins[nb_CV][filter_order];
 int32_t g_filter_plus[nb_CV][filter_order];
