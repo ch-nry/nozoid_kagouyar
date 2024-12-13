@@ -126,7 +126,6 @@ inline float _tanh(float x) {
   float x2 = x*x;
   return x * ( 27.f + x2 ) / ( 27.f + 9.f * x2 );
 }
-// a tester : x(abs(x*x*x)+16)/(16+4*abs(x*x*x)) : plus proche de X sur 0...0.5, et sature pour x=2
 
 inline float _tanh_clip(float index){
     return _tanh(  _fclamp(index,-3.f, 3.f) );
