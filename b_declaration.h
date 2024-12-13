@@ -31,29 +31,29 @@
 //les 8 suivant la version mineur
 
 #define block_size 24
-#define block_per_ms 2.f // (48/block_size) // combien de bock audio par ms, pour calcul du temps
+#define block_per_ms 2. // (48/block_size) // combien de bock audio par ms, pour calcul du temps
 #define filter_order 4 // pour les pot et CV in
 
 #define nb_voice 4
 
 #ifndef SAMPLE_RATE
-#define SAMPLE_RATE 48014.f
+#define SAMPLE_RATE 48014.
 #endif
-#define OneOverSR 1.f/SAMPLE_RATE
+#define OneOverSR 1./SAMPLE_RATE
 
 #define memory_id 0xABCDEF04 // identifiant unique pour verifier l'integrité des memoires
 
 #define nb_potentiometer 48
 #define nb_CV 50
-#define coef_CV_to_audio_filter 0.004f
+#define coef_CV_to_audio_filter 0.004
 #define coef_audio_to_block block_size
 
-//#define PI_F 3.1415927410125732421875f
-//#define TWOPI_F (2.0f * PI_F)
-//#define HALFPI_F (PI_F * 0.5f)
+//#define PI_F 3.1415927410125732421875
+//#define TWOPI_F (2.0 * PI_F)
+//#define HALFPI_F (PI_F * 0.5)
 
-#define int2float 4.656612873e-010f
-//#define uint2float 2.32830643e-010f
+#define int2double 4.656612873e-010
+//#define uint2double 2.32830643e-010
 
 // ordre des potentiomettres
 #define k_VCO1_fq       		0
@@ -105,7 +105,7 @@
 #define k_CV1           			48
 #define k_CV2           			49
 
-const float table_MIDI_fq[] = {1.f/32.f, 1.f/16.f, 1.f/8.f, 0.25f, 0.5f, 1.f, 2.f, 4.f, 8.f, 16.f, 32.f};
+const double table_MIDI_fq[] = {1./32., 1./16., 1./8., 0.25, 0.5, 1., 2., 4., 8., 16., 32.};
 const int table_step[] = {1, 2, 3, 4, 8, 16};
 const uint32_t table_midi_order[] = {k_VCO1_fq,  k_VCO1_wfm, k_VCO1_mod1, k_VCO1_mod2, k_VCO1_mod3, k_VCO2_fq, k_VCO2_wfm,
 	 k_VCO2_mod1, k_VCO2_mod2, k_VCO2_mod3, k_VCO3_fq, k_VCO3_wfm, k_VCO3_mod1, k_VCO3_mod2, k_VCO3_mod3, k_MIX1,
@@ -115,18 +115,18 @@ const uint32_t table_midi_order[] = {k_VCO1_fq,  k_VCO1_wfm, k_VCO1_mod1, k_VCO1
 
 // potentiomettres:
 //__attribute__((section(".dtcmram")))
-float g_pot_increment[nb_CV]; // utilisé pour le filtre IIR en audio
-float g_pot_audio[nb_CV]; // valeur des pots mais filtré en audio
+double g_pot_increment[nb_CV]; // utilisé pour le filtre IIR en audio
+double g_pot_audio[nb_CV]; // valeur des pots mais filtré en audio
 uint32_t g_pot16[nb_CV]; // filtre en 16 bit
 uint32_t g_filter_index[nb_CV];
 int32_t g_filter_moins[nb_CV][filter_order];
 int32_t g_filter_plus[nb_CV][filter_order];
 
 // MIDI
-float g_midi_parameter[nb_CV];
-float g_knob[nb_CV];
-float g_MIDI_LFO_increment;
-float g_MIDI_led_time;
+double g_midi_parameter[nb_CV];
+double g_knob[nb_CV];
+double g_MIDI_LFO_increment;
+double g_MIDI_led_time;
 
 // Random
 int32_t g_randomSeed_v;
@@ -134,7 +134,7 @@ int32_t g_randomSeed_u;
 
 // chaos :
 #define nb_thomas_attractor 3*16 // 16 for LFO 1 to 3
-volatile float g_thomasX[nb_thomas_attractor], g_thomasY[nb_thomas_attractor], g_thomasZ[nb_thomas_attractor];
+volatile double g_thomasX[nb_thomas_attractor], g_thomasY[nb_thomas_attractor], g_thomasZ[nb_thomas_attractor];
 
 // affichage de la sauvegarde des memoires sur le clavier
 int32_t g_last_load_save  = -1;
@@ -147,14 +147,14 @@ volatile int32_t g_time;
 
 // MIDI
 uint32_t g_MIDI_exprssion_LSB = 0, g_MIDI_MODWHEEL_LSB = 0, g_RNPN_value_MSB = 0, g_RNPN_value_LSB = 0, g_RNPN_addresse_MSB = 0, g_RNPN_addresse_LSB = 0;
-float g_MIDI_pitchWHEEL = 0.f,  g_MIDI_MODWHEEL = 0.f;
+double g_MIDI_pitchWHEEL = 0.,  g_MIDI_MODWHEEL = 0.;
 
 //clavier
 uint32_t g_state_kb = 7; // machine a etat de la fonction de reception du clavier
 // 1er etat : on recalcule les valeur global du clavier
 
 // calibration CV
-float g_CV1_offset, g_CV2_offset, g_CV1_gain;
+double g_CV1_offset, g_CV2_offset, g_CV1_gain;
 
 // g_Modulation
 enum MOD_OUT {
@@ -201,9 +201,9 @@ struct CONFIGURATION
     int32_t c_MIDI_channel = 0; // -1 pour omni
 
 	// CV calibration
-	float c_CV1_offset = 0.f;
-	float c_CV2_offset = 0.f;
-	float c_CV1_gain = 1.f;
+	double c_CV1_offset = 0.;
+	double c_CV2_offset = 0.;
+	double c_CV1_gain = 1.;
 
     // VCO
     uint32_t c_VCO1_WF ;
@@ -268,9 +268,9 @@ struct CONFIGURATION
 CONFIGURATION curent_config; // configuration actuel
 
 // modulations, LFO
-float g_Modulation[2*modulation_source_last]; // valeur des diferentes g_Modulation
+double g_Modulation[2*modulation_source_last]; // valeur des diferentes g_Modulation
 uint32_t g_Modulation_Reset[modulation_source_last]; // bool pour marquer un reset de phase, utilisé pour les lfo 1 2 3 ds certain cas.
-float g_Modulation_Phase[modulation_source_last]; // valeur des phases des diferentes g_Modulation
+double g_Modulation_Phase[modulation_source_last]; // valeur des phases des diferentes g_Modulation
 
 struct voice
 {
@@ -281,36 +281,36 @@ struct voice
         // -1 : on vient de l'utiliser
         // -2 : celle qui a ete utilisé juste avant, etc
     uint32_t v_GATE_source; // 0 = Kb int, 1 = MIDI, 2 = v_GATE logic
-    float  v_pitch;
+    double  v_pitch;
     uint32_t v_GATE; // GATE on/off
 // VCO1
-    float v_VCO1_phase = 0.f;
-    float v_VCO1_last[2];
-    float v_VCO1_pitch = 0.f;
+    double v_VCO1_phase = 0.;
+    double v_VCO1_last[2];
+    double v_VCO1_pitch = 0.;
 // VCO2
-    float v_VCO2_phase = 0.f;
-    float v_VCO2_last[2];
+    double v_VCO2_phase = 0.;
+    double v_VCO2_last[2];
 // VCO3
-    float v_VCO3_phase = 0.f;
-    float v_VCO3_last[2];
+    double v_VCO3_phase = 0.;
+    double v_VCO3_last[2];
 // MIX
 // Low Pass v_GATE
-    float v_LPG_last = 0.f;
+    double v_LPG_last = 0.;
 // VCF1
-	float v_VCF1_filter = 0.f;
-    float v_VCF1_last_input1  = 0.f;
-    float v_VCF1_last_input2  = 0.f;
-    float v_VCF1_last_input3  = 0.f;
-    float v_VCF1_last_input4  = 0.f;
-    float v_VCF1_last_output1 = 0.f;
-    float v_VCF1_last_output2 = 0.f;
-    float v_VCF1_last_output3 = 0.f;
-    float v_VCF1_last_output4 = 0.f;
+	double v_VCF1_filter = 0.;
+    double v_VCF1_last_input1  = 0.;
+    double v_VCF1_last_input2  = 0.;
+    double v_VCF1_last_input3  = 0.;
+    double v_VCF1_last_input4  = 0.;
+    double v_VCF1_last_output1 = 0.;
+    double v_VCF1_last_output2 = 0.;
+    double v_VCF1_last_output3 = 0.;
+    double v_VCF1_last_output4 = 0.;
 // ADSR
     uint32_t v_ADSR_mode = Release;
-    float v_ADSR_out = 0.f;
+    double v_ADSR_out = 0.;
 // MIDI
-	float amplitude = 1.f;
+	double amplitude = 1.;
 };
 
 voice allvoice[nb_voice]; // declaration des memoires des voies de polyphonie

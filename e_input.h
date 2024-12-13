@@ -253,7 +253,7 @@ inline void get_keyboard() { // recupere les information des 6 capteurs capaciti
 			if(i2c_kb.ReadDataAtAddress(138, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK)
 			{
 				ui_tmp = g_switch1;
-				ui_tmp &= 0xFFFF00FF; // clear current bits
+				ui_tmp &= 0xFFFF00F; // clear current bits
 				ui_tmp += kb_data[0]<<8;
 				g_switch1 = ui_tmp;
 				//g_time = -1 * block_per_ms;
@@ -271,7 +271,7 @@ inline void get_keyboard() { // recupere les information des 6 capteurs capaciti
 			if(i2c_kb.ReadDataAtAddress(140, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK)
 			{
 				ui_tmp = g_switch1;
-				ui_tmp &= 0xFF00FFFF; // clear current bits
+				ui_tmp &= 0xFF00FFF; // clear current bits
 				ui_tmp += kb_data[0]<<16;
 				g_switch1 = ui_tmp;
 				//g_time = -1 * block_per_ms;
@@ -289,7 +289,7 @@ inline void get_keyboard() { // recupere les information des 6 capteurs capaciti
 			if(i2c_kb.ReadDataAtAddress(142, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK)
 			{
 				ui_tmp = g_switch1;
-				ui_tmp &= 0x00FFFFFF; // clear current bits
+				ui_tmp &= 0x00FFFFF; // clear current bits
 				ui_tmp += kb_data[0]<<24;
 				g_switch1 = ui_tmp;
 				//g_time = -1 * block_per_ms;
@@ -325,7 +325,7 @@ inline void get_keyboard() { // recupere les information des 6 capteurs capaciti
 			if(i2c_led.ReadDataAtAddress(142, 2, 1, kb_data, 2, 10) == I2CHandle::Result::OK)
 			{
 				ui_tmp = g_switch2;
-				ui_tmp &= 0xFFFF00FF; // clear current bits
+				ui_tmp &= 0xFFFF00F; // clear current bits
 				ui_tmp += kb_data[0]<<8;
 				g_switch2 = ui_tmp;
 				//g_time = -1 * block_per_ms;
@@ -421,7 +421,7 @@ void change_key(uint32_t current_key_bit) {
             pitch = i+12*curent_config.c_KEYBOARD_octave; //
             if(curent_config.c_KEYBOARD_toggle == 0) {  // mode normal
                 if ( (current_key_bit>>i) & 1 ) { // appuie sur la touche : note on
-                    add_voice(0, pitch, 1.f);
+                    add_voice(0, pitch, 1.);
                 }
                 else {
                     remove_voice(0, pitch); // on relache : note off
@@ -432,7 +432,7 @@ void change_key(uint32_t current_key_bit) {
                     if (test_voice(pitch))
                         remove_voice(0, pitch); // remove si la voie etait on
                     else
-                        add_voice(0, pitch, 1.f); // on l'ajoute sinon
+                        add_voice(0, pitch, 1.); // on l'ajoute sinon
                 }
             }
         }
@@ -902,14 +902,14 @@ void key_and_led(){ // test keyboard and update leds
 ///////////////////////////////////////////////////////
 void midi_in(uint32_t MIDI_data) {
     uint32_t uint_tmp;
-    float tmpf;
+    double tmpf;
 
     if ((MIDI_data & 0xF0) == 0xF0) { // real time messages
-        g_MIDI_led_time = 0.3f; // very small blink
+        g_MIDI_led_time = 0.3; // very small blink
 
         if (MIDI_data == 0xF8) { // real time clock
             if( ++g_MIDI_QNote == 24) { // on as eu 24 Quarter Note
-                g_MIDI_LFO_increment = 0.25f/(float)g_MIDI_count;
+                g_MIDI_LFO_increment = 0.25/(double)g_MIDI_count;
                 g_MIDI_QNote = 0;
                 g_MIDI_count = 0;
              }
@@ -927,14 +927,14 @@ void midi_in(uint32_t MIDI_data) {
         }
     }
     else {
-        g_MIDI_led_time = 1.f; // small blink
+        g_MIDI_led_time = 1.; // small blink
 
         if (MIDI_data & 0x80) { // test for status
             if (curent_config.c_MIDI_channel == -1) { // omni
                 g_MIDI_status = MIDI_data & 0xF0;
                 g_MIDI_state = 1; // on a un midi status
             } else { // on doit tester le channel
-                if ( (MIDI_data & 0x0F) == (uint32_t)curent_config.c_MIDI_channel ) { // c'est le bon channel
+                if ( (MIDI_data & 0x0) == (uint32_t)curent_config.c_MIDI_channel ) { // c'est le bon channel
                     g_MIDI_status = MIDI_data & 0xF0;
                     g_MIDI_state = 1; // on a un midi status
                 } else { // ce n'est pas le bon channel
@@ -962,7 +962,7 @@ void midi_in(uint32_t MIDI_data) {
                 // we have a full midi message
                 if ( ( g_MIDI_status == 0x90) &&  (MIDI_data2 != 0) ) // note on
                 {
-                    add_voice(1, MIDI_data1-60, (float)MIDI_data2/127.f);
+                    add_voice(1, MIDI_data1-60, (double)MIDI_data2/127.);
                     //g_Modulation[MIDI_vel] = MIDI_data2;
                 }
                 if ( ( (g_MIDI_status == 0x90) &&  (MIDI_data2 == 0) ) || ( g_MIDI_status == 0x80 ) )
@@ -973,18 +973,18 @@ void midi_in(uint32_t MIDI_data) {
 
                 if ( g_MIDI_status == 0b11100000) // v_pitch bend
                 {
-                    g_MIDI_pitchWHEEL = 5.f * (-1.f + (float)(MIDI_data1 + (MIDI_data2 << 7)) * 0.00012207f); // pitch bend = +/- 5 1/2 tone
+                    g_MIDI_pitchWHEEL = 5. * (-1. + (double)(MIDI_data1 + (MIDI_data2 << 7)) * 0.00012207); // pitch bend = +/- 5 1/2 tone
                 }
                 if ( g_MIDI_status == 0b10110000) // CC
                 {
                     if (MIDI_data1 == 01) { // mod wheel
-                        tmpf = (float)((MIDI_data2 << 7)+ g_MIDI_MODWHEEL_LSB);
-                        tmpf = ( tmpf * 0.00006103515f); // 14 bit de 0 a 1
+                        tmpf = (double)((MIDI_data2 << 7)+ g_MIDI_MODWHEEL_LSB);
+                        tmpf = ( tmpf * 0.00006103515); // 14 bit de 0 a 1
                         g_Modulation[MIDI_modulation] = tmpf;
                         g_Modulation[MIDI_modulation + modulation_source_last] = -tmpf;
                     }
                     if (MIDI_data1 == 11) {
-						tmpf = (float)((MIDI_data2 << 7) + g_MIDI_exprssion_LSB) * 0.00006103515f;  // positif seulement
+						tmpf = (double)((MIDI_data2 << 7) + g_MIDI_exprssion_LSB) * 0.00006103515;  // positif seulement
 						g_Modulation[MIDI_expression] = tmpf;
 						}
                     if (MIDI_data1 == 33) { g_MIDI_MODWHEEL_LSB = MIDI_data2; }  // mod wheel LSB
@@ -995,7 +995,7 @@ void midi_in(uint32_t MIDI_data) {
 						uint_tmp = g_RNPN_addresse_LSB + (g_RNPN_addresse_MSB << 7);
                         if (uint_tmp < nb_potentiometer) {
 							uint_tmp = table_midi_order[uint_tmp];
-                            g_midi_parameter[uint_tmp] = (g_RNPN_value_MSB << 7) * 0.00006103515f;
+                            g_midi_parameter[uint_tmp] = (g_RNPN_value_MSB << 7) * 0.00006103515;
                         }
 					}
                     if (MIDI_data1 == 38) {
@@ -1003,7 +1003,7 @@ void midi_in(uint32_t MIDI_data) {
                         uint_tmp = g_RNPN_addresse_LSB + (g_RNPN_addresse_MSB << 7);
                         if (uint_tmp < nb_potentiometer) {
 							uint_tmp = table_midi_order[uint_tmp];
-                            g_midi_parameter[uint_tmp] = ( (g_RNPN_value_MSB << 7) + g_RNPN_value_LSB) * 0.00006103515f;
+                            g_midi_parameter[uint_tmp] = ( (g_RNPN_value_MSB << 7) + g_RNPN_value_LSB) * 0.00006103515;
                         }
                     }
                     if (MIDI_data1 == 43) { g_MIDI_exprssion_LSB = MIDI_data2; }
@@ -1021,17 +1021,17 @@ void midi_in(uint32_t MIDI_data) {
 
 inline void get_analog_in() {
     uint32_t analog_gate;
-	float tmpf;
-	tmpf = ((0.5f -  g_knob[k_CV1]) - g_CV1_offset) * 2.f ;
+	double tmpf;
+	tmpf = ((0.5 -  g_knob[k_CV1]) - g_CV1_offset) * 2. ;
     g_Modulation[CV1_OUT] =  tmpf;
     g_Modulation[CV1_OUT+modulation_source_last] =  -tmpf;
-    tmpf = ((0.5f - g_knob[k_CV2]) - g_CV2_offset) * 2.f;
+    tmpf = ((0.5 - g_knob[k_CV2]) - g_CV2_offset) * 2.;
     g_Modulation[CV2_OUT] = tmpf;
     g_Modulation[CV2_OUT+modulation_source_last] = -tmpf;
 
     analog_gate = dsy_gpio_read(&gate_pin);
     if (g_analog_gate > analog_gate) remove_voice(2, 0);
-    if (g_analog_gate < analog_gate) add_voice(2, 0, 1.f);
+    if (g_analog_gate < analog_gate) add_voice(2, 0, 1.);
     g_analog_gate = analog_gate;
 }
 

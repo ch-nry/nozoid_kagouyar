@@ -15,30 +15,30 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
-#define ADSR_overshotA 1.2f
-#define ADSR_overshotR -0.1f
+#define ADSR_overshotA 1.2
+#define ADSR_overshotR -0.1
 
-inline float ADSR_time2filter(float time) {
+inline double ADSR_time2ilter(double time) {
 //    coeff = 1.0 / (time * sample_rate) ; where time is in seconds
 // time*SR = 1 : fastest attack ever
 // time*SR = 1 000 000 : 20s
-    float tmp;
-    tmp = CV2freq(time*(128.f+36.f) -36.3763f); // from 1 to 12 000
+    double tmp;
+    tmp = CV2req(time*(128.+36.) -36.3763); // from 1 to 12 000
     tmp *= 80.; // from 80 to 1 000 000
     tmp -= 79; // from 1 to 1 000 000
     return 1 / tmp;
 }
 
-//float ADSR(uint32_t j, float A, float D, float S, float R) {
-float ADSR(uint32_t j) {
-	//float A = g_pot_audio[k_ADSR_a];
-	//float D = g_pot_audio[k_ADSR_d];
-	float S = g_pot_audio[k_ADSR_s];
-	//float R = g_pot_audio[k_ADSR_r];
+//double ADSR(uint32_t j, double A, double D, double S, double R) {
+double ADSR(uint32_t j) {
+	//double A = g_pot_audio[k_ADSR_a];
+	//double D = g_pot_audio[k_ADSR_d];
+	double S = g_pot_audio[k_ADSR_s];
+	//double R = g_pot_audio[k_ADSR_r];
 
-    float tmp=0.;
-    float ADSR_out = allvoice[j].v_ADSR_out;
-    float ADSR_goal = 0.f;
+    double tmp=0.;
+    double ADSR_out = allvoice[j].v_ADSR_out;
+    double ADSR_goal = 0.;
     uint32_t ADSR_LOOP = curent_config.c_ADSR_LOOP; // local variable for optimisation
     uint32_t ADSR_mode = allvoice[j].v_ADSR_mode; // local variable
 
@@ -53,18 +53,18 @@ float ADSR(uint32_t j) {
 			g_Modulation_Reset[ADSR_OUT] = 1;
 		// break; pas de break, les tests suivant sont valable tout le temps
 		case 2 : // un gate est present, mais ce n'est pas nvx
-			if ( (ADSR_LOOP == 1) && ( ADSR_out < (S+0.01f) ) ) {
+			if ( (ADSR_LOOP == 1) && ( ADSR_out < (S+0.01) ) ) {
 			// AD loop : on est pres du S (a la fin du D) : on retrig le A
 			// il se peut qu'on retrig l'attaque si on est deja en attaque : c'est pas grave
 			// si on est en release, on ne peut pas arriver la
 				ADSR_mode = Attack;
 			}
 			if (ADSR_LOOP == 2) {
-				if ( ADSR_out == 0.f) { // ADSR loop : on est a 0 : on retrig une attack
+				if ( ADSR_out == 0.) { // ADSR loop : on est a 0 : on retrig une attack
 					ADSR_mode = Attack;
 					//g_Modulation_Reset[ADSR_OUT] = 1;
 				}
-				else if ( ( ADSR_out < (S+0.01f) ) && (ADSR_mode == Decay) ) // ADSR loop : on est pres du S (a la fin du D) : on passe en mode pseudo R : (R mais avec un v_GATE)
+				else if ( ( ADSR_out < (S+0.01) ) && (ADSR_mode == Decay) ) // ADSR loop : on est pres du S (a la fin du D) : on passe en mode pseudo R : (R mais avec un v_GATE)
 				ADSR_mode = Release2;
 			}
 		break;
@@ -86,15 +86,15 @@ float ADSR(uint32_t j) {
         break;
     }
 
-    tmp = ADSR_time2filter(tmp);
+    tmp = ADSR_time2ilter(tmp);
     _fonepole(allvoice[j].v_ADSR_out, ADSR_goal, tmp ); // the core of the ADSR
     ADSR_out = allvoice[j].v_ADSR_out;
 
-    if ( ADSR_out >= 1.f ) {
-        ADSR_out = 1.f;
+    if ( ADSR_out >= 1. ) {
+        ADSR_out = 1.;
         ADSR_mode = Decay;
     } else
-        ADSR_out = _fmax(0.f,ADSR_out);
+        ADSR_out = _fmax(0.,ADSR_out);
 
     allvoice[j].v_ADSR_out = ADSR_out;
     g_Modulation[ADSR_OUT] = ADSR_out; // on met la bonne ADSR ds les modulations
@@ -103,12 +103,12 @@ float ADSR(uint32_t j) {
     return ADSR_out;
 }
 
-inline float VCA(uint32_t j, float sound) { // each voice gain
+inline double VCA(uint32_t j, double sound) { // each voice gain
     if (curent_config.c_VCA_TYPE == 0) {
         return sound * allvoice[j].v_ADSR_out * allvoice[j].v_ADSR_out * allvoice[j].amplitude;
 ;
     } else {
-        _fonepole(allvoice[j].v_LPG_last, sound, _fmin(1.,CV2freq(-80.f + allvoice[j].v_ADSR_out * 208.f)*(1.f/12000.f)));
+        _fonepole(allvoice[j].v_LPG_last, sound, _fmin(1.,CV2req(-80. + allvoice[j].v_ADSR_out * 208.)*(1./12000.)));
         return allvoice[j].v_LPG_last * allvoice[j].amplitude;
     }
 }

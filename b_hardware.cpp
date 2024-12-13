@@ -114,9 +114,9 @@
 #define PIN_LOW_POWER 1
 
 // prototype
-inline float _fclamp(float, float, float);
-inline float _fmin(float, float);
-inline float _fmax(float, float);
+inline double _fclamp(double, double, double);
+inline double _fmin(double, double);
+inline double _fmax(double, double);
 
 using namespace daisy;
 

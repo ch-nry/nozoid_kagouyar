@@ -35,40 +35,40 @@ static void AudioCallbackTest(AudioHandle::InterleavingInputBuffer  in,
     g_time++;
     g_led_time++;
 
-    float increment1 = 1000.f*OneOverSR;
-    float increment2 = 440.f*OneOverSR;
+    double increment1 = 1000.*OneOverSR;
+    double increment2 = 440.*OneOverSR;
 
-    //g_delay_effect1.SetDelay(100.f);
+    //g_delay_effect1.SetDelay(100.);
 
     for(size_t i = 0; i < size; ) {
         allvoice[0].v_VCO1_phase += increment1;
-        if(allvoice[0].v_VCO1_phase > 1.f) allvoice[0].v_VCO1_phase -= 1.f;
+        if(allvoice[0].v_VCO1_phase > 1.) allvoice[0].v_VCO1_phase -= 1.;
         //g_delay_effect1.Write(_cos(allvoice[0].v_VCO1_phase));
         //out[i++] = g_delay_effect1.Read(); // on lit a travers un delay, pour tester aussi la memoire embarqué du daisy
 		out[i++] =_cos(allvoice[0].v_VCO1_phase);
 
         allvoice[0].v_VCO2_phase += increment2;
-        if(allvoice[0].v_VCO2_phase > 1.f) allvoice[0].v_VCO2_phase -= 1.f;
+        if(allvoice[0].v_VCO2_phase > 1.) allvoice[0].v_VCO2_phase -= 1.;
         out[i++] = _cos(allvoice[0].v_VCO2_phase);
     }
 }
 
-void set_all_led(float L1, float L2, float L3, float L4, float L5) {
+void set_all_led(double L1, double L2, double L3, double L4, double L5) {
 	hw.led_driver_.SetLed_ch(LED_ADSR, L1);
 	hw.led_driver_.SetLed_ch(LED_LFO1, L2);
 	hw.led_driver_.SetLed_ch(LED_LFO2, L3);
 	hw.led_driver_.SetLed_ch(LED_LFO3, L4);
 	hw.led_driver_.SetLed_ch(LED_LFO7, L5);
-	hw.led_driver_.SetLed_ch(LED_VCO1, 0.f);
-	hw.led_driver_.SetLed_ch(LED_VCO2, 0.f);
-	hw.led_driver_.SetLed_ch(LED_VCO3, 0.f);
-	hw.led_driver_.SetLed_ch(LED_LFO4, 0.f);
-	hw.led_driver_.SetLed_ch(LED_LFO5, 0.f);
-	hw.led_driver_.SetLed_ch(LED_LFO6, 0.f);
-	hw.led_driver_.SetLed_ch(LED_GAIN, 0.f);
-	hw.led_driver_.SetLed_ch(LED_MIDI, 0.f);
-	hw.led_driver_.SetLed_ch(LED_CV1, 0.f);
-	hw.led_driver_.SetLed_ch(LED_CV2, 0.f);
+	hw.led_driver_.SetLed_ch(LED_VCO1, 0.);
+	hw.led_driver_.SetLed_ch(LED_VCO2, 0.);
+	hw.led_driver_.SetLed_ch(LED_VCO3, 0.);
+	hw.led_driver_.SetLed_ch(LED_LFO4, 0.);
+	hw.led_driver_.SetLed_ch(LED_LFO5, 0.);
+	hw.led_driver_.SetLed_ch(LED_LFO6, 0.);
+	hw.led_driver_.SetLed_ch(LED_GAIN, 0.);
+	hw.led_driver_.SetLed_ch(LED_MIDI, 0.);
+	hw.led_driver_.SetLed_ch(LED_CV1, 0.);
+	hw.led_driver_.SetLed_ch(LED_CV2, 0.);
 
 	hw.led_driver_.SwapBuffersAndTransmit();
 }
@@ -76,7 +76,7 @@ void set_all_led(float L1, float L2, float L3, float L4, float L5) {
 
 void test() {
     uint32_t tmp;
-    float tmpf;
+    double tmpf;
     uint32_t led_keyboard = 0;
 
     get_keyboard();
@@ -99,34 +99,34 @@ void test() {
 	// mettre CV1 et CV2 a la masse , puis :											SAVE + KB2
 
    if ( (g_switch_configuration == 17) && (g_switch_keyboard == 0) ) {// SAVE + KB0
-   		g_CV1_offset = 1.f-g_knob[k_CV1]; // 0V
+   		g_CV1_offset = 1.-g_knob[k_CV1]; // 0V
    		// on inverse la valeur a cause de l'amplis inverseur de CV
 		for (uint32_t i=0; i<16; i++) // reset toutes les led analogique
-			hw.led_driver_.SetLed_ch(i, 0.f);
+			hw.led_driver_.SetLed_ch(i, 0.);
 		for (uint32_t i=0; i<5; i++) {
-			hw.led_driver_.SetLed_ch(LED_CV1, 0.f);
+			hw.led_driver_.SetLed_ch(LED_CV1, 0.);
 			hw.led_driver_.SwapBuffersAndTransmit();
 			g_time_wait(30);
-			hw.led_driver_.SetLed_ch(LED_CV1, 0.5f);
+			hw.led_driver_.SetLed_ch(LED_CV1, 0.5);
 			hw.led_driver_.SwapBuffersAndTransmit();
 			g_time_wait(30);
 		}
 		return;
    }
    if ( (g_switch_configuration == 17) && (g_switch_keyboard == 1) ) {// SAVE + KB1
-		tmpf = 1.f-g_knob[k_CV1];  // 1V
+		tmpf = 1.-g_knob[k_CV1];  // 1V
 		tmpf -= g_CV1_offset; // on doit avoir 1V de diference (par definition de la procedure de calibration)
 											// cad on doit avoir 1/10 car l'amplitude du cv in est de -5 a 5V
-		tmpf *= 10.f; // doit etre a 1
-		g_CV1_gain = 1.f/tmpf;
+		tmpf *= 10.; // doit etre a 1
+		g_CV1_gain = 1./tmpf;
 
 		for (uint32_t i=0; i<16; i++) // reset toutes les led analogique
-			hw.led_driver_.SetLed_ch(i, 0.f);
+			hw.led_driver_.SetLed_ch(i, 0.);
 		for (uint32_t i=0; i<5; i++) {
-			hw.led_driver_.SetLed_ch(LED_CV1, 1.f);
+			hw.led_driver_.SetLed_ch(LED_CV1, 1.);
 			hw.led_driver_.SwapBuffersAndTransmit();
 			g_time_wait(30);
-			hw.led_driver_.SetLed_ch(LED_CV1, 0.5f);
+			hw.led_driver_.SetLed_ch(LED_CV1, 0.5);
 			hw.led_driver_.SwapBuffersAndTransmit();
 			g_time_wait(30);
 		}
@@ -134,22 +134,22 @@ void test() {
    }
 
    if ( (g_switch_configuration == 17) && (g_switch_keyboard == 2) ) {// SAVE + KB2
-		g_CV1_offset = 0.5f-g_knob[k_CV1];
-		g_CV2_offset = 0.5f-g_knob[k_CV2];
+		g_CV1_offset = 0.5-g_knob[k_CV1];
+		g_CV2_offset = 0.5-g_knob[k_CV2];
 		curent_config.c_CV1_offset = g_CV1_offset;
 		curent_config.c_CV2_offset = g_CV2_offset;
 		curent_config.c_CV1_gain = g_CV1_gain;
 		save_config(13);
 
 		for (uint32_t i=0; i<16; i++) // reset toutes les led analogique
-			hw.led_driver_.SetLed_ch(i, 0.f);
+			hw.led_driver_.SetLed_ch(i, 0.);
 		for (uint32_t i=0; i<15; i++) {
-			hw.led_driver_.SetLed_ch(LED_CV1, 0.f);
-			hw.led_driver_.SetLed_ch(LED_CV2, 0.f);
+			hw.led_driver_.SetLed_ch(LED_CV1, 0.);
+			hw.led_driver_.SetLed_ch(LED_CV2, 0.);
 			hw.led_driver_.SwapBuffersAndTransmit();
 			g_time_wait(30);
-			hw.led_driver_.SetLed_ch(LED_CV1, 0.5f);
-			hw.led_driver_.SetLed_ch(LED_CV2, 0.5f);
+			hw.led_driver_.SetLed_ch(LED_CV1, 0.5);
+			hw.led_driver_.SetLed_ch(LED_CV2, 0.5);
 			hw.led_driver_.SwapBuffersAndTransmit();
 			g_time_wait(30);
 		}
@@ -158,7 +158,7 @@ void test() {
 
    if (g_switch_configuration >= 0) {
 		for (uint32_t i=0; i<16; i++) // reset toutes les led analogique
-			hw.led_driver_.SetLed_ch(i, 0.f);
+			hw.led_driver_.SetLed_ch(i, 0.);
 	   switch(g_switch_configuration) {
 		   case 0: // VCO1
 			  led_keyboard = 1 << BIT_LED_MENU_KEY0;
@@ -227,7 +227,7 @@ void test() {
 				// MIDI RX
 				if(hw.midi.Readable()) { // MIDI in
 					hw.midi.Rx(); // RX midi
-					hw.led_driver_.SetLed_ch(LED_MIDI, 1.f);
+					hw.led_driver_.SetLed_ch(LED_MIDI, 1.);
 				}
 		   break;
 		   case 13: // CV1
@@ -235,20 +235,20 @@ void test() {
 				led_keyboard += 1 << BIT_LED_MENU_LFO_MOD;
 				write_binary_led(led_keyboard);
 				// GATE, CV1, CV2 test
-				hw.led_driver_.SetLed_ch(LED_CV1, 1.f-g_knob[k_CV1]);
-				hw.led_driver_.SetLed_ch(LED_CV2, 1.f-g_knob[k_CV2]);
+				hw.led_driver_.SetLed_ch(LED_CV1, 1.-g_knob[k_CV1]);
+				hw.led_driver_.SetLed_ch(LED_CV2, 1.-g_knob[k_CV2]);
 				if (dsy_gpio_read(&gate_pin))
-					hw.led_driver_.SetLed_ch(LED_MIDI, 1.f);
+					hw.led_driver_.SetLed_ch(LED_MIDI, 1.);
 		   break;
 		   case 14: // CV2
 		        led_keyboard = 1 << BIT_LED_MENU_KEY0;
 			    led_keyboard += 1 << BIT_LED_MENU_EFFECTS;
 			    write_binary_led(led_keyboard);
 				// GATE, CV1, CV2 test
-				hw.led_driver_.SetLed_ch(LED_CV1, 1.f-g_knob[k_CV1]);
-				hw.led_driver_.SetLed_ch(LED_CV2, 1.f-g_knob[k_CV2]);
+				hw.led_driver_.SetLed_ch(LED_CV1, 1.-g_knob[k_CV1]);
+				hw.led_driver_.SetLed_ch(LED_CV2, 1.-g_knob[k_CV2]);
 				if (dsy_gpio_read(&gate_pin))
-					hw.led_driver_.SetLed_ch(LED_MIDI, 1.f);
+					hw.led_driver_.SetLed_ch(LED_MIDI, 1.);
 		   break;
 		   case 15: // EFFECT2
 		      led_keyboard = 1 << BIT_LED_MENU_KEY9;
@@ -288,9 +288,9 @@ void test() {
 				tmp >>= 1;
 				if(tmp & 1) led_keyboard += 1 << BIT_LED_MENU_KEY3;
 
-				if(g_CV1_offset != 0.f) led_keyboard += 1 << BIT_LED_MENU_KEY0;
-				if(g_CV1_gain != 1.f)   led_keyboard += 1 << BIT_LED_MENU_KEY1;
-				if(g_CV2_offset != 0.f) led_keyboard += 1 << BIT_LED_MENU_KEY2;
+				if(g_CV1_offset != 0.) led_keyboard += 1 << BIT_LED_MENU_KEY0;
+				if(g_CV1_gain != 1.)   led_keyboard += 1 << BIT_LED_MENU_KEY1;
+				if(g_CV2_offset != 0.) led_keyboard += 1 << BIT_LED_MENU_KEY2;
 
 				write_binary_led(led_keyboard);
 		   break;
@@ -300,7 +300,7 @@ void test() {
 	}
 
     if (g_switch_modulation >= 0) {
-		set_all_led(0.f, 0.f, 0.f, 0.f, 0.f);
+		set_all_led(0., 0., 0., 0., 0.);
 
 	   switch(g_switch_modulation) {
 		   case 0: // VCO1 MOD1
@@ -397,11 +397,11 @@ void test() {
 		case 0 :  // chaser leds : si aucune touche du clavier n'est appuyé
 			if ( g_led_time > 300 ) {
 				for (uint32_t i=0; i<16; i++) // reset toutes les led analogique
-					hw.led_driver_.SetLed_ch(i, 0.f);
+					hw.led_driver_.SetLed_ch(i, 0.);
 				led_keyboard = 0; // reset les leds numérique
 
 				if (g_shaser < 15) {
-					hw.led_driver_.SetLed_ch(table_led_shaser[g_shaser], 1.f); // set la led analogique si besion
+					hw.led_driver_.SetLed_ch(table_led_shaser[g_shaser], 1.); // set la led analogique si besion
 				} else {
 					led_keyboard = 1 << table_led_key[g_shaser-15]; // set les leds numérique
 				}
@@ -433,52 +433,52 @@ void test() {
 		 case 4 : // touche 3 : test fader MIX
 			led_keyboard = 1 << table_led_key[3];
 			write_binary_led(led_keyboard);
-			set_all_led(g_knob[k_MIX1], g_knob[k_MIX2], g_knob[k_MIX3], 0.f, 0.f);
+			set_all_led(g_knob[k_MIX1], g_knob[k_MIX2], g_knob[k_MIX3], 0., 0.);
 			break;
 		 case 5 : // touche 4 : test fader VCF1
 			led_keyboard = 1 << table_led_key[4];
 			write_binary_led(led_keyboard);
-			set_all_led(g_knob[k_VCF1_fq], g_knob[k_VCF1_q], g_knob[k_VCF1_mod1], g_knob[k_VCF1_mod2], 0.f);
+			set_all_led(g_knob[k_VCF1_fq], g_knob[k_VCF1_q], g_knob[k_VCF1_mod1], g_knob[k_VCF1_mod2], 0.);
 			break;
 		 case 6 : // touche 5 : test fader ADSR
 			led_keyboard = 1 << table_led_key[5];
 			write_binary_led(led_keyboard);
-			set_all_led(g_knob[k_ADSR_a], g_knob[k_ADSR_d], g_knob[k_ADSR_s], g_knob[k_ADSR_r], 0.f);
+			set_all_led(g_knob[k_ADSR_a], g_knob[k_ADSR_d], g_knob[k_ADSR_s], g_knob[k_ADSR_r], 0.);
 			break;
 		 case 7 : // touche 6 : test fader LFO1
 			led_keyboard = 1 << table_led_key[6];
 			write_binary_led(led_keyboard);
-			set_all_led(g_knob[k_LFO1_fq], g_knob[k_LFO1_mod], g_knob[k_LFO4_fq], 0.f, 0.f);
+			set_all_led(g_knob[k_LFO1_fq], g_knob[k_LFO1_mod], g_knob[k_LFO4_fq], 0., 0.);
 			break;
 		 case 8 : // touche 7 : test fader LFO2
 			led_keyboard = 1 << table_led_key[7];
 			write_binary_led(led_keyboard);
-			set_all_led(g_knob[k_LFO2_fq], g_knob[k_LFO2_mod], g_knob[k_LFO5_fq], 0.f, 0.f);
+			set_all_led(g_knob[k_LFO2_fq], g_knob[k_LFO2_mod], g_knob[k_LFO5_fq], 0., 0.);
 			break;
 		 case 9 : // touche 8 : test fader LFO3
 			led_keyboard = 1 << table_led_key[8];
 			write_binary_led(led_keyboard);
-			set_all_led(g_knob[k_LFO3_fq], g_knob[k_LFO3_mod], g_knob[k_LFO6_fq], 0.f, 0.f);
+			set_all_led(g_knob[k_LFO3_fq], g_knob[k_LFO3_mod], g_knob[k_LFO6_fq], 0., 0.);
 			break;
 		 case 10 : // touche 9 : test fader LFO7
 			led_keyboard = 1 << table_led_key[9];
 			write_binary_led(led_keyboard);
-			set_all_led(g_knob[k_LFO7_fq], g_knob[k_LFO7_wf], g_knob[k_LFO7_sym], 0.f, 0.f);
+			set_all_led(g_knob[k_LFO7_fq], g_knob[k_LFO7_wf], g_knob[k_LFO7_sym], 0., 0.);
 			break;
 		 case 11 : // touche 10 : test fader EFFECT1
 			led_keyboard = 1 << table_led_key[10];
 			write_binary_led(led_keyboard);
-			set_all_led(g_knob[k_EFFECT1_wet], g_knob[k_EFFECT1_p1], g_knob[k_EFFECT1_p2], 0.f, 0.f);
+			set_all_led(g_knob[k_EFFECT1_wet], g_knob[k_EFFECT1_p1], g_knob[k_EFFECT1_p2], 0., 0.);
 			break;
 		 case 12 : // touche 11 : test fader EFFECT2
 			led_keyboard = 1 << table_led_key[11];
 			write_binary_led(led_keyboard);
-			set_all_led(g_knob[k_EFFECT2_wet], g_knob[k_EFFECT2_p1], 0.f, 0.f, 0.f);
+			set_all_led(g_knob[k_EFFECT2_wet], g_knob[k_EFFECT2_p1], 0., 0., 0.);
 			break;
 		 case 13 : // touche 12 : test fader VCF2
 			led_keyboard = 1 << table_led_key[12];
 			write_binary_led(led_keyboard);
-			set_all_led(g_knob[k_VCF2_fq], g_knob[k_VCF2_mod], g_knob[k_GAIN], 1.f-g_knob[k_CV1], 1.f-g_knob[k_CV2]);
+			set_all_led(g_knob[k_VCF2_fq], g_knob[k_VCF2_mod], g_knob[k_GAIN], 1.-g_knob[k_CV1], 1.-g_knob[k_CV2]);
 			break;
 		}
 		return;

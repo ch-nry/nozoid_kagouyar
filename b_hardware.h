@@ -48,13 +48,13 @@ class Kagouyar
     void ChangeAudioCallback(AudioHandle::AudioCallback cb);
     void StopAudio();
     void SetAudioSampleRate(SaiHandle::Config::SampleRate samplerate);
-    float AudioSampleRate();
+    double AudioSampleRate();
     void SetAudioBlockSize(size_t blocksize);
     size_t AudioBlockSize();
-    float AudioCallbackRate();
+    double AudioCallbackRate();
     void StartAdc();
     void UpdateAnalogControls();
-    float GetKnobValue(uint32_t k);
+    double GetKnobValue(uint32_t k);
     void test_out(bool out);
 
     void ClearLeds();
@@ -67,7 +67,7 @@ class Kagouyar
     LedDriverPca9685<1, false> led_driver_;
     ShiftRegister595 binary_led;
 	MidiUartTransport midi;
-	
+
   private:
     void   InitKnobs();
     void   InitLeds();
@@ -75,7 +75,7 @@ class Kagouyar
     void   InitMidi();
     void   InitKeyboard();
     void   InitPin();
-    float  sample_rate_;
+    double  sample_rate_;
     size_t block_size_;
 };
 

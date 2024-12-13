@@ -74,33 +74,33 @@ LED_ADSR, LED_LFO1, LED_LFO2, LED_LFO3, LED_LFO4, LED_LFO5, LED_LFO6, LED_LFO7, 
 LED_MIDI, LED_CV1, LED_CV2, LED_notused};
 //VCO1_out, VCO1_SIN, VCO1_TRI... etc
 
-float g_clip;
+double g_clip;
 
 void leds_mode_normal() {
-    hw.led_driver_.SetLed_ch(LED_VCO1, (float)0.f);
-    hw.led_driver_.SetLed_ch(LED_VCO2, (float)0.f);
-    hw.led_driver_.SetLed_ch(LED_VCO3, (float)0.f);
+    hw.led_driver_.SetLed_ch(LED_VCO1, (double)0.);
+    hw.led_driver_.SetLed_ch(LED_VCO2, (double)0.);
+    hw.led_driver_.SetLed_ch(LED_VCO3, (double)0.);
     hw.led_driver_.SetLed_ch(LED_ADSR, g_Modulation[ADSR_OUT]);
-    if(curent_config.c_LFO1_WF != WF_AR) { hw.led_driver_.SetLed_ch(LED_LFO1, (float)(0.55f + g_Modulation[LFO1_OUT_FILTER]*0.45f)); }
+    if(curent_config.c_LFO1_WF != WF_AR) { hw.led_driver_.SetLed_ch(LED_LFO1, (double)(0.55 + g_Modulation[LFO1_OUT_FILTER]*0.45)); }
     else { hw.led_driver_.SetLed_ch(LED_LFO1, g_Modulation[LFO1_OUT]); }
-    if(curent_config.c_LFO2_WF != WF_AR) { hw.led_driver_.SetLed_ch(LED_LFO2, (float)(0.55f + g_Modulation[LFO2_OUT_FILTER]*0.45f)); }
+    if(curent_config.c_LFO2_WF != WF_AR) { hw.led_driver_.SetLed_ch(LED_LFO2, (double)(0.55 + g_Modulation[LFO2_OUT_FILTER]*0.45)); }
     else { hw.led_driver_.SetLed_ch(LED_LFO2, g_Modulation[LFO2_OUT]); }
-    if(curent_config.c_LFO3_WF != WF_AR) { hw.led_driver_.SetLed_ch(LED_LFO3, (float)(0.55f + g_Modulation[LFO3_OUT_FILTER]*0.45f)); }
+    if(curent_config.c_LFO3_WF != WF_AR) { hw.led_driver_.SetLed_ch(LED_LFO3, (double)(0.55 + g_Modulation[LFO3_OUT_FILTER]*0.45)); }
     else { hw.led_driver_.SetLed_ch(LED_LFO3, g_Modulation[LFO3_OUT]); }
-    hw.led_driver_.SetLed_ch(LED_LFO4, (float)(0.55f + g_Modulation[LFO4_OUT_FILTER]*0.45f));
-    hw.led_driver_.SetLed_ch(LED_LFO5, (float)(0.55f + g_Modulation[LFO5_OUT_FILTER]*0.45f));
-    hw.led_driver_.SetLed_ch(LED_LFO6, (float)(0.55f + g_Modulation[LFO6_OUT_FILTER]*0.45f));
-    hw.led_driver_.SetLed_ch(LED_LFO7, (float)(0.55f + g_Modulation[LFO7_OUT_FILTER]*0.45f));
+    hw.led_driver_.SetLed_ch(LED_LFO4, (double)(0.55 + g_Modulation[LFO4_OUT_FILTER]*0.45));
+    hw.led_driver_.SetLed_ch(LED_LFO5, (double)(0.55 + g_Modulation[LFO5_OUT_FILTER]*0.45));
+    hw.led_driver_.SetLed_ch(LED_LFO6, (double)(0.55 + g_Modulation[LFO6_OUT_FILTER]*0.45));
+    hw.led_driver_.SetLed_ch(LED_LFO7, (double)(0.55 + g_Modulation[LFO7_OUT_FILTER]*0.45));
     if(g_last_switch_configuration != MENU_MIDI)
-        hw.led_driver_.SetLed_ch(LED_MIDI, (float)(g_Modulation[MIDI_modulation]));
+        hw.led_driver_.SetLed_ch(LED_MIDI, (double)(g_Modulation[MIDI_modulation]));
     else
-        hw.led_driver_.SetLed_ch(LED_MIDI, (float)g_MIDI_led_time);
+        hw.led_driver_.SetLed_ch(LED_MIDI, (double)g_MIDI_led_time);
 
-    hw.led_driver_.SetLed_ch(LED_CV1,  (float)(0.55f + g_Modulation[CV1_OUT]*0.45f));
-    hw.led_driver_.SetLed_ch(LED_CV2,  (float)(0.55f + g_Modulation[CV2_OUT]*0.45f));
+    hw.led_driver_.SetLed_ch(LED_CV1,  (double)(0.55 + g_Modulation[CV1_OUT]*0.45));
+    hw.led_driver_.SetLed_ch(LED_CV2,  (double)(0.55 + g_Modulation[CV2_OUT]*0.45));
     hw.led_driver_.SetLed_ch(LED_GAIN, g_clip);
 
-    g_MIDI_led_time = _fmax(0.f, g_MIDI_led_time - 0.02f);
+    g_MIDI_led_time = _fmax(0., g_MIDI_led_time - 0.02);
 
     hw.led_driver_.SwapBuffersAndTransmit();
 }
@@ -123,12 +123,12 @@ void leds_keyboard() {
 
 void leds_key_modulation(uint32_t my_modulation) { // switch de choix de la source de g_Modulation + configurations pour les MOD VCO + configuration des LFO mod
     uint32_t led_keyboard = 0;
-    for (uint32_t i=0; i<16; i++) hw.led_driver_.SetLed_ch(i, 0.f); //RaZ des leds
+    for (uint32_t i=0; i<16; i++) hw.led_driver_.SetLed_ch(i, 0.); //RaZ des leds
 
 	uint32_t tmp = curent_config.c_Modulation_Source[my_modulation];
 	if  ( (my_modulation != EFFECT1_MOD) || !(1<<curent_config.c_EFFECT1_TYPE & ((1<<1)+(1<<5)) ) ) { // on ne l'affiche pas pour les effet qui n'utilisent pas la modulation
 		if ( (tmp <modulation_source_last) || (g_led_blink>0)  ) // soit on as une modulation positive, soit on affiche une fois sur deux a cause du blink
-			hw.led_driver_.SetLed_ch(table_led_modulation[tmp % modulation_source_last], 1.f );
+			hw.led_driver_.SetLed_ch(table_led_modulation[tmp % modulation_source_last], 1. );
 	}
 
     switch (my_modulation) { // leds du clavier : ligne et configuration

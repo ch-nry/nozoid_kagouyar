@@ -15,7 +15,7 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
-// optimisation : tout les nombre float sont marqué comme float : 0.6f
+// optimisation : tout les nombre double sont marqué comme double : 0.6
 // sauf les * 0.5 (le compilateur utilise des decalages de bits???)
 
 #define proto2 // commenter pour la version final
@@ -50,12 +50,12 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
     g_time++;
     g_led_blink += 1<<24; // on laisse les overflow passer de negatif a positif
 
-    float VCO1_fq;
-    float VCO2_fq;
-    float VCO3_fq;
-    float VCF1_fq;
-    float sig, sommeADSR;
-    float CV_pitch;
+    double VCO1_fq;
+    double VCO2_fq;
+    double VCO3_fq;
+    double VCF1_fq;
+    double sig, sommeADSR;
+    double CV_pitch;
 
     // variable ne necessitant pas d'etre recalculés a chaque sample
     g_pot_audio[k_VCO1_fq] += coef_audio_to_block * g_pot_increment[k_VCO1_fq];
@@ -66,7 +66,7 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
     VCO3_fq = VCO_CV_range(curent_config.c_VCO3_RANGE, g_pot_audio[k_VCO3_fq]);
 
 	g_pot_audio[k_VCF1_fq] += coef_audio_to_block * g_pot_increment[k_VCF1_fq];
-    VCF1_fq = 112.f * g_pot_audio[k_VCF1_fq];
+    VCF1_fq = 112. * g_pot_audio[k_VCF1_fq];
     g_pot_audio[k_VCF1_q] += coef_audio_to_block * g_pot_increment[k_VCF1_q];
     g_pot_audio[k_VCF1_mod1] += coef_audio_to_block * g_pot_increment[k_VCF1_mod1];
     g_pot_audio[k_VCF1_mod2] += coef_audio_to_block * g_pot_increment[k_VCF1_mod2];
@@ -75,7 +75,7 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
     (g_pot_audio[k_ADSR_d] += coef_audio_to_block * g_pot_increment[k_ADSR_d]);
     (g_pot_audio[k_ADSR_r]  += coef_audio_to_block * g_pot_increment[k_ADSR_r]);
 
-	CV_pitch = g_Modulation[CV1_OUT] * 60.f*g_CV1_gain; // de -5V a +5V = +/- 5 octaves
+	CV_pitch = g_Modulation[CV1_OUT] * 60.*g_CV1_gain; // de -5V a +5V = +/- 5 octaves
 
     if (allvoice[0].v_GATE_source == 2) allvoice[0].v_pitch = CV_pitch;
     if (allvoice[1].v_GATE_source == 2) allvoice[1].v_pitch = CV_pitch;
@@ -106,8 +106,8 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
     for(uint32_t i = 0; i < size; ) // size = 2* 24 : block audio de 0.5ms
     // cad on actualise les potentiomettres a 2KHz, meme si le dac est a 200Hz
     {
-		sig=0.f;
-		sommeADSR = 0.f;
+		sig=0.;
+		sommeADSR = 0.;
 
         if ((i & 0b111) == 0) // Sample Rate LFO = SR/4 (facteur 8 a cause du cannal droit et gauche)
             LFO(); // SR = 12KHz
@@ -119,7 +119,7 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
 		g_pot_audio[k_VCO3_wfm] += g_pot_increment[k_VCO3_wfm];
 
         // filtre les niveaux du mix en audio, car on les utilise pour toutes les voies de polyphonie
-		float mix1, mix2, mix3;
+		double mix1, mix2, mix3;
 		g_pot_audio[k_MIX1] += g_pot_increment[k_MIX1];
 		mix1 = g_pot_audio[k_MIX1]  * g_pot_audio[k_MIX1];
 		g_pot_audio[k_MIX2] += g_pot_increment[k_MIX2];
@@ -144,7 +144,7 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
 
         for (uint32_t j=nb_voice; j--;)
         { // pour toutes les voies de polyphonie
-            float sound;
+            double sound;
             sommeADSR += ADSR(j);
 
             g_Modulation[LFO1_OUT] = g_LFO1_AR[j];
@@ -163,7 +163,7 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
         }
 
         // pour la suite, on utilise la somme des ADSR comme g_Modulation
-        sommeADSR *= 1.f/nb_voice;
+        sommeADSR *= 1./nb_voice;
         g_Modulation[ADSR_OUT] = sommeADSR;
         g_Modulation[ADSR_OUT+modulation_source_last] = - sommeADSR;
         g_Modulation[LFO1_OUT] = g_LFO1_AR[nb_voice];
@@ -177,8 +177,8 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
         sig = effect2(sig);
 
         VCF2(sig);
-        sig *= 0.5f * g_pot_audio[k_GAIN] * g_pot_audio[k_GAIN];
-        if(fabs(sig)>=1.f) g_clip = 1.f; else g_clip =  _fmax(fabs(sig)*0.3f, g_clip - 0.0001f);
+        sig *= 0.5 * g_pot_audio[k_GAIN] * g_pot_audio[k_GAIN];
+        if(fabs(sig)>=1.) g_clip = 1.; else g_clip =  _fmax(fabs(sig)*0.3, g_clip - 0.0001);
 
         out[i++] = sig; // droite
         out[i++] = -sig; // gauche

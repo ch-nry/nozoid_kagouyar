@@ -18,7 +18,7 @@
 // voice source : 0 = Kb, 1 = MIDI, 2 = CV gate
 uint32_t g_new_gate = 0;
 
-void add_voice(uint32_t my_GATE_source, int32_t my_pitch, float amplitude) {
+void add_voice(uint32_t my_GATE_source, int32_t my_pitch, double amplitude) {
     uint32_t empty = 0;
     uint32_t used = 0;
     uint32_t i;

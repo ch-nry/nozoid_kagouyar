@@ -15,20 +15,20 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
-float g_LFO1_noise[2]; // pour le noise avec interpolation cubic
-float g_LFO1_AR[nb_voice+1];
-float g_phase_LFO1_div;
+double g_LFO1_noise[2]; // pour le noise avec interpolation cubic
+double g_LFO1_AR[nb_voice+1];
+double g_phase_LFO1_div;
 uint32_t g_LFO1_last_step, g_LFO1_reset;
 
-inline void LFO1(float fq, float mix_factor, float increment) {
-    float modulation = 0.f;
+inline void LFO1(double fq, double mix_factor, double increment) {
+    double modulation = 0.;
 
     if (curent_config.c_LFO1_WF == WF_AR) {
-		float const A_time = ADSR_time2filter(fq);
-		float const D_time = ADSR_time2filter(mix_factor);
+		double const A_time = ADSR_time2ilter(fq);
+		double const D_time = ADSR_time2ilter(mix_factor);
         for (uint32_t j=nb_voice; j--;) {
-            float const tmp = allvoice[j].v_GATE >= 1.;
-            float const time = tmp?A_time : D_time;
+            double const tmp = allvoice[j].v_GATE >= 1.;
+            double const time = tmp?A_time : D_time;
             _fonepole(g_LFO1_AR[j], tmp, time);
             modulation += g_LFO1_AR[j];
         }
@@ -40,7 +40,7 @@ inline void LFO1(float fq, float mix_factor, float increment) {
         g_new_gate = 0;
 
     } else {
-        float WF1, phase = 0.f, overflow_phase;
+        double WF1, phase = 0., overflow_phase;
         uint32_t source_addresse = curent_config.c_Modulation_Source[LFO1_MOD];
         switch (curent_config.c_Modulation_Type[LFO1_MOD]) {
         case LFO_Mix : // ok
@@ -48,7 +48,7 @@ inline void LFO1(float fq, float mix_factor, float increment) {
                 if (source_addresse != NONE_OUT) { // pas de modulation
                     WF1 = g_Modulation[source_addresse];
                 } else {
-                    WF1 = 1.f;
+                    WF1 = 1.;
                 }
                 phase = g_Modulation_Phase[LFO1_OUT] + increment;                               // calcul de la phase
                 overflow_phase = (int)phase;
@@ -56,7 +56,7 @@ inline void LFO1(float fq, float mix_factor, float increment) {
                 g_Modulation_Reset[LFO1_OUT] = overflow_phase;
                 g_Modulation_Phase[LFO1_OUT] = phase;
 
-                float WF = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
+                double WF = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
                 modulation = mix(WF, WF1, mix_factor);
             }
             break;
@@ -65,7 +65,7 @@ inline void LFO1(float fq, float mix_factor, float increment) {
                 if (source_addresse != NONE_OUT) { //automodulation
                     WF1 = g_Modulation[source_addresse];
                 } else {
-                    WF1 = 0.f;
+                    WF1 = 0.;
                 }
                 phase = g_Modulation_Phase[LFO1_OUT] + increment;                               // calcul de la phase
                 overflow_phase = (int)phase;
@@ -73,20 +73,20 @@ inline void LFO1(float fq, float mix_factor, float increment) {
                 g_Modulation_Reset[LFO1_OUT] = overflow_phase;
                 g_Modulation_Phase[LFO1_OUT] = phase;
 
-                float WF = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
-                modulation = WF * (1.f - (WF1+1.f) * mix_factor);
+                double WF = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
+                modulation = WF * (1. - (WF1+1.) * mix_factor);
             }
             break;
         case LFO_FM : // ok
             {
                 WF1 = g_Modulation[source_addresse];
-                float l_increment = increment * CV2freq( -36.3763 + WF1 * mix_factor * 50.f);
+                double l_increment = increment * CV2req( -36.3763 + WF1 * mix_factor * 50.);
 
                 phase = g_Modulation_Phase[LFO1_OUT] + l_increment;                               // calcul de la phase
                 overflow_phase = _floor(phase);
                 phase -= overflow_phase;
                 g_Modulation_Phase[LFO1_OUT] = phase;
-                g_Modulation_Reset[LFO1_OUT] = overflow_phase != 0.f;
+                g_Modulation_Reset[LFO1_OUT] = overflow_phase != 0.;
                 modulation = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
             }
             break;
@@ -99,8 +99,8 @@ inline void LFO1(float fq, float mix_factor, float increment) {
                 g_Modulation_Reset[LFO1_OUT] = overflow_phase;
                 g_Modulation_Phase[LFO1_OUT] = phase;
 
-                phase = wrap2(phase + 2.f * WF1 * mix_factor);
-                float WF = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
+                phase = wrap2(phase + 2. * WF1 * mix_factor);
+                double WF = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
                 modulation = WF;
             }
             break;
@@ -109,7 +109,7 @@ inline void LFO1(float fq, float mix_factor, float increment) {
                 //if (source_addresse != LFO1_OUT) {
                     WF1 = g_Modulation[source_addresse];
                 //} else {//automodulation
-                //    WF1 = 0.f;
+                //    WF1 = 0.;
                 //}
 
                 phase = g_Modulation_Phase[LFO1_OUT] + increment;                               // calcul de la phase
@@ -118,10 +118,10 @@ inline void LFO1(float fq, float mix_factor, float increment) {
                 g_Modulation_Reset[LFO1_OUT] = overflow_phase;
                 g_Modulation_Phase[LFO1_OUT] = phase;
 
-                float WF = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
+                double WF = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
 
-                modulation = _fmin(WF, WF1+2.f*(1.f-mix_factor));
-                modulation = _fmax(modulation, WF1-2.f*(1.f-mix_factor));
+                modulation = _fmin(WF, WF1+2.*(1.-mix_factor));
+                modulation = _fmax(modulation, WF1-2.*(1.-mix_factor));
             }
             break;
         case LFO_Fold : // fold : OK
@@ -129,7 +129,7 @@ inline void LFO1(float fq, float mix_factor, float increment) {
                 if (source_addresse != NONE_OUT) { //pas de modulation
                     WF1 = g_Modulation[source_addresse];
                 } else {
-                    WF1 = 1.f;
+                    WF1 = 1.;
                 }
                 phase = g_Modulation_Phase[LFO1_OUT] + increment;                               // calcul de la phase
                 overflow_phase = (int)phase;
@@ -137,11 +137,11 @@ inline void LFO1(float fq, float mix_factor, float increment) {
                 g_Modulation_Reset[LFO1_OUT] = overflow_phase;
                 g_Modulation_Phase[LFO1_OUT] = phase;
 
-                float WF = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
+                double WF = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
 
-                WF *= 1.f + (WF1+1.f)* mix_factor; // gain from 1 to 3
-                WF = (WF >  1.f)?  2.f - WF : WF; // fold
-                WF = (WF < -1.f)? -2.f - WF : WF;
+                WF *= 1. + (WF1+1.)* mix_factor; // gain from 1 to 3
+                WF = (WF >  1.)?  2. - WF : WF; // fold
+                WF = (WF < -1.)? -2. - WF : WF;
                 modulation = WF;
             }
             break;
@@ -150,7 +150,7 @@ inline void LFO1(float fq, float mix_factor, float increment) {
                 if (source_addresse != NONE_OUT) { //automodulation
                     WF1 = g_Modulation[source_addresse];
                 } else {
-                    WF1 = 1.f;
+                    WF1 = 1.;
                 }
                 phase = g_Modulation_Phase[LFO1_OUT] + increment;                               // calcul de la phase
                 overflow_phase = (int)phase;
@@ -158,25 +158,25 @@ inline void LFO1(float fq, float mix_factor, float increment) {
                 g_Modulation_Reset[LFO1_OUT] = overflow_phase;
                 g_Modulation_Phase[LFO1_OUT] = phase;
 
-                float WF = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
+                double WF = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
 
-                uint32_t i_WF1 = (WF1+1.f) * 2147483648.f;
-                uint32_t i_WF2 = (WF+1.f)  * 2147483648.f;
-                float tmp = mix_factor * (mix_factor+1.f) * 7.9f;
+                uint32_t i_WF1 = (WF1+1.) * 2147483648.;
+                uint32_t i_WF2 = (WF+1.)  * 2147483648.;
+                double tmp = mix_factor * (mix_factor+1.) * 7.9;
                 uint32_t ui_tmp = tmp;                                                           //0 a 15 (0b1111)
                 ui_tmp <<= 28;
                 i_WF1 &= ui_tmp;
                 i_WF2 ^= i_WF1;                                                         // on inverse les bits de poids fort en premier
-                modulation =  (i_WF2 * int2float) - 1.f;
+                modulation =  (i_WF2 * int2double) - 1.;
             }
             break;
         case LFO_FILTER :
             {
-                float filter_fq;
+                double filter_fq;
                 if (source_addresse != NONE_OUT) {
-                    filter_fq = mix(127.f, 127.f * g_Modulation[source_addresse], mix_factor);
+                    filter_fq = mix(127., 127. * g_Modulation[source_addresse], mix_factor);
                 } else {//automodulation
-                    filter_fq = (0.5f-mix_factor) * 254.f;
+                    filter_fq = (0.5-mix_factor) * 254.;
                 }
                 phase = g_Modulation_Phase[LFO1_OUT] + increment;                               // calcul de la phase
                 overflow_phase = (int)phase;
@@ -184,8 +184,8 @@ inline void LFO1(float fq, float mix_factor, float increment) {
                 g_Modulation_Reset[LFO1_OUT] = overflow_phase;
                 g_Modulation_Phase[LFO1_OUT] = phase;
 
-                filter_fq = CV2freq(filter_fq)*(1.f/13000.f);
-                float WF = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
+                filter_fq = CV2req(filter_fq)*(1./13000.);
+                double WF = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
                 modulation = g_Modulation[LFO1_OUT];
                 _fonepole(modulation, WF, filter_fq);
             }
@@ -193,13 +193,13 @@ inline void LFO1(float fq, float mix_factor, float increment) {
         case LFO_RESET : // OK
             {
                 uint32_t WF1_reset;
-                float l_mix_factor;
+                double l_mix_factor;
                 if ( (source_addresse != NONE_OUT) || (source_addresse != LFO1_OUT) ) { //automodulation
                     WF1_reset = g_Modulation_Reset[source_addresse];
                     l_mix_factor = mix_factor;
                 } else {
                     if (g_LFO1_reset == 0) {
-                        if (mix_factor > 0.51f) {
+                        if (mix_factor > 0.51) {
                             WF1_reset = 1;
                             g_LFO1_reset = 1;
                         } else {
@@ -207,17 +207,17 @@ inline void LFO1(float fq, float mix_factor, float increment) {
                         }
                     } else {
                         WF1_reset = 0;
-                        if (mix_factor < 0.49f) {
+                        if (mix_factor < 0.49) {
                             g_LFO1_reset = 0;
                         }
                     }
-                    l_mix_factor = 1.f;
+                    l_mix_factor = 1.;
                 }
                 phase = g_Modulation_Phase[LFO1_OUT] + increment;                               // calcul de la phase
                 overflow_phase = (int)phase;
                 phase -= overflow_phase;
                 g_Modulation_Reset[LFO1_OUT] = overflow_phase;
-                if(WF1_reset) { phase = wrap(mix(wrap(phase+0.5f), 0.5f, l_mix_factor) + 0.5f); }
+                if(WF1_reset) { phase = wrap(mix(wrap(phase+0.5), 0.5, l_mix_factor) + 0.5); }
                 g_Modulation_Phase[LFO1_OUT] = phase;
                 modulation = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
             }
@@ -225,7 +225,7 @@ inline void LFO1(float fq, float mix_factor, float increment) {
         case LFO_SYNC :
             if (source_addresse != NONE_OUT) { // clock divid/ mult : FQ : frequency divider or multiplier; MOD: add an offset to the input phase.
                 // strange result en automod
-                float tmp = fq * 8.99f;
+                double tmp = fq * 8.99;
                 switch ((uint32_t) tmp) {
                     case 0 : // div 8
                         g_Modulation_Reset[LFO1_OUT] = 0;
@@ -236,7 +236,7 @@ inline void LFO1(float fq, float mix_factor, float increment) {
                                 g_Modulation_Reset[LFO1_OUT] = 1;
                             }
                         }
-                        phase = ( g_phase_LFO1_div + g_Modulation_Phase[source_addresse]) * 0.125f;
+                        phase = ( g_phase_LFO1_div + g_Modulation_Phase[source_addresse]) * 0.125;
                     break;
                     case 1 : // div 4
                         g_Modulation_Reset[LFO1_OUT] = 0;
@@ -247,7 +247,7 @@ inline void LFO1(float fq, float mix_factor, float increment) {
                                 g_Modulation_Reset[LFO1_OUT] = 1;
                             }
                         }
-                        phase = ( g_phase_LFO1_div + g_Modulation_Phase[source_addresse])*0.25f;
+                        phase = ( g_phase_LFO1_div + g_Modulation_Phase[source_addresse])*0.25;
                     break;
                     case 2 : // div 3
                         g_Modulation_Reset[LFO1_OUT] = 0;
@@ -258,7 +258,7 @@ inline void LFO1(float fq, float mix_factor, float increment) {
                                 g_Modulation_Reset[LFO1_OUT] = 1;
                             }
                         }
-                        phase = ( g_phase_LFO1_div + g_Modulation_Phase[source_addresse])/3.0f;
+                        phase = ( g_phase_LFO1_div + g_Modulation_Phase[source_addresse])/3.0;
                     break;
                     case 3 : // div 2
                         g_Modulation_Reset[LFO1_OUT] = 0;
@@ -269,26 +269,26 @@ inline void LFO1(float fq, float mix_factor, float increment) {
                                 g_Modulation_Reset[LFO1_OUT] = 1;
                             }
                         }
-                        phase = ( g_phase_LFO1_div + g_Modulation_Phase[source_addresse])*0.5f;
+                        phase = ( g_phase_LFO1_div + g_Modulation_Phase[source_addresse])*0.5;
                     break;
                     case 4 : // Id
                         g_Modulation_Reset[LFO1_OUT] = g_Modulation_Reset[source_addresse];
                         phase = g_Modulation_Phase[source_addresse];
                     break;
                     case 5 : // mult 2
-                        phase = g_Modulation_Phase[source_addresse] * 2.f;
+                        phase = g_Modulation_Phase[source_addresse] * 2.;
                         g_Modulation_Reset[LFO1_OUT] = (phase < g_Modulation_Phase[source_addresse]);
                     break;
                     case 6 : // mult 3
-                        phase = g_Modulation_Phase[source_addresse] * 3.f;
+                        phase = g_Modulation_Phase[source_addresse] * 3.;
                         g_Modulation_Reset[LFO1_OUT] = (phase < g_Modulation_Phase[source_addresse]);
                     break;
                     case 7 : // mult 4
-                        phase = g_Modulation_Phase[source_addresse] * 4.f;
+                        phase = g_Modulation_Phase[source_addresse] * 4.;
                         g_Modulation_Reset[LFO1_OUT] = (phase < g_Modulation_Phase[source_addresse]);
                     break;
                     case 8 : // mult 8
-                        phase = g_Modulation_Phase[source_addresse] * 8.f;
+                        phase = g_Modulation_Phase[source_addresse] * 8.;
                         g_Modulation_Reset[LFO1_OUT] = (phase < g_Modulation_Phase[source_addresse]);
                     break;
                 }
@@ -297,7 +297,7 @@ inline void LFO1(float fq, float mix_factor, float increment) {
                 modulation = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
                 break;
             } else {//automodulation donc autre algo : on change le PWM
-                WF1 = mix_factor + mix_factor - 1.f;
+                WF1 = mix_factor + mix_factor - 1.;
 
                 phase = g_Modulation_Phase[LFO1_OUT] + increment;                               // calcul de la phase
                 overflow_phase = (int)phase;
@@ -305,53 +305,53 @@ inline void LFO1(float fq, float mix_factor, float increment) {
                 g_Modulation_Reset[LFO1_OUT] = overflow_phase;
                 g_Modulation_Phase[LFO1_OUT] = phase;
 
-                if (WF1 > 0.f) {
-                    phase *= mix(1.f, phase, WF1);
-                    phase *= mix(1.f, phase, WF1);
-                    phase *= mix(1.f, phase, WF1);
-                    phase *= mix(1.f, phase, WF1);
+                if (WF1 > 0.) {
+                    phase *= mix(1., phase, WF1);
+                    phase *= mix(1., phase, WF1);
+                    phase *= mix(1., phase, WF1);
+                    phase *= mix(1., phase, WF1);
                 }
                 else {
                     WF1 = -WF1;
-                    phase = 1.f - phase;
-                    phase *= mix(1.f, phase, WF1);
-                    phase *= mix(1.f, phase, WF1);
-                    phase *= mix(1.f, phase, WF1);
-                    phase *= mix(1.f, phase, WF1);
-                    phase = 1.f - phase;
+                    phase = 1. - phase;
+                    phase *= mix(1., phase, WF1);
+                    phase *= mix(1., phase, WF1);
+                    phase *= mix(1., phase, WF1);
+                    phase *= mix(1., phase, WF1);
+                    phase = 1. - phase;
                 }
                 modulation = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
                 break;
             }
         case LFO_GATE : // ok
             {
-                float l_mix_factor;
+                double l_mix_factor;
                 if (source_addresse != NONE_OUT) { //automodulation
                     WF1 = g_Modulation[source_addresse];
                     l_mix_factor = mix_factor;
                 } else {
-                    WF1 = 0.f;
-                    l_mix_factor = 1.f-mix_factor;
+                    WF1 = 0.;
+                    l_mix_factor = 1.-mix_factor;
                 }
                 phase = g_Modulation_Phase[LFO1_OUT] + increment;                               // calcul de la phase
                 overflow_phase = (int)phase;
                 phase -= overflow_phase;
                 g_Modulation_Reset[LFO1_OUT] = overflow_phase;
                 g_Modulation_Phase[LFO1_OUT] = phase;
-                if (WF1 > ( (2.f*l_mix_factor)-1.f) ) {
+                if (WF1 > ( (2.*l_mix_factor)-1.) ) {
                     modulation = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
                 } else modulation = g_Modulation[LFO1_OUT];
             }
             break;
         case LFO_TH : // ok
             {
-                float l_mix_factor;
+                double l_mix_factor;
                 if (source_addresse != NONE_OUT) { //automodulation
                     WF1 = g_Modulation[source_addresse];
                     l_mix_factor = mix_factor;;
                 } else {
-                    WF1 = 0.f;
-                    l_mix_factor = 1.f-mix_factor;;
+                    WF1 = 0.;
+                    l_mix_factor = 1.-mix_factor;;
                 }
                 phase = g_Modulation_Phase[LFO1_OUT] + increment;                               // calcul de la phase
                 overflow_phase = (int)phase;
@@ -361,14 +361,14 @@ inline void LFO1(float fq, float mix_factor, float increment) {
 
                 modulation = g_Modulation[LFO1_OUT];
                 if (g_LFO1_last_step == 0) {
-                    if ( WF1 > 0.01f + ((2.f*l_mix_factor)-1.f) )
+                    if ( WF1 > 0.01 + ((2.*l_mix_factor)-1.) )
                     {
                         modulation = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
                         g_LFO1_last_step = 1;
                     }
                 }
                 else {
-                    if ( WF1 < -0.01f + ((2.f*l_mix_factor)-1.f) )
+                    if ( WF1 < -0.01 + ((2.*l_mix_factor)-1.) )
                     {
                         g_LFO1_last_step = 0;
                     }
@@ -379,13 +379,13 @@ inline void LFO1(float fq, float mix_factor, float increment) {
         // sans modulation,et en automod : 'mod' permet de passer les step, mais attention au nb de step
             {
                 uint32_t WF1_reset;
-                float l_mix_factor;
+                double l_mix_factor;
                 if ( (source_addresse != NONE_OUT) || (source_addresse != LFO1_OUT) ) {
                     WF1_reset = g_Modulation_Reset[source_addresse];
                     l_mix_factor = mix_factor;
                 } else { //automodulation ou pas de modulation
                     if (g_LFO1_reset == false) {
-                        if (mix_factor > 0.51f) {
+                        if (mix_factor > 0.51) {
                             WF1_reset = true;
                             g_LFO1_reset = true;
                         } else {
@@ -393,17 +393,17 @@ inline void LFO1(float fq, float mix_factor, float increment) {
                         }
                     } else {
                         WF1_reset = false;
-                        if (mix_factor < 0.49f) {
+                        if (mix_factor < 0.49) {
                             g_LFO1_reset = false;
                         }
                     }
-                    l_mix_factor = 1.f;
+                    l_mix_factor = 1.;
                 }
-                {   uint32_t nb_step = table_step[(int)(l_mix_factor*5.9999f)];
+                {   uint32_t nb_step = table_step[(int)(l_mix_factor*5.9999)];
                     if (WF1_reset) {
                         if(++g_LFO1_last_step >= (uint)nb_step) g_LFO1_last_step=0;
                         uint32_t num_thomas = thomas_LFO1 + 3*g_LFO1_last_step;
-                        thomas(num_thomas, fq*fq, 0.2f);
+                        thomas(num_thomas, fq*fq, 0.2);
                         g_LFO1_noise[1] = g_LFO1_noise[0];
                         g_LFO1_noise[0] = g_thomasX[num_thomas];
                         g_Modulation_Reset[LFO1_OUT] = 1;
@@ -428,10 +428,10 @@ inline void LFO1(float fq, float mix_factor, float increment) {
     }
 }
 
-float g_LFO4_noise[4]; // pour le noise avec interpolation cubic
+double g_LFO4_noise[4]; // pour le noise avec interpolation cubic
 
-inline void LFO4(float increment) {
-    float phase, overflow_phase, tmp;
+inline void LFO4(double increment) {
+    double phase, overflow_phase, tmp;
 
     phase = g_Modulation_Phase[LFO4_OUT] + increment;                               // calcul de la phase
     overflow_phase = (int)phase;
