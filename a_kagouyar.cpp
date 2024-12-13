@@ -111,6 +111,7 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
 
         if ((i & 0b111) == 0) // Sample Rate LFO = SR/4 (facteur 8 a cause du cannal droit et gauche)
             LFO(); // SR = 12KHz
+		//LFO(); // SR = 48KHz
 
         // filtre les PWM en audio, car on les utilise pour toutes les voies de polyphonie
 		g_pot_audio[k_VCO1_wfm] += g_pot_increment[k_VCO1_wfm];
