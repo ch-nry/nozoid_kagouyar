@@ -24,14 +24,12 @@ inline void LFO1(float fq, float mix_factor, float increment) {
     float modulation = 0.f;
 
     if (curent_config.c_LFO1_WF == WF_AR) {
+		float const A_time = ADSR_time2filter(fq);
+		float const D_time = ADSR_time2filter(mix_factor);
         for (uint32_t j=nb_voice; j--;) {
-            float tmp = allvoice[j].v_GATE >= 1.;
-            float time = tmp?ADSR_time2filter(fq) : ADSR_time2filter(mix_factor);
+            float const tmp = allvoice[j].v_GATE >= 1.;
+            float time = tmp?A_time : D_time;
             _fonepole(g_LFO1_AR[j], tmp, time);
-			// Je comprend pas pouquoi cela est plus lent :
-            //float time = tmp?fq : mix_factor;
-            //_fonepole(g_LFO1_AR[j], tmp, ADSR_time2filter(time));
-
             modulation += g_LFO1_AR[j];
         }
         modulation *= 1.f/nb_voice;
@@ -426,7 +424,7 @@ inline void LFO1(float fq, float mix_factor, float increment) {
         g_LFO1_AR[4]= modulation; // la somme de tout les AR = LFO en mode normal
         g_Modulation[LFO1_OUT] = modulation;
         g_Modulation[LFO1_OUT+modulation_source_last] = -modulation;
-        g_Modulation[LFO1_OUT_FILTER] += 0.003 * (modulation - g_Modulation[LFO1_OUT_FILTER]);
+        g_Modulation[LFO1_OUT_FILTER] += 0.003 * (modulation - g_Modulation[LFO1_OUT_FILTER]); // pour les leds
     }
 }
 
