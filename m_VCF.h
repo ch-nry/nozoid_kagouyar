@@ -40,10 +40,10 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
     else
         mod_q  += g_pot_audio[k_VCF1_mod2] * g_Modulation[curent_config.c_Modulation_Source[VCF1_MOD2]];
 
-    double freq = fq+ (48.f*mod_fq) + (24.f*g_Modulation[MIDI_expression]);
+    float freq = fq+ (48.f*mod_fq) + (24.f*g_Modulation[MIDI_expression]);
     tmp = curent_config.c_VCF1_pitch_TRACK;
     freq += tmp * 0.5f * (allvoice[j].v_pitch-12.f);
-    freq = _fclamp(freq, -128.f, 138.f);
+    freq = _fclamp(freq, -128.f, 132.f);
     freq = CV2freq(freq);
 
     float const omega = freq * (TWOPI_F/48000.f);
@@ -51,7 +51,6 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
 
     float Q = 4.5f * _fclamp(res + mod_q, 0., 1.);
     Q *= 1.0029f + omega*(0.0526f + omega * (-0.0926f  + omega*0.0218f)); // resonance frequency compensation
-    input1 *= 0.5f; // limitation de l'amplitude d'entrée pour ne pas trop distordre le signal avant le filtre
 	Q *= 1.01f; // ??? c'est plus lent si je vire cette ligne!!!
 
 	_fonepole(allvoice[j].v_VCF1_filter, input1, 10000.f*OneOverSR); // on baisse les hautes frequences pour reduire le repliement ds la non linéarité
@@ -92,26 +91,26 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
 
     switch (curent_config.c_VCF1_TYPE) {
     case 0 :
-        tmp = 2.f * output4;
+        tmp = output4;
         break;
     case 1 :
-        tmp = 2.f * output2;
+        tmp = output2;
         break;
     case 2 :
-        tmp =  2.f * (output1 + output1 - output2 - output2);
+        tmp =   (output1 + output1 - output2 - output2);
         break;
     case 3 :
-        tmp = 8.f * (output2 - output3 - output3 + output4);
+        tmp = 4.f * (output2 - output3 - output3 + output4);
         break;
     case 4 :
-        tmp = 2.f * (input1 - output1 - output1 + output2);
+        tmp = (input1 - output1 - output1 + output2);
         break;
     case 5 :
-        tmp = 2.f * (input1 - 4.f * (output1 + output3) + 6.f *  output2 + output4);
+        tmp =  (input1 - 4.f * (output1 + output3) + 6.f *  output2 + output4);
         break;
     }
 
-    //return 2.f*tmp; // facteur 2 pour compenser le gain d'entré
+
 	return tmp; // inclus dans le switch
 }
 
