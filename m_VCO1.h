@@ -18,7 +18,6 @@
 #define modulation_VCO1(VCO_mod, VCO_MOD)                                           \
     modulation_value = VCO_mod;                                                     \
     modulation_value *= g_Modulation[curent_config.c_Modulation_Source[VCO_MOD]];   \
-																					\
     switch (curent_config.c_Modulation_Type[VCO_MOD]) {                             \
     case MOD_FM_exp :                                                               \
         VCO1_FM_exp += modulation_value;                                           \
@@ -174,7 +173,9 @@ inline float VCO1(uint32_t j, float frequency) {
     }
     out *= VCO1_AM;
 
-    out = _fclamp(out, -1.1f, VCO1_clip); //TODO remplace par un seul min
+    out = _fclamp(out, -1.1f, VCO1_clip); //plus rapide que seul le min!
+    //out = _fmax(out, VCO1_clip);
+    //out = fmax(out, VCO1_clip);
 
     g_Modulation[VCO1_OUT] = out;
     return out;
