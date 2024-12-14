@@ -182,11 +182,11 @@ inline float CV2freq(float index) { // index from -128 to 139; 69 for 440Hz
 inline float CV2increment_lfo(uint32_t range, float cv) {
     switch (range) { // Frequence des LFO = SR/2
     case 0: // low
-        return  CV2freq((92.f * cv) -115.f)*4.f*OneOverSR; // 92x -115 : (0.01 a 2)
+        return  CV2freq((92.f * cv) -127.f)*4.f*OneOverSR; // 92x -115 : (0.01 a 2)
     case 1: // med
-        return  CV2freq((80.f * cv) -64.f)*4.f*OneOverSR; //  80x -64 (0.2 to 20)
+        return  CV2freq((80.f * cv) -76.f)*4.f*OneOverSR; //  80x -64 (0.2 to 20)
     case 2: // high
-        return  CV2freq((104.f * cv) -24.f)*4.f*OneOverSR; // 104x -24 (2 to 800)
+        return  CV2freq((104.f * cv) -36.f)*4.f*OneOverSR; // 104x -24 (2 to 800)
     case 3: // sync midi
         return table_MIDI_fq[(int)(cv*10.999f)] * g_MIDI_LFO_increment;
     }
