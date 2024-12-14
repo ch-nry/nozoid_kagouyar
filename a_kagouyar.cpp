@@ -16,11 +16,9 @@
 // --------------------------------------------------------------------------
 
 // optimisation : -0fast
-// pb de taille : trouver comment mettre le code ailleur (en DTCMRAM), ainsi qu'augmenter la RAM
 // utilisatio du dsp
 // tester de tout passer en double (pb de taille)
 // tester les instruction arm_math
-
 
 #define proto2 // commenter pour la version final
 // #define fabien // CV1 et CV2 switch pour faire octave + et octave -
