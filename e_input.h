@@ -489,7 +489,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
     change_keyboard = (g_last_switch_keyboard_bit != switch_keyboard_bit);
     change_modulation = (g_last_switch_modulation != switch_modulation);
     change_configuration = (g_last_switch_configuration != switch_configuration);
-    change_time = ((g_menu_count > 1000) && (g_menu_count < 1000000)); // pour tester lkes appuie long
+    change_time = ((g_menu_count > 1000) && (g_menu_count < 1000000)); // pour tester les appuie long
     if (change_time) g_menu_count=1000000; // on ne traite qu'une fois le "change_time"
 
     g_last_switch_modulation = switch_modulation;
@@ -529,13 +529,16 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
     if ( (pressed_keyboard + pressed_modulation + pressed_configuration) == 1 ) { // une seule touche : on a juste a afficher les leds, a moins que ce ne soit le clavier
         if (pressed_modulation) return 1;
         if (pressed_configuration) {
-			#ifdef fabien // octave + et - sur les touches CV1 et 2
-			if (switch_configuration == MENU_CV1)   curent_config.c_KEYBOARD_octave = _fmin(curent_config.c_KEYBOARD_octave+1, 2);
-			if (switch_configuration == MENU_CV2)   curent_config.c_KEYBOARD_octave = _fmax(curent_config.c_KEYBOARD_octave-1, -3);
-			#endif
-			if (switch_configuration == MENU_LOAD)   led_time = 0;
-			if (switch_configuration == MENU_SAVE)   led_time = 0;
-			return 2;
+			if (change_configuration) { // action seulement a l'appuie de la touche
+				#ifdef fabien // octave + et - sur les touches CV1 et 2
+				if (switch_configuration == MENU_CV1)   curent_config.c_KEYBOARD_octave = _fmin(curent_config.c_KEYBOARD_octave+1, 2);
+				if (switch_configuration == MENU_CV2)   curent_config.c_KEYBOARD_octave = _fmax(curent_config.c_KEYBOARD_octave-1, -3);
+				#endif
+				if (switch_configuration == MENU_LOAD)   led_time = 0;
+				if (switch_configuration == MENU_SAVE)   led_time = 0;
+				if (switch_configuration == MENU_LOAD_SAVE) { animation1_time = 0; animation2_time = 0; animation3_time = 0; }
+			}
+			return 2; // on reste ds le menu tant que la touche est appuyé
 		}
 
         // on as donc une touche du clavier seul
