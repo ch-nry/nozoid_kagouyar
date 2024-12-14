@@ -132,7 +132,7 @@ inline float _tanh_clip(float index){
 }
 
 inline float fast_cos(float index) { // index from 0 to 1 only
-  const float x = 4. * (_fmax(index,0.5f)-_fmin(index, 0.5)) -1.f;
+  const float x = fabs(4.f*index-2.f)-1.f;
   return 2.f*x-x*fabs(x);
 }
 
