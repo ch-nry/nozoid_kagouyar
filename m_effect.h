@@ -81,17 +81,17 @@ inline float delay1_read_i(float delay){
 
 
 inline float effect1(float sound_in) { //, float wet, float param1, float param2) {
-	float wet = g_pot_audio[k_EFFECT1_wet] += g_pot_increment[k_EFFECT1_wet];
+	float const wet = g_pot_audio[k_EFFECT1_wet] += g_pot_increment[k_EFFECT1_wet];
 	float param1 = _fclamp(g_pot_audio[k_EFFECT1_p1] += g_pot_increment[k_EFFECT1_p1], 0.f, 1.f);
-	float param2 = _fclamp(g_pot_audio[k_EFFECT1_p2] += g_pot_increment[k_EFFECT1_p2], 0.f, 1.f);
+	float const param2 = _fclamp(g_pot_audio[k_EFFECT1_p2] += g_pot_increment[k_EFFECT1_p2], 0.f, 1.f);
 
     float sound_out = 0.f;
     float tmp = 0.f;
     float effect1_phase;
 
-    float param2_mod = param2 * g_Modulation[curent_config.c_Modulation_Source[EFFECT1_MOD]];
-    float wetM = _fclamp(wet + param2_mod, 0.f, 1.f);
-    float param1M = _fclamp(param1 + param2_mod, 0.f, 1.f);
+    float const param2_mod = param2 * g_Modulation[curent_config.c_Modulation_Source[EFFECT1_MOD]];
+    float const wetM = _fclamp(wet + param2_mod, 0.f, 1.f);
+    float const param1M = _fclamp(param1 + param2_mod, 0.f, 1.f);
     switch(curent_config.c_EFFECT1_TYPE) {
     case 0 : // Wave shaper : OK
 		// DRY
@@ -113,7 +113,6 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
         return sound_out;
         //break;
     case 2 : // FREEZE : small delay (wet : feedback / param1 : time / param2 : time modulation) : flanger / chorus / doubler : OK
-        param1M = _fclamp(param1 + param2_mod, 0.f, 1.f);
         tmp = param1M * 50000.f + 6.f;
         //delayline.g_delay_effect1.SetDelay(tmp);
         //sound_out = mix(sound_in , g_delay_effect1.Read(), wet);
@@ -122,7 +121,6 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		delay1_write_f(_fclamp(sound_out, -3.f, 3.f));
         return sound_out;
         //break;
-
     case 3 : // KS (wet :  attenuation (gain/filtre) , param1 : frequence, param2 : mod frequence) : OK
         tmp = 48000.f/CV2freq(param1M*127.f);
         tmp += 5.f;
@@ -134,19 +132,21 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 
         if(sound_out >  1.f) sound_out =  1.f + _tanh_clip(sound_out - 1.f); // soft clip with ID between -1 and 1;
         if(sound_out < -1.f) sound_out = -1.f + _tanh_clip(sound_out + 1.f); // between -2 and 2;
+
         //g_delay_effect1.Write(_fclamp(sound_out, -3.f, 3.f));
         delay1_write_f(_fclamp(sound_out, -3.f, 3.f));
         return sound_out;
         //break;
     case 4 : // chorus : ( WET + feedback, TIME, WET modulation) : OK
-		param1 *= 1200.f;// 1/8 du temps max du chorus, en echantillons
+		param1 *= 2000.f; // param1 = 1/8 du temps max du chorus, en echantillons
+		param1 += 100.f; // I.E : (6.73+1) * 2200 echantillons max
         g_effect1_phase = wrap(g_effect1_phase + (0.005f/48000.f)); // LFO : vitesse de variation du temps du chorus
         effect1_phase = g_effect1_phase;
         sound_out = 0.f; //sound_in;
-        sound_out += delay1_read_f(1.634f + (fast_cos_loop(             effect1_phase*5.f)+1.11f) * param1);
-        sound_out  -= delay1_read_f(5.285f + (fast_cos_loop(0.23f +  effect1_phase*4.f)+2.31f) * param1);
-		sound_out += delay1_read_f(7.565f + (fast_cos_loop(0.57f + effect1_phase*3.f)+3.22f) * param1);
-        sound_out  -= delay1_read_f(9.734f + (fast_cos_loop(0.71f + effect1_phase*7.f)+4.13f) * param1);
+        sound_out += delay1_read_f((fast_cos_loop(             effect1_phase*3.f)+1.11f) * param1);
+        sound_out  -= delay1_read_f((fast_cos_loop(0.23f +  effect1_phase*4.f)+2.31f) * param1);
+		sound_out += delay1_read_f((fast_cos_loop(0.57f + effect1_phase*5.f)+4.52f) * param1);
+        sound_out  -= delay1_read_f((fast_cos_loop(0.71f + effect1_phase*7.f)+6.73f) * param1);
         sound_out *= 0.5;
         sound_out = sound_in + _tanh(wetM*sound_out);
 
