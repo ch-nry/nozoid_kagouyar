@@ -120,8 +120,8 @@ float g_VCF2_last_input2 = 0.f;
 float g_VCF2_out = 0.f;
 
 inline void VCF2(float &input) {
-	float fq = 127.f * ( g_pot_audio[k_VCF2_fq] += g_pot_increment[k_VCF2_fq]);
-	float mod1 =  g_pot_audio[k_VCF2_mod] += g_pot_increment[k_VCF2_mod];
+	float const fq = 127.f * ( g_pot_audio[k_VCF2_fq] += g_pot_increment[k_VCF2_fq]);
+	float const mod1 =  g_pot_audio[k_VCF2_mod] += g_pot_increment[k_VCF2_mod];
 
     float filter_fq = mod1 * g_Modulation[curent_config.c_Modulation_Source[VCF2_MOD1]];
     filter_fq *= 48.f;
@@ -133,5 +133,4 @@ inline void VCF2(float &input) {
     _fonepole(g_VCF2_last_input2, g_VCF2_last_input1, filter_fq);
 
     input = curent_config.c_VCF2_TYPE ? (input - g_VCF2_last_input2) : g_VCF2_last_input2;
-
 }

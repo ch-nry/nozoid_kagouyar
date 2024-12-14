@@ -49,14 +49,6 @@ inline float _fmax(float a, float b)
     return r;
 }
 
-/* a tester
-inline float _fmax(float a, float b)
-{
-    return  b + (a > b) *(a-b);
-}
-*/
-
-
 inline float _fmin(float a, float b)
 {
     float r;
@@ -67,18 +59,6 @@ inline float _fmin(float a, float b)
 #endif // __arm__
     return r;
 }
-/*
-inline float _fabs(float x)
-{
-	return (x>0)? x:-x;
-}
-*/
-/*
-inline float _fabs(float x)
-{
-	return _fmax(x,-x);
-}
-*/
 
 // quick clamp
 inline float _fclamp(float in, float min, float max) {
@@ -123,7 +103,7 @@ inline float wrap2(float x) {
 }
 
 inline float _tanh(float x) {
-  float x2 = x*x;
+  float const x2 = x*x;
   return x * ( 27.f + x2 ) / ( 27.f + 9.f * x2 );
 }
 
@@ -136,35 +116,27 @@ inline float fast_cos(float index) { // index from 0 to 1 only
   return 2.f*x-x*fabs(x);
 }
 
-/*
-inline float fast_cos_positiv_loop(float index) { // positive index only
-    return fast_cos(wrap(index));
-}
-*/
+
 inline float fast_cos_loop(float index) { //
     return fast_cos(wrap2(index) );
 }
 
 inline float _cos(float index) { // index from 0 to 1 only
 // 6 multiplications
-  float x=index-0.5f;
-  float x2=x*x;
+  float const x=index-0.5f;
+  float const x2=x*x;
 
   return -0.99999944f + x2 * (19.73903275f + x2 * (-64.93054874f + x2 * (85.29509341f + x2 * (-58.90779707f + x2 * 21.27414825f))));
 }
-/*
-inline float _cos_positiv_loop(float index) { // positive index only
-    return _cos(wrap(index));
-}
-*/
+
 inline float _cos_loop(float index) { //
     return _cos(wrap2(index) );
 }
 
 inline float _sin(float index) { // index from 0 to 1 only
 // 6 multiplication
-  float x=index-0.5f;
-  float x2=x*x;
+  float const x=index-0.5f;
+  float const x2=x*x;
 
   return x * (-6.28308759f +x2*(41.33318714f + x2*(-81.39900318f + x2*(74.66885164f - x2*33.1532588f))));
 }
@@ -180,9 +152,9 @@ inline float sign(float in) {
 	return ((in<0.f)?-1.f : 1.f);
 }
 void thomas(uint32_t i, float dt, float b) { // numero de l'attracteur a calculer
-    float dx = _sin_positiv_loop(11.f + g_thomasY[i]) - b * g_thomasX[i]; // 11 : pour etre sur que le cos est positif
-    float dy = _sin_positiv_loop(11.f + g_thomasZ[i]) - b * g_thomasY[i];
-    float dz = _sin_positiv_loop(11.f + g_thomasX[i]) - b * g_thomasZ[i];
+    float const dx = _sin_positiv_loop(11.f + g_thomasY[i]) - b * g_thomasX[i]; // 11 : pour etre sur que le cos est positif
+    float const dy = _sin_positiv_loop(11.f + g_thomasZ[i]) - b * g_thomasY[i];
+    float const dz = _sin_positiv_loop(11.f + g_thomasX[i]) - b * g_thomasZ[i];
     g_thomasX[i] += dx * dt;
     g_thomasY[i] += dy * dt;
     g_thomasZ[i] += dz * dt;
@@ -192,21 +164,18 @@ void thomas(uint32_t i, float dt, float b) { // numero de l'attracteur a calcule
 
 void init_table_CV2freq() {
   int i;
-  double power;
-  power = pow(2.0,1/12.0);
+  float const power = pow(2.0,1/12.0);
   for (i=0; i<268; i++) {
     table_CV2freq[i] = pow(power, i-(128+69)) * 440.;
   }
 }
 
 inline float CV2freq(float index) { // index from -128 to 139; 69 for 440Hz
-  float f_index = index;
-  f_index += 128.f;
-  f_index = _fclamp(f_index, 0.f, 267.f );
-  float index_entier = (int)(f_index);
-  uint32_t i_index = (uint32_t)index_entier;
-  float index_reste = f_index-index_entier;
-  float inc1 = table_CV2freq[i_index];
+  float const f_index = _fclamp(index+128.f, 0.f, 267.f );
+  float const index_entier = (int)(f_index);
+  uint32_t const i_index = (uint32_t)index_entier;
+  float const index_reste = f_index-index_entier;
+  float const inc1 = table_CV2freq[i_index];
   return inc1 * (1.f + .0577622650f * index_reste) ;
 }
 

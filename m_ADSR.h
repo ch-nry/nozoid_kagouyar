@@ -33,13 +33,13 @@ inline float ADSR_time2filter(float time) {
 float ADSR(uint32_t j) {
 	//float A = g_pot_audio[k_ADSR_a];
 	//float D = g_pot_audio[k_ADSR_d];
-	float S = g_pot_audio[k_ADSR_s];
+	float const S = g_pot_audio[k_ADSR_s];
 	//float R = g_pot_audio[k_ADSR_r];
 
     float tmp=0.;
     float ADSR_out = allvoice[j].v_ADSR_out;
     float ADSR_goal = 0.f;
-    uint32_t ADSR_LOOP = curent_config.c_ADSR_LOOP; // local variable for optimisation
+    uint32_t const ADSR_LOOP = curent_config.c_ADSR_LOOP; // local variable for optimisation
     uint32_t ADSR_mode = allvoice[j].v_ADSR_mode; // local variable
 
     g_Modulation_Reset[ADSR_OUT] = 0;
@@ -112,4 +112,3 @@ inline float VCA(uint32_t j, float sound) { // each voice gain
         return allvoice[j].v_LPG_last * allvoice[j].amplitude;
     }
 }
-

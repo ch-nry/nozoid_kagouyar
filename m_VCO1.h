@@ -68,7 +68,7 @@ inline float VCO1(uint32_t j, float frequency) {
     vco_pitch += (int)((12.f*VCO1_FM_Qtz)+0.5f);
 
     VCO1_pitch(allvoice[j], vco_pitch); // sauve ou rapele la valeur de vco1 pour les pitch des vco2 et 3 syncro sur le 1 (cf fonction.h)
-    float freq = CV2freq(vco_pitch) + VCO1_FM_lin * 2000.f;// freq peux etre negative, ou nulle
+    float freq = CV2freq(vco_pitch) + VCO1_FM_lin * 2000.f; // attention, la freq peux etre negative, ou nulle
 
     float increment = freq*OneOverSR;
     increment += (increment == 0) * 1e-10; // increment ne doit pas etre nul car on a plein de /increment plus tard.
@@ -83,7 +83,7 @@ inline float VCO1(uint32_t j, float frequency) {
     g_Modulation[VCO1_SIN] = _cos(VCO1_phase_local); // g_Modulation sinus
     g_Modulation[VCO1_SQUARE] = (VCO1_phase_local > 0.5f)? 1.f : -1.f; // g_Modulation square
     g_Modulation[VCO1_TRI] = fabs(4.f*VCO1_phase_local-2.f)-1.f;
-    float ramp = VCO1_phase_local + VCO1_phase_local - 1.f; // ramp (saw up)
+    float const ramp = VCO1_phase_local + VCO1_phase_local - 1.f; // ramp (saw up)
     g_Modulation[VCO1_RAMP] = ramp;
     g_Modulation[VCO1_SAW] = -ramp; // saw down
 

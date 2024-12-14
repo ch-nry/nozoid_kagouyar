@@ -55,7 +55,7 @@ inline void delay1_write_f(float in){
 
 inline float delay1_read_f(float delay){
 	int32_t delay_integral   = static_cast<int32_t>(delay);
-	float   delay_fractional = delay - static_cast<float>(delay_integral);
+	float const  delay_fractional = delay - static_cast<float>(delay_integral);
 	delay_integral += g_delay1_pos;
 	const float a = g_delay1.delay1_float[(delay_integral) % delay1_sizef];
 	const float b = g_delay1.delay1_float[(delay_integral + 1) % delay1_sizef];
@@ -72,13 +72,12 @@ inline void delay1_write_i(float  in){
 
 inline float delay1_read_i(float delay){
 	int32_t delay_integral   = static_cast<int32_t>(delay);
-	float   delay_fractional = delay - static_cast<float>(delay_integral);
+	float const  delay_fractional = delay - static_cast<float>(delay_integral);
 	delay_integral += g_delay1_pos;
 	const float a = s162f(g_delay1.delay1_int[(delay_integral) % delay1_sizei]);
 	const float b = s162f(g_delay1.delay1_int[(delay_integral + 1) % delay1_sizei]);
 	return 3.f*(a + (b - a) * delay_fractional);
 }
-
 
 inline float effect1(float sound_in) { //, float wet, float param1, float param2) {
 	float const wet = g_pot_audio[k_EFFECT1_wet] += g_pot_increment[k_EFFECT1_wet];
@@ -202,13 +201,12 @@ float g_effect2_phase = 0.33f;
 daisysp::DelayLine<float, 48000> g_delay_effect2;
 
 inline float effect2(float sound_in) { //, float param, float param1) {
-	float param = g_pot_audio[k_EFFECT2_wet] += g_pot_increment[k_EFFECT2_wet];
-	float param1 = g_pot_audio[k_EFFECT2_p1] += g_pot_increment[k_EFFECT2_p1];
+	float const param = g_pot_audio[k_EFFECT2_wet] += g_pot_increment[k_EFFECT2_wet];
+	float const param1 = g_pot_audio[k_EFFECT2_p1] += g_pot_increment[k_EFFECT2_p1];
     float sound_out;
     float tmp, tmp2;
 	float effect2_phase;
-    float wet = param + param1 * g_Modulation[curent_config.c_Modulation_Source[EFFECT2_MOD]];
-    wet = _fclamp(wet, 0., 1.);
+    float wet = _fclamp(param + param1 * g_Modulation[curent_config.c_Modulation_Source[EFFECT2_MOD]], 0.f, 1.f);
 
     switch(curent_config.c_EFFECT2_TYPE) {
     case 0: // disto : OK
