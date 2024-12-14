@@ -110,7 +110,6 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
         break;
     }
 
-
 	return tmp; // inclus dans le switch
 }
 
@@ -120,10 +119,13 @@ float g_VCF2_last_input2 = 0.f;
 float g_VCF2_out = 0.f;
 
 inline void VCF2(float &input) {
+	if (curent_config.c_VCF2_TYPE == 2)
+		return; // pas de filtre
+
 	float const fq = 127.f * ( g_pot_audio[k_VCF2_fq] += g_pot_increment[k_VCF2_fq]);
 	float const mod1 =  g_pot_audio[k_VCF2_mod] += g_pot_increment[k_VCF2_mod];
-
     float filter_fq = mod1 * g_Modulation[curent_config.c_Modulation_Source[VCF2_MOD1]];
+
     filter_fq *= 48.f;
     filter_fq += fq;
     filter_fq = _fclamp(filter_fq, -127.f, 127.5f);

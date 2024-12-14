@@ -722,8 +722,12 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
             } else {
 				if (switch_keyboard <= 8)
 					curent_config.c_VCF1_pitch_TRACK = switch_keyboard - 6;
-				else if (switch_keyboard >= 11)
-					curent_config.c_VCF2_TYPE = switch_keyboard - 11;
+				else if (switch_keyboard >= 11) {
+					if(curent_config.c_VCF2_TYPE == switch_keyboard - 11)
+						curent_config.c_VCF2_TYPE = 2;
+					else
+						curent_config.c_VCF2_TYPE = switch_keyboard - 11;
+					}
 			}
 			break;
         case MENU_ADSR :

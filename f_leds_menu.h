@@ -243,7 +243,7 @@ void leds_key_configuration(uint32_t my_menu_switch) { // led lorsque on appuie 
                 led_keyboard |= 1<< BIT_LED_MENU_KEY8;
         if(curent_config.c_VCF2_TYPE == 0)
             led_keyboard |= 1<< BIT_LED_MENU_KEY11;
-        else
+        if(curent_config.c_VCF2_TYPE == 1)
             led_keyboard |= 1<< BIT_LED_MENU_KEY12;
     break;
     case MENU_ADSR :  // ADSR option
