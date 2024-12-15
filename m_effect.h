@@ -147,7 +147,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		sound_out += delay1_read_f((fast_cos_loop(0.57f + effect1_phase*5.f)+4.52f) * param1);
         sound_out  -= delay1_read_f((fast_cos_loop(0.71f + effect1_phase*7.f)+6.73f) * param1);
         sound_out *= 0.5;
-        sound_out = sound_in + _tanh(wetM*sound_out);
+        sound_out = sound_in + _tanh_clip(wetM*sound_out);
 
         delay1_write_f(sound_out);
         return sound_out;
