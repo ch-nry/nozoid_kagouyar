@@ -47,6 +47,8 @@
 //14th slot to save curent preset on shutdown
 #define save_pos  0x90000000 + (14*4096)
 
+float mix1, mix2, mix3; // c'est plus rapide qd c'est declaré ici, meme si c'est des variable local
+
 static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle::InterleavingOutputBuffer out, size_t size) {
     hw.test_out(true); // write test_out pin;  10µs la premiere partie
     g_time++;
@@ -113,7 +115,6 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
 
         if ((i & 0b111) == 0) // Sample Rate LFO = SR/4 (facteur 8 a cause du cannal droit et gauche)
             LFO(); // SR = 12KHz
-		//LFO(); // SR = 48KHz
 
         // filtre les PWM en audio, car on les utilise pour toutes les voies de polyphonie
 		g_pot_audio[k_VCO1_wfm] += g_pot_increment[k_VCO1_wfm];
@@ -121,7 +122,6 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
 		g_pot_audio[k_VCO3_wfm] += g_pot_increment[k_VCO3_wfm];
 
         // filtre les niveaux du mix en audio, car on les utilise pour toutes les voies de polyphonie
-		float mix1, mix2, mix3;
 		g_pot_audio[k_MIX1] += g_pot_increment[k_MIX1];
 		mix1 = g_pot_audio[k_MIX1]  * g_pot_audio[k_MIX1];
 		g_pot_audio[k_MIX2] += g_pot_increment[k_MIX2];
