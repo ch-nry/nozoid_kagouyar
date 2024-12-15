@@ -113,7 +113,6 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
 	return tmp; // inclus dans le switch
 }
 
-
 float g_VCF2_last_input1 = 0.f;
 float g_VCF2_last_input2 = 0.f;
 float g_VCF2_out = 0.f;
