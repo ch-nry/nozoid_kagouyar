@@ -16,7 +16,7 @@
 // --------------------------------------------------------------------------
 
 // optimisation : -0fast
-// utilisatio du dsp
+// utilisation du dsp
 // tester de tout passer en double (pb de taille)
 // tester les instruction arm_math
 
