@@ -62,9 +62,10 @@ inline float _fmin(float a, float b)
 
 // quick clamp
 inline float _fclamp(float in, float min, float max) {
-    //return _fmin(_fmax(in, min), max);
+    return _fmin(_fmax(in, min), max);
+}
+inline float _fclamp2(float in, float min, float max) {
     return _fmax(_fmin(in, max), min);
-
 }
 
 inline float mix(float in1, float in2, float mix){ // mix from 0 to 1
