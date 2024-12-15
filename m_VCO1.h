@@ -35,7 +35,7 @@
         VCO1_PM += modulation_value ;                                               \
         break;                                                                      \
     case MOD_CLIP :                                                                 \
-        VCO1_clip -= modulation_value + VCO_mod + _fmax(0.f, VCO_mod-0.5f)*4.0f;    \
+        VCO1_clip -= modulation_value + VCO_mod;    \
         break;                                                                      \
     case MOD_WF :                                                                   \
         VCO1_mod_PWM += modulation_value;                                           \
