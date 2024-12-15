@@ -141,7 +141,6 @@ int32_t g_last_load_save  = -1;
 // affichage des animations
 uint32_t led_time = 0;
 
-
 // sheduller :
 volatile int32_t g_time;
 
@@ -268,7 +267,7 @@ struct CONFIGURATION
 };
 
 // configuration actuel
-CONFIGURATION curent_config; // configuration actuel
+__attribute__((section(".dtcmram_bss"))) CONFIGURATION curent_config; // configuration actuel
 
 // modulations, LFO
 float g_Modulation[2*modulation_source_last]; // valeur des diferentes g_Modulation
@@ -316,4 +315,4 @@ struct voice
 	float amplitude = 1.f;
 };
 
-voice allvoice[nb_voice]; // declaration des memoires des voies de polyphonie
+ __attribute__((section(".dtcmram_bss"))) voice allvoice[nb_voice]; // declaration des memoires des voies de polyphonie
