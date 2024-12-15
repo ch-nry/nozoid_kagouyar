@@ -173,9 +173,7 @@ inline float VCO1(uint32_t j, float frequency) {
     }
     out *= VCO1_AM;
 
-    out = _fclamp2(out, -1.1f, VCO1_clip); //plus rapide que seul le min!
-    //out = _fmin(out, VCO1_clip);
-    //out = fmin(out, VCO1_clip);
+    out = _fclamp2(out, -1.1f, VCO1_clip); // il faut les 2, sinon on peux etre en dessous du minimum
 
     g_Modulation[VCO1_OUT] = out;
     return out;
