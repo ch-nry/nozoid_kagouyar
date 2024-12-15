@@ -59,7 +59,7 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
     float const feedback = Q * ( allvoice[j].v_VCF1_last_output4 - (0.5f * input1) ); // feedback
 
     input1 -= feedback;
-    input1 = _tanh(input1); // distortion
+    input1 = _tanh_clip(input1); // distortion
 
     float output1 = (input1 + 0.3f * allvoice[j].v_VCF1_last_input1)*(1.f/1.3f); // 4 * 6dB filter
     allvoice[j].v_VCF1_last_input1 = input1;
