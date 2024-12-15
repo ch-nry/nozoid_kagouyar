@@ -453,7 +453,7 @@ void random_config() {
     curent_config.c_VCF1_pitch_TRACK = 2;
     curent_config.c_ADSR_LOOP = 0;
     curent_config.c_VCA_TYPE = _rnd_ui()%2; // VCA or LowPasse_GATE
-    curent_config.c_VCF2_TYPE = 0;
+    curent_config.c_VCF2_TYPE = 2;
 
 	curent_config.c_VCO1_WF = _rnd_ui()%9;
     curent_config.c_VCO2_WF =  _rnd_ui()%9;
@@ -543,7 +543,7 @@ void empty_config() {
 
     curent_config.c_EFFECT1_TYPE = 7;
     curent_config.c_EFFECT2_TYPE = 6;
-    curent_config.c_VCF2_TYPE = 0;
+    curent_config.c_VCF2_TYPE = 2;
 
     for (uint32_t i=0; i<modulation_destination_last; i++) { // pour tout les VCO
         curent_config.c_Modulation_Source[i] = NONE_OUT;
@@ -614,7 +614,7 @@ void standard_config() {
 	delay1_clear();
     curent_config.c_EFFECT1_TYPE = 0;
     curent_config.c_EFFECT2_TYPE = 0;
-    curent_config.c_VCF2_TYPE = 0;
+    curent_config.c_VCF2_TYPE = 2;
 
     curent_config.c_Modulation_Source[VCO1_MOD1] = LFO1_OUT;
     curent_config.c_Modulation_Source[VCO1_MOD2] = LFO2_OUT;
