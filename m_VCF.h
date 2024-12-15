@@ -106,7 +106,7 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
         tmp = (input1 - output1 - output1 + output2);
         break;
     case 5 :
-        tmp =  (input1 - 4.f * (output1 + output3) + 6.f *  output2 + output4);
+        tmp = (input1 - 4.f * (output1 + output3) + 6.f *  output2 + output4);
         break;
     }
 
