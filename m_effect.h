@@ -22,7 +22,7 @@ float g_effect1_phase;
 float g_effect1_last_out = 0.f;
 float g_effect1_param_filter = 0.f;
 float g_effect1_param_filter2 = 0.f;
-float g_old_distance = 0.f, g_vitesse = 0.f, g_decole = 0.f, g_old_sound_out = 0.f;
+float g_vitesse = 0.f, g_old_sound_out = 0.f, g_last_sound_in = 0.;
 
 //daisysp::DelayLine<float, 48000*4> DSY_SDRAM_BSS g_delay_effect1; // SDRAM
 //daisysp::DelayLine<float, 10000>  g_delay_effect3;
@@ -165,25 +165,22 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		delay1_write_f(sound_out);
         return sound_out;
         //break;
-	case 6 : //frottement : WET; param1 : taille du frottement; param1 : modulation du wet
-	// D= distance(in, out) ; si D-vitesse<0 alors decole = 0 et vitesse = 0  et out = in; si D> seuil alors decole = 1 ; si decole == 1 alors vitesse += gain*D  ; speedlim(vitesse) ; out += vitesse ;
-		//g_old_sound_out += tmp  * 0.1 * wet * wet; // resiliance
-		g_old_sound_out = sound_in - (1000.f*wetM/(999.f*wetM+1.f)) * (sound_in - g_old_sound_out );
-		tmp = sound_in - g_old_sound_out;
-		g_old_distance = tmp;
-		if ( (abs(tmp)-abs(g_vitesse)) < 0 ){ // la sortie se raproche de l'entrée : on reset tout, et on se colle
-			g_decole = 0.f;
-			g_vitesse = 0.f;
-			g_old_sound_out = sound_in;
+	case 6 : //frottement : WET; param1 : taille du seuil pour declancher un mouvement; param1 : inertie de la corde
+		// le son reste bloqué tant que la diference avec l'entrée n'est pas sufisante.
+		// Lorsque le seuil est atteins, le son se reinitialise a la position de l'entre,
+		// et une inertie est calculé en fct de la vitersse actuel du son.
+		// un paramettre control cette quantité d'inertie
+		// c'est un bitcrusher assez sauvage, avec bcp d'instabilité qd on monte le paramettre
+		sound_out = sound_in - g_old_sound_out;
+		if( fabs(sound_out) > wet*wet ) {
+			sound_out = sound_in;
+			g_vitesse = sound_in - g_last_sound_in;
+			g_last_sound_in = sound_in;
+		} else {
+			sound_out = g_old_sound_out + g_vitesse*param1M*0.1;
 		}
-		else if (abs(tmp) > (param1*0.5)) { // trop de diference entre entrée et sortie, on décole
-			g_decole = 1.f;
-		}
-		if ( g_decole == 1.f) { // si decollé : a quelle vitesse on retourne pour recoller
-			g_vitesse += 0.1f* wetM*wetM*tmp;
-			g_old_sound_out += g_vitesse;
-		}
-		return _fclamp(g_old_sound_out, -3.f, 3.f);
+		g_old_sound_out = sound_out;
+		return sound_out;
 	case 7 : //rien, utilisé lors du changement d'effet
 		return sound_in;
     }
