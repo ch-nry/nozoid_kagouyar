@@ -167,7 +167,7 @@ void thomas(uint32_t i, float dt, float b) { // numero de l'attracteur a calcule
 
 void init_table_CV2freq() {
   int i;
-  float const power = pow(2.0,1/12.0);
+  double const power = pow(2.0,1/12.0);
   for (i=0; i<268; i++) {
     table_CV2freq[i] = pow(power, i-(128+69)) * 440.;
   }
