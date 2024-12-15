@@ -156,6 +156,9 @@ uint32_t g_state_kb = 7; // machine a etat de la fonction de reception du clavie
 // calibration CV
 float g_CV1_offset, g_CV2_offset, g_CV1_gain;
 
+// fonctions caché
+uint32_t g_hiden_fct;
+
 // g_Modulation
 enum MOD_OUT {
     VCO1_OUT, VCO1_SIN, VCO1_TRI, VCO1_SQUARE, VCO1_RAMP, VCO1_SAW,

@@ -375,9 +375,6 @@ inline void get_keyboard() { // recupere les information des 6 capteurs capaciti
 		if (l_switch2 & (1<<BIT_KEY_SEL_CV1))  switch_configuration = MENU_CV1;
 		if (l_switch2 & (1<<BIT_KEY_SEL_CV2))  switch_configuration = MENU_CV2;
 
-		if ( (l_switch2 & (1<<BIT_KEY_SEL_MIDI))  && (l_switch2 & (1<<BIT_KEY_SEL_CV1)) ) switch_configuration = MENU_OCTmoins;
-		if ( (l_switch2 & (1<<BIT_KEY_SEL_MIDI))  && (l_switch2 & (1<<BIT_KEY_SEL_CV2)) ) switch_configuration = MENU_OCTplus;
-
 		g_switch_configuration = switch_configuration;
 
 		if (l_switch1 & (1<<BIT_KEY_VCO1_MOD1)) switch_modulation = VCO1_MOD1;
@@ -534,15 +531,16 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
         if (pressed_modulation) return 1;
         if (pressed_configuration) {
 			if (change_configuration) { // action seulement a l'appuie de la touche
-				#ifdef fabien // octave + et - sur les touches CV1 et 2
-				if (switch_configuration == MENU_CV1)   curent_config.c_KEYBOARD_octave = _fmin(curent_config.c_KEYBOARD_octave+1, 2);
-				if (switch_configuration == MENU_CV2)   curent_config.c_KEYBOARD_octave = _fmax(curent_config.c_KEYBOARD_octave-1, -3);
+				#ifndef fabien
+				if (g_hiden_fct && 0b00000001)
 				#endif
+				{// octave + et - sur les touches CV1 et 2
+					if (switch_configuration == MENU_CV1)   curent_config.c_KEYBOARD_octave = _fmin(curent_config.c_KEYBOARD_octave+1, 2);
+					if (switch_configuration == MENU_CV2)   curent_config.c_KEYBOARD_octave = _fmax(curent_config.c_KEYBOARD_octave-1, -3);
+				}
 				if (switch_configuration == MENU_LOAD)   led_time = 0;
 				if (switch_configuration == MENU_SAVE)   led_time = 0;
 				if (switch_configuration == MENU_LOAD_SAVE) { animation1_time = 0; animation2_time = 0; animation3_time = 0; }
-				if (switch_configuration == MENU_OCTplus)   curent_config.c_KEYBOARD_octave = _fmin(curent_config.c_KEYBOARD_octave+1, 2);
-				if (switch_configuration == MENU_OCTmoins)   curent_config.c_KEYBOARD_octave = _fmax(curent_config.c_KEYBOARD_octave-1, -3);
 
 			}
 			return 2; // on reste ds le menu tant que la touche est appuyé
@@ -882,6 +880,27 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 				case 2: // load random config
 					random_config();
 					animation3_time = 70;
+				break;
+				case 3:
+				break;
+				case 4:
+				break;
+				case 5:
+				break;
+				case 6:
+				break;
+				case 7:
+				break;
+				case 8:
+				break;
+				case 9:
+				break;
+				case 10:
+				break;
+				case 11:
+				break;
+				case 12:
+					g_hiden_fct ^= 0b00000001; // on toggle le bit
 				break;
 			}
 			break;

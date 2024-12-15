@@ -315,6 +315,7 @@ void leds_key_configuration(uint32_t my_menu_switch) { // led lorsque on appuie 
         if (animation1_time > 0)	animation1_time--; else led_keyboard |= 1 << BIT_LED_MENU_KEY0;
         if (animation2_time > 0)	animation2_time--; else led_keyboard |= 1 << BIT_LED_MENU_KEY1;
         if (animation3_time > 0)	animation3_time--; else led_keyboard |= 1 << BIT_LED_MENU_KEY2;
+        if (g_hiden_fct && 0b00000001) led_keyboard |= 1 << BIT_LED_MENU_KEY2;
     break;
     }
     write_binary_led(led_keyboard);
