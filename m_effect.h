@@ -252,9 +252,9 @@ inline float effect2(float sound_in) { //, float param, float param1) {
     //  qd pas de modulation, que faire avec param???
         tmp = fabs(sound_in);
         if (tmp > g_effect2_sound_env) {
-            g_effect2_sound_env = mix(g_effect2_sound_env, tmp, 0.01f); // temps de monté
+            g_effect2_sound_env = mix(g_effect2_sound_env, tmp, 0.01f); // temps de monté rapide
         } else {
-            g_effect2_sound_env = mix(g_effect2_sound_env, tmp, 0.001f); // temps de descente
+            g_effect2_sound_env = mix(g_effect2_sound_env, tmp, 0.001f); // temps de descente lent
         }
         tmp = _fmax(g_effect2_sound_env, 0.1f);                        // volume actuel
         tmp2 = tmp*param*param*param*20.f;
