@@ -17,7 +17,6 @@
 
 void delay1_clear();
 
-//__attribute__((section(".dtcmram")))
 float table_CV2freq[269];
 
 ////////////////////////////////////////////////////

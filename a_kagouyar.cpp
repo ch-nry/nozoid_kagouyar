@@ -19,6 +19,7 @@
 // utilisation du dsp
 // tester de tout passer en double (pb de taille)
 // tester les instruction arm_math
+// // __attribute__((section(".dtcmram_bss")))
 
 #define proto2 // commenter pour la version final
 // #define fabien // CV1 et CV2 switch pour faire octave + et octave -
