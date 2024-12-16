@@ -15,18 +15,18 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
-#define modulation_VCO1(VCO_mod, VCO_MOD)                                           \
-    modulation_value = VCO_mod;                                                     \
-    modulation_value *= g_Modulation[curent_config.c_Modulation_Source[VCO_MOD]];   \
-    switch (curent_config.c_Modulation_Type[VCO_MOD]) {                             \
-    case MOD_FM_exp :                                                               \
-        VCO1_FM_exp += modulation_value;                                           \
-        break;                                                                      \
-    case MOD_FM_Qtz :                                                               \
-        VCO1_FM_Qtz += modulation_value ;                                           \
-        break;                                                                      \
-    case MOD_FM_lin :                                                               \
-        VCO1_FM_lin += VCO_mod * modulation_value ;                                 \
+#define modulation_VCO1(VCO_mod, VCO_MOD)																	\
+    modulation_value = VCO_mod; 																							\
+    modulation_value *= g_Modulation[curent_config.c_Modulation_Source[VCO_MOD]];		\
+    switch (curent_config.c_Modulation_Type[VCO_MOD]) {													\
+    case MOD_FM_exp :																											\
+        VCO1_FM_exp += modulation_value;																				\
+        break;																																\
+    case MOD_FM_Qtz :																											\
+        VCO1_FM_Qtz += modulation_value;																				\
+        break;																																\
+    case MOD_FM_lin :																												\
+        VCO1_FM_lin += VCO_mod * modulation_value;															\
         break;                                                                      \
     case MOD_AM :                                                                   \
         VCO1_AM -= VCO_mod - modulation_value;                                      \
@@ -89,7 +89,6 @@ inline float VCO1(uint32_t j, float frequency) {
 
     VCO1_PM *= 4.f;
     VCO1_phase_local += VCO1_PM;
-    //increment =  abs(_floor(VCO1_phase_local-old_phase)); // should we compute this increment after PM?
     VCO1_phase_local -= _floor(VCO1_phase_local); // car on peux aller ds le negatif, ou aller au dela de 2 a cause des multiples modulations
 	VCO1_phase_local = _fclamp(VCO1_phase_local, 0.f,1.f); // inutil, mais au cas ou...
 
@@ -173,7 +172,7 @@ inline float VCO1(uint32_t j, float frequency) {
     }
     out *= VCO1_AM;
 
-    out = _fclamp2(out, -1.1f, VCO1_clip); // il faut les 2, sinon on peux etre en dessous du minimum
+    out = _fclamp2(out, -1.1f, VCO1_clip); // on peut etre en dessous du minimum, dc il faut faire attention a l'ordre des min/max
 
     g_Modulation[VCO1_OUT] = out;
     return out;
