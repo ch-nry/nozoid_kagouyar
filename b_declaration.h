@@ -20,10 +20,7 @@
 // v_variable : variable associé a une voie de polyphonie (ds la structure allvoice[])
 // c_variable : variable de configuration qui est ds la structure sauvegardé en EPROM
 
-
 // this code use an old and sligtly customized daisy lib.
-
-
 
 #define software_led_version 0b0000000010 // pour l'affichage de version en mode debug
 // Les 3 led MSB servent a indiquer la présence d'une calibration des CVs
@@ -114,7 +111,6 @@ const uint32_t table_midi_order[] = {k_VCO1_fq,  k_VCO1_wfm, k_VCO1_mod1, k_VCO1
 	 k_LFO7_sym, k_EFFECT1_wet, k_EFFECT1_p1, k_EFFECT1_p2, k_EFFECT2_wet, k_EFFECT2_p1, k_VCF2_fq, k_VCF2_mod, k_GAIN};
 
 // potentiomettres:
-//__attribute__((section(".dtcmram")))
 float g_pot_increment[nb_CV]; // utilisé pour le filtre IIR en audio
 float g_pot_audio[nb_CV]; // valeur des pots mais filtré en audio
 uint32_t g_pot16[nb_CV]; // filtre en 16 bit
@@ -267,7 +263,7 @@ struct CONFIGURATION
 };
 
 // configuration actuel
-__attribute__((section(".dtcmram_bss"))) CONFIGURATION curent_config; // configuration actuel
+CONFIGURATION curent_config; // configuration actuel
 
 // modulations, LFO
 float g_Modulation[2*modulation_source_last]; // valeur des diferentes g_Modulation
@@ -315,4 +311,4 @@ struct voice
 	float amplitude = 1.f;
 };
 
- __attribute__((section(".dtcmram_bss"))) voice allvoice[nb_voice]; // declaration des memoires des voies de polyphonie
+voice allvoice[nb_voice]; // declaration des memoires des voies de polyphonie
