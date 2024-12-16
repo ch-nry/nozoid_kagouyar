@@ -80,6 +80,8 @@ inline float VCO1(uint32_t j, float frequency) {
     float VCO1_phase_local = wrap2(allvoice[j].v_VCO1_phase + increment);
     allvoice[j].v_VCO1_phase = VCO1_phase_local;
 
+	increment = fabs(increment); // pour la FM, si increment est negatif cela pose des pb partout
+
     g_Modulation[VCO1_SIN] = _cos(VCO1_phase_local); // g_Modulation sinus
     g_Modulation[VCO1_SQUARE] = (VCO1_phase_local > 0.5f)? 1.f : -1.f; // g_Modulation square
     g_Modulation[VCO1_TRI] = fabs(4.f*VCO1_phase_local-2.f)-1.f;
