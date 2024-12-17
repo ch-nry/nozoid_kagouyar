@@ -16,10 +16,6 @@
 // --------------------------------------------------------------------------
 
 
-// TODO : verifier calcul de l'overflow de la phase qd elle devien negatif ou qu'il y a 2 overflow (possible???)
-// TODO : verifier les no modulation et les automodulations
-// TODO  : doc sur le lfo_sync en automod
-
 float g_LFO1_noise[2]; // pour le noise avec interpolation cubic
 float g_LFO1_AR[nb_voice+1];
 float g_phase_LFO1_div;
