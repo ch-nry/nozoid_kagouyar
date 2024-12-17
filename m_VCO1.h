@@ -94,7 +94,7 @@ inline float VCO1(uint32_t j, float frequency) {
     VCO1_phase_local -= _floor(VCO1_phase_local); // car on peux aller ds le negatif, ou aller au dela de 2 a cause des multiples modulations
 	VCO1_phase_local = _fclamp(VCO1_phase_local, 0.f,1.f); // inutil, mais au cas ou...
 
-    float PWM_local = _fclamp(PWM + VCO1_mod_PWM, 0.f, 1.f);
+    float PWM_local = _fclamp(PWM + VCO1_mod_PWM*0.5f, 0.f, 1.f);
 	float tmpf;
 
     switch(curent_config.c_VCO1_WF) {
