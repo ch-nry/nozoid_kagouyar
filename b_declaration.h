@@ -130,7 +130,7 @@ int32_t g_randomSeed_u;
 
 // chaos :
 #define nb_thomas_attractor 3*16 // 16 for LFO 1 to 3
-volatile float g_thomasX[nb_thomas_attractor], g_thomasY[nb_thomas_attractor], g_thomasZ[nb_thomas_attractor];
+volatile float g_thomasX[nb_thomas_attractor];
 
 // affichage de la sauvegarde des memoires sur le clavier
 int32_t g_last_load_save  = -1;
