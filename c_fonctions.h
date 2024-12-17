@@ -153,14 +153,13 @@ inline float _sin_loop(float index) { //
 inline float sign(float in) {
 	return ((in<0.f)?-1.f : 1.f);
 }
-void thomas(uint32_t i, float dt, float b) { // numero de l'attracteur a calculer
-    float const dx = _sin_positiv_loop(11.f + g_thomasY[i]) - b * g_thomasX[i]; // 11 : pour etre sur que le cos est positif
-    float const dy = _sin_positiv_loop(11.f + g_thomasZ[i]) - b * g_thomasY[i];
-    float const dz = _sin_positiv_loop(11.f + g_thomasX[i]) - b * g_thomasZ[i];
-    g_thomasX[i] += dx * dt;
-    g_thomasY[i] += dy * dt;
-    g_thomasZ[i] += dz * dt;
-}
+
+void thomas(uint32_t i, float dt) { // numero de l'attracteur a calculer
+    float tmp = g_thomasX[i] + (_rnd_f()-0.5)*dt;
+    tmp = wrap2(tmp/2.f)*2.f; // pour se mettre entre 0 et 2
+    tmp = 1.f-fabs(1.f-tmp);
+    g_thomasX[i] = tmp;
+    }
 
 #define  write_binary_led(data) hw.binary_led.Write_data(data, 24)
 
@@ -400,27 +399,25 @@ inline float tri_bl(float phase, float increment, float &last_out) {
 }
 
 void init_variables() {
-    uint32_t i,j;
+    uint32_t i;
   	uint32_t tmp;
 
     for (i=0; i<modulation_source_last; i++) g_Modulation[i] = 0.;
-    for (i=0; i<nb_thomas_attractor; i++) {
-        g_thomasX[i] = 3.f * _rnd_f();
-        g_thomasY[i] = 3.f * _rnd_f();
-        g_thomasZ[i] = 3.f * _rnd_f();
-        for (j=0; j<100; j++) thomas(i, 0.5f, 0.3f);
-    }
-    for (i=0; i<nb_voice; i++) { // pour les oscilateur logistic
-        allvoice[i].v_VCO1_last[1] = _rnd_f();
-    }
 
-	do {tmp = hw.knobs_[k_CV1].Process_ch();} // on sort de l'initialisation, on attend d'avoir une valeur
+   	do {tmp = hw.knobs_[k_CV1].Process_ch();} // on sort de l'initialisation, on attend d'avoir une valeur
 	while (tmp == 0 );
 	g_randomSeed_u = (tmp<<15)+tmp; // on compte sur le bruit de fond pour generer une seed aleatoire
 
 	do {tmp = hw.knobs_[k_CV2].Process_ch();} // on sort de l'initialisation, on attend d'avoir une valeur
 	while (tmp == 0 );
 	g_randomSeed_v = (tmp<<15)+tmp; // idem
+
+    for (i=0; i<nb_thomas_attractor; i++) {
+        g_thomasX[i] = _rnd_f();
+    }
+    for (i=0; i<nb_voice; i++) { // pour les oscilateur logistic
+        allvoice[i].v_VCO1_last[1] = _rnd_f();
+    }
 
     // mtof table initialisation in RAM
     init_table_CV2freq();
