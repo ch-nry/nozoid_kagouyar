@@ -307,8 +307,6 @@ struct voice
 // ADSR
     uint32_t v_ADSR_mode = Release;
     float v_ADSR_out = 0.f;
-// MIDI
-	float amplitude = 1.f;
 };
 
 voice allvoice[nb_voice]; // declaration des memoires des voies de polyphonie
