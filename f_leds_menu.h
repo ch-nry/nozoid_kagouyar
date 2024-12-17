@@ -110,7 +110,7 @@ void leds_keyboard() {
     uint32_t led_keyboard = 0;
     int32_t tmp;
     for (int i=nb_voice; i--;) {
-        if ( (allvoice[i].v_GATE_source == 0) && (allvoice[i].v_GATE >= 1) ) {
+        if ( (allvoice[i].v_GATE_source < 2) && (allvoice[i].v_GATE >= 1) ) {
             tmp = allvoice[i].v_pitch; // pitch = 0 sur le "LA 440", touche N°9
             tmp -= 12 * curent_config.c_KEYBOARD_octave;
             if ( (tmp >= 0) && (tmp < 13) ) {
