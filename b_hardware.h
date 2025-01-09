@@ -62,12 +62,13 @@ class Kagouyar
 
     /** Public Members */
     DaisySeed     seed;
+
     AnalogControl knobs_[nb_CV];
 
     LedDriverPca9685<1, false> led_driver_;
     ShiftRegister595 binary_led;
 	MidiUartTransport midi;
-	
+
   private:
     void   InitKnobs();
     void   InitLeds();
