@@ -399,15 +399,10 @@ inline float tri_bl(float phase, float increment, float &last_out) {
 }
 
 void init_variables() {
-    uint32_t i, j;
-  	uint32_t tmp;
+    uint32_t i;
+  	volatile uint32_t tmp;
 
     for (i=0; i<modulation_source_last; i++) g_Modulation[i] = 0.;
-
-
-    for (i=0; i<nb_thomas_attractor; i++) { // inutil
-        for (j=0; j<100; j++) thomas(0, 0.5f); // pourquoi virer cette ligne ralentit enormement le boot????
-    }
 
 	do {tmp = hw.knobs_[k_CV1].Process_ch();} // on sort de l'initialisation, on attend d'avoir une valeur
 	while (tmp == 0 );
