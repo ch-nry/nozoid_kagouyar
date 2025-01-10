@@ -252,6 +252,7 @@ int main(void)
 // main loop
 ////////////////////////////////////////////////////////////////////////
     while(1) { // loop for low piority task
+		uint32_t loop;
 
 		// hw.test_out(i>20); // test de performance
 
@@ -276,10 +277,19 @@ int main(void)
 
 			hw.seed.qspi.Write(save_pos, sizeof(CONFIGURATION), (uint8_t*)&curent_config); // 4.5ms
 
-			while(true) { // boucle pour montrer la fin  de la procedure de sauvegarde
+			loop = 0;
+			while(loop<100000) { // boucle pour montrer la fin  de la procedure de sauvegarde et tester le retour du courant
 				hw.test_out(true); hw.seed.SetLed(true);
 				hw.test_out(false); hw.seed.SetLed(false);
+				if (!dsy_gpio_read(&low_power_pin) )
+					loop = 0;
+				else loop++;
 			}
+
+			// le courant est revenu, on repart!
+			hw.StartAudio(AudioCallback); // on remet le son
+			//il faut aussi vider la memoire pour etre pret a la reecrire.
+			hw.seed.qspi.Erase(save_pos, save_pos + sizeof(CONFIGURATION));
 		}
 
     } // everything else is done on the audio interuption
