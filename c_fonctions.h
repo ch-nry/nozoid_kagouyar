@@ -35,8 +35,6 @@ inline void _fonepole(float &out, float in, float coeff) {
 /** efficient floating point min/max
 c/o stephen mccaul
 */
-
-
 inline float _fmax(float a, float b)
 {
     float r;
@@ -47,7 +45,6 @@ inline float _fmax(float a, float b)
 #endif // __arm__
     return r;
 }
-
 inline float _fmin(float a, float b)
 {
     float r;
