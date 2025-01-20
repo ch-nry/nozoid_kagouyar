@@ -232,10 +232,7 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         return sound_out;
     case 4 : // granular sub frequency generator : OK
         g_delay_effect2.Write(sound_in);
-        effect2_phase = g_effect2_phase + 0.00020833333f; // 100ms pour 1 grain
-        if (effect2_phase>1.f) {
-            effect2_phase = effect2_phase-1.f;
-        }
+        effect2_phase = wrap(g_effect2_phase + 0.00020833333f); // 100ms pour 1 grain
         g_effect2_phase = effect2_phase;
         g_delay_effect2.SetDelay(2400.f * effect2_phase);
         sound_out  = g_delay_effect2.Read() * (1.f-_cos(effect2_phase));
