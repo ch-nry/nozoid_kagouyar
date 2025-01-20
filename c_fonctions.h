@@ -402,7 +402,7 @@ void init_variables() {
     uint32_t i;
   	volatile uint32_t tmp;
 
-    for (i=0; i<modulation_source_last; i++) g_Modulation[i] = 0.;
+    for (i=0; i<2.*modulation_source_last; i++) g_Modulation[i] = 0.;
 
 	do {tmp = hw.knobs_[k_CV1].Process_ch();} // on sort de l'initialisation, on attend d'avoir une valeur
 	while (tmp == 0 );
@@ -717,7 +717,7 @@ int load_config(uint32_t slot)
     curent_config.c_EFFECT1_TYPE = tmp_config.c_EFFECT1_TYPE%8;
     curent_config.c_EFFECT2_TYPE = tmp_config.c_EFFECT2_TYPE%7;
     curent_config.c_VCF2_TYPE = tmp_config.c_VCF2_TYPE%3;
-	for(i=0; i<modulation_destination_last; i++) curent_config.c_Modulation_Source[i] = tmp_config.c_Modulation_Source[i]%(modulation_source_last);
+	for(i=0; i<modulation_destination_last; i++) curent_config.c_Modulation_Source[i] = tmp_config.c_Modulation_Source[i]%(2*modulation_source_last);
 	for(i=0; i<10; i++) curent_config.c_Modulation_Type[i] = tmp_config.c_Modulation_Type[i]%(modulation_type_last);
 	curent_config.c_Modulation_Type[LFO1_MOD] = tmp_config.c_Modulation_Type[LFO1_MOD]%(LFO_nb_algo);
 	curent_config.c_Modulation_Type[LFO2_MOD] = tmp_config.c_Modulation_Type[LFO2_MOD]%(LFO_nb_algo);
