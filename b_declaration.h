@@ -112,10 +112,10 @@ const uint32_t table_midi_order[] = {k_VCO1_fq,  k_VCO1_wfm, k_VCO1_mod1, k_VCO1
 	 k_LFO7_sym, k_EFFECT1_wet, k_EFFECT1_p1, k_EFFECT1_p2, k_EFFECT2_wet, k_EFFECT2_p1, k_VCF2_fq, k_VCF2_mod, k_GAIN};
 
 // potentiomettres:
-float g_pot_increment[nb_CV]; // utilisé pour le filtre IIR en audio
-float g_pot_audio[nb_CV]; // valeur des pots mais filtré en audio
-uint32_t g_pot16[nb_CV]; // filtre en 16 bit
-uint32_t g_filter_index[nb_CV];
+volatile float g_pot_increment[nb_CV]; // utilisé pour le filtre IIR en audio
+volatile float g_pot_audio[nb_CV]; // valeur des pots mais filtré en audio
+volatile uint32_t g_pot16[nb_CV]; // filtre en 16 bit
+volatile uint32_t g_filter_index[nb_CV];
 int32_t g_filter_moins[nb_CV][filter_order];
 int32_t g_filter_plus[nb_CV][filter_order];
 
@@ -126,8 +126,8 @@ float g_MIDI_LFO_increment;
 float g_MIDI_led_time;
 
 // Random
-int32_t g_randomSeed_v;
-int32_t g_randomSeed_u;
+volatile int32_t g_randomSeed_v;
+volatile int32_t g_randomSeed_u;
 
 // chaos :
 #define nb_drunk_attractor 3*16 // 16 for LFO 1 to 3
@@ -280,34 +280,34 @@ struct voice
         // -1 : on vient de l'utiliser
         // -2 : celle qui a ete utilisé juste avant, etc
     uint32_t v_GATE_source; // 0 = Kb int, 1 = MIDI, 2 = v_GATE logic
-    float  v_pitch;
-    uint32_t v_GATE; // GATE on/off
+    volatile float  v_pitch;
+    volatile uint32_t v_GATE; // GATE on/off
     //float  v_velocity;
 // VCO1
-    float v_VCO1_phase = 0.f;
+    volatile float v_VCO1_phase = 0.f;
     float v_VCO1_last[2];
-    float v_VCO1_pitch = 0.f;
+    volatile float v_VCO1_pitch = 0.f;
 // VCO2
-    float v_VCO2_phase = 0.f;
+    volatile float v_VCO2_phase = 0.f;
     float v_VCO2_last[2];
 // VCO3
-    float v_VCO3_phase = 0.f;
+    volatile float v_VCO3_phase = 0.f;
     float v_VCO3_last[2];
 // MIX
 // Low Pass v_GATE
     float v_LPG_last = 0.f;
 // VCF1
 	float v_VCF1_filter = 0.f;
-    float v_VCF1_last_input1  = 0.f;
-    float v_VCF1_last_input2  = 0.f;
-    float v_VCF1_last_input3  = 0.f;
-    float v_VCF1_last_input4  = 0.f;
-    float v_VCF1_last_output1 = 0.f;
-    float v_VCF1_last_output2 = 0.f;
-    float v_VCF1_last_output3 = 0.f;
-    float v_VCF1_last_output4 = 0.f;
+    volatile float v_VCF1_last_input1  = 0.f;
+    volatile float v_VCF1_last_input2  = 0.f;
+    volatile float v_VCF1_last_input3  = 0.f;
+    volatile float v_VCF1_last_input4  = 0.f;
+    volatile float v_VCF1_last_output1 = 0.f;
+    volatile float v_VCF1_last_output2 = 0.f;
+    volatile float v_VCF1_last_output3 = 0.f;
+    volatile float v_VCF1_last_output4 = 0.f;
 // ADSR
-    uint32_t v_ADSR_mode = Release;
+    volatile uint32_t v_ADSR_mode = Release;
     float v_ADSR_out = 0.f;
 };
 
