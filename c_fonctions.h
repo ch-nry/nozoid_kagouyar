@@ -416,8 +416,9 @@ void init_variables() {
         g_thomasX[i] = _rnd_f();
     }
 
-    for (i=0; i<nb_voice; i++) { // pour les oscilateur logistic
+    for (i=0; i<nb_voice; i++) {
         allvoice[i].v_VCO1_last[1] = _rnd_f();
+        allvoice[i].v_VCO1_last[0] = 0.;
     }
 
     // mtof table initialisation in RAM
@@ -716,7 +717,7 @@ int load_config(uint32_t slot)
     curent_config.c_EFFECT1_TYPE = tmp_config.c_EFFECT1_TYPE%7;
     curent_config.c_EFFECT2_TYPE = tmp_config.c_EFFECT2_TYPE%6;
     curent_config.c_VCF2_TYPE = tmp_config.c_VCF2_TYPE%2;
-	for(i=0; i<modulation_destination_last; i++) curent_config.c_Modulation_Source[i] = tmp_config.c_Modulation_Source[i]%(2*modulation_source_last);
+	for(i=0; i<modulation_destination_last; i++) curent_config.c_Modulation_Source[i] = tmp_config.c_Modulation_Source[i]%(modulation_source_last);
 	for(i=0; i<10; i++) curent_config.c_Modulation_Type[i] = tmp_config.c_Modulation_Type[i]%(modulation_type_last);
 	curent_config.c_Modulation_Type[LFO1_MOD] = tmp_config.c_Modulation_Type[LFO1_MOD]%(LFO_nb_algo);
 	curent_config.c_Modulation_Type[LFO2_MOD] = tmp_config.c_Modulation_Type[LFO2_MOD]%(LFO_nb_algo);
