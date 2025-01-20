@@ -685,10 +685,10 @@ int load_config(uint32_t slot)
     curent_config.c_MIDI_channel = _fmin(12, _fmax(-1, tmp_config.c_MIDI_channel));
     curent_config.c_VCO1_WF = tmp_config.c_VCO1_WF%10;
     curent_config.c_VCO1_RANGE = tmp_config.c_VCO1_RANGE%3;
-    curent_config.c_VCO2_WF = tmp_config.c_VCO1_WF%10;
-    curent_config.c_VCO2_RANGE = tmp_config.c_VCO1_RANGE%3;
-    curent_config.c_VCO3_WF = tmp_config.c_VCO1_WF%10;
-    curent_config.c_VCO3_RANGE = tmp_config.c_VCO1_RANGE%3;
+    curent_config.c_VCO2_WF = tmp_config.c_VCO2_WF%10;
+    curent_config.c_VCO2_RANGE = tmp_config.c_VCO2_RANGE%3;
+    curent_config.c_VCO3_WF = tmp_config.c_VCO3_WF%10;
+    curent_config.c_VCO3_RANGE = tmp_config.c_VCO3_RANGE%3;
     curent_config.c_VCO2_LINK = tmp_config.c_VCO2_LINK%2;
     curent_config.c_VCO3_LINK = tmp_config.c_VCO3_LINK%2;
     curent_config.c_VCF1_TYPE = tmp_config.c_VCF1_TYPE%6;
