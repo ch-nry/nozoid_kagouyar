@@ -723,7 +723,7 @@ int load_config(uint32_t slot)
 	curent_config.c_Modulation_Type[LFO2_MOD] = tmp_config.c_Modulation_Type[LFO2_MOD]%(LFO_nb_algo);
 	curent_config.c_Modulation_Type[LFO3_MOD] = tmp_config.c_Modulation_Type[LFO3_MOD]%(LFO_nb_algo);
 	}
-	return(1); //id not valid
+	return(1); //id valid
 
 }
 
