@@ -28,9 +28,7 @@ void g_time_wait(uint32_t time) {
 	while(g_led_time < time) {}
 }
 
-static void AudioCallbackTest(AudioHandle::InterleavingInputBuffer  in,
-                          AudioHandle::InterleavingOutputBuffer out,
-                          size_t                                size)
+static void AudioCallbackTest(AudioHandle::InterleavingInputBuffer in, AudioHandle::InterleavingOutputBuffer out, size_t size)
 {
     g_time++;
     g_led_time++;
@@ -38,17 +36,11 @@ static void AudioCallbackTest(AudioHandle::InterleavingInputBuffer  in,
     float increment1 = 1000.f*OneOverSR;
     float increment2 = 440.f*OneOverSR;
 
-    //g_delay_effect1.SetDelay(100.f);
-
     for(size_t i = 0; i < size; ) {
-        allvoice[0].v_VCO1_phase += increment1;
-        if(allvoice[0].v_VCO1_phase > 1.f) allvoice[0].v_VCO1_phase -= 1.f;
-        //g_delay_effect1.Write(_cos(allvoice[0].v_VCO1_phase));
-        //out[i++] = g_delay_effect1.Read(); // on lit a travers un delay, pour tester aussi la memoire embarqué du daisy
+        allvoice[0].v_VCO1_phase = wrap(allvoice[0].v_VCO1_phase + increment1);
 		out[i++] =_cos(allvoice[0].v_VCO1_phase);
 
-        allvoice[0].v_VCO2_phase += increment2;
-        if(allvoice[0].v_VCO2_phase > 1.f) allvoice[0].v_VCO2_phase -= 1.f;
+        allvoice[0].v_VCO2_phase = wrap(allvoice[0].v_VCO2_phase + increment2);
         out[i++] = _cos(allvoice[0].v_VCO2_phase);
     }
 }
@@ -79,14 +71,14 @@ void test() {
     float tmpf;
     uint32_t led_keyboard = 0;
 
-    get_keyboard();
+	get_keyboard();
+	while (g_state_kb < 8) {get_keyboard();} // deconnection de la gestion des leds par le clavier
+	g_state_kb = 1;
+	// permet de tester seulement 1 foit par boucle complette
 
-    for( int i=0; i<50; i++)
+    for( int i=0; i<50; i++) {
         get_pot(i);  // get potentiometters value and filter them
-
-    if (g_state_kb>7) g_state_kb=1; // pour deconnecter la gestion des leds de get_keyboard()
-    //if(g_time<2) return; // pour ne pas effectuer la boucle trop souvent
-    //g_time=-2;
+	}
 
    	//g_switch_keyboard_bit = 0;
 	//g_switch_keyboard = -1;
@@ -101,15 +93,16 @@ void test() {
    if ( (g_switch_configuration == 17) && (g_switch_keyboard == 0) ) {// SAVE + KB0
    		g_CV1_offset = 1.f-g_knob[k_CV1]; // 0V
    		// on inverse la valeur a cause de l'amplis inverseur de CV
-		for (uint32_t i=0; i<16; i++) // reset toutes les led analogique
-			hw.led_driver_.SetLed_ch(i, 0.f);
+		for (uint32_t i=0; i<16; i++) {
+			hw.led_driver_.SetLed_ch(i, 0.f); // reset toutes les led analogique
+		}
 		for (uint32_t i=0; i<5; i++) {
 			hw.led_driver_.SetLed_ch(LED_CV1, 0.f);
 			hw.led_driver_.SwapBuffersAndTransmit();
-			g_time_wait(500);
+			g_time_wait(100);
 			hw.led_driver_.SetLed_ch(LED_CV1, 0.5f);
 			hw.led_driver_.SwapBuffersAndTransmit();
-			g_time_wait(500);
+			g_time_wait(100);
 		}
 		return;
    }
@@ -125,14 +118,13 @@ void test() {
 		for (uint32_t i=0; i<5; i++) {
 			hw.led_driver_.SetLed_ch(LED_CV1, 1.f);
 			hw.led_driver_.SwapBuffersAndTransmit();
-			g_time_wait(30);
+			g_time_wait(100);
 			hw.led_driver_.SetLed_ch(LED_CV1, 0.5f);
 			hw.led_driver_.SwapBuffersAndTransmit();
-			g_time_wait(30);
+			g_time_wait(100);
 		}
 		return;
    }
-
    if ( (g_switch_configuration == 17) && (g_switch_keyboard == 2) ) {// SAVE + KB2
 		g_CV1_offset = 0.5f-g_knob[k_CV1];
 		g_CV2_offset = 0.5f-g_knob[k_CV2];
@@ -143,15 +135,15 @@ void test() {
 
 		for (uint32_t i=0; i<16; i++) // reset toutes les led analogique
 			hw.led_driver_.SetLed_ch(i, 0.f);
-		for (uint32_t i=0; i<15; i++) {
+		for (uint32_t i=0; i<5; i++) {
 			hw.led_driver_.SetLed_ch(LED_CV1, 0.f);
 			hw.led_driver_.SetLed_ch(LED_CV2, 0.f);
 			hw.led_driver_.SwapBuffersAndTransmit();
-			g_time_wait(30);
+			g_time_wait(100);
 			hw.led_driver_.SetLed_ch(LED_CV1, 0.5f);
 			hw.led_driver_.SetLed_ch(LED_CV2, 0.5f);
 			hw.led_driver_.SwapBuffersAndTransmit();
-			g_time_wait(30);
+			g_time_wait(100);
 		}
 		return;
    }
@@ -302,7 +294,7 @@ void test() {
     if (g_switch_modulation >= 0) {
 		set_all_led(0.f, 0.f, 0.f, 0.f, 0.f);
 
-	   switch(g_switch_modulation) {
+		switch(g_switch_modulation) {
 		   case 0: // VCO1 MOD1
 		      led_keyboard = 1 << BIT_LED_MENU_KEY0;
 			  led_keyboard += 1 << BIT_LED_MENU_VCO_MOD;
