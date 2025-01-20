@@ -683,11 +683,11 @@ int load_config(uint32_t slot)
 		curent_config.c_CV1_gain = tmp_config.c_CV1_gain;
 	}
     curent_config.c_MIDI_channel = _fmin(12, _fmax(-1, tmp_config.c_MIDI_channel));
-    curent_config.c_VCO1_WF = tmp_config.c_VCO1_WF%9;
+    curent_config.c_VCO1_WF = tmp_config.c_VCO1_WF%10;
     curent_config.c_VCO1_RANGE = tmp_config.c_VCO1_RANGE%3;
-    curent_config.c_VCO2_WF = tmp_config.c_VCO1_WF%9;
+    curent_config.c_VCO2_WF = tmp_config.c_VCO1_WF%10;
     curent_config.c_VCO2_RANGE = tmp_config.c_VCO1_RANGE%3;
-    curent_config.c_VCO3_WF = tmp_config.c_VCO1_WF%9;
+    curent_config.c_VCO3_WF = tmp_config.c_VCO1_WF%10;
     curent_config.c_VCO3_RANGE = tmp_config.c_VCO1_RANGE%3;
     curent_config.c_VCO2_LINK = tmp_config.c_VCO2_LINK%2;
     curent_config.c_VCO3_LINK = tmp_config.c_VCO3_LINK%2;
@@ -714,9 +714,9 @@ int load_config(uint32_t slot)
     curent_config.c_LFO6_WF = ((tmp_config.c_LFO6_WF-1)%8)+1;
     curent_config.c_EFFECT1_TYPE = 7;
 	delay1_clear();
-    curent_config.c_EFFECT1_TYPE = tmp_config.c_EFFECT1_TYPE%7;
-    curent_config.c_EFFECT2_TYPE = tmp_config.c_EFFECT2_TYPE%6;
-    curent_config.c_VCF2_TYPE = tmp_config.c_VCF2_TYPE%2;
+    curent_config.c_EFFECT1_TYPE = tmp_config.c_EFFECT1_TYPE%8;
+    curent_config.c_EFFECT2_TYPE = tmp_config.c_EFFECT2_TYPE%7;
+    curent_config.c_VCF2_TYPE = tmp_config.c_VCF2_TYPE%3;
 	for(i=0; i<modulation_destination_last; i++) curent_config.c_Modulation_Source[i] = tmp_config.c_Modulation_Source[i]%(modulation_source_last);
 	for(i=0; i<10; i++) curent_config.c_Modulation_Type[i] = tmp_config.c_Modulation_Type[i]%(modulation_type_last);
 	curent_config.c_Modulation_Type[LFO1_MOD] = tmp_config.c_Modulation_Type[LFO1_MOD]%(LFO_nb_algo);
