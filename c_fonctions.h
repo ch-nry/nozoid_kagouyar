@@ -115,7 +115,6 @@ inline float fast_cos(float index) { // index from 0 to 1 only
   return 2.f*x-x*fabs(x);
 }
 
-
 inline float fast_cos_loop(float index) { //
     return fast_cos(wrap2(index) );
 }
@@ -124,7 +123,6 @@ inline float _cos(float index) { // index from 0 to 1 only
 // 6 multiplications
   float const x=index-0.5f;
   float const x2=x*x;
-
   return -0.99999944f + x2 * (19.73903275f + x2 * (-64.93054874f + x2 * (85.29509341f + x2 * (-58.90779707f + x2 * 21.27414825f))));
 }
 
@@ -136,7 +134,6 @@ inline float _sin(float index) { // index from 0 to 1 only
 // 6 multiplication
   float const x=index-0.5f;
   float const x2=x*x;
-
   return x * (-6.28308759f +x2*(41.33318714f + x2*(-81.39900318f + x2*(74.66885164f - x2*33.1532588f))));
 }
 
