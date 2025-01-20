@@ -106,10 +106,10 @@ void test() {
 		for (uint32_t i=0; i<5; i++) {
 			hw.led_driver_.SetLed_ch(LED_CV1, 0.f);
 			hw.led_driver_.SwapBuffersAndTransmit();
-			g_time_wait(30);
+			g_time_wait(500);
 			hw.led_driver_.SetLed_ch(LED_CV1, 0.5f);
 			hw.led_driver_.SwapBuffersAndTransmit();
-			g_time_wait(30);
+			g_time_wait(500);
 		}
 		return;
    }
@@ -395,7 +395,7 @@ void test() {
 	if ( (g_switch_modulation == -1) && (g_switch_configuration == -1) ) {
 		switch(g_switch_keyboard+1) {
 		case 0 :  // chaser leds : si aucune touche du clavier n'est appuyé
-			if ( g_led_time > 300 ) {
+			if ( g_led_time > 600 ) {
 				for (uint32_t i=0; i<16; i++) // reset toutes les led analogique
 					hw.led_driver_.SetLed_ch(i, 0.f);
 				led_keyboard = 0; // reset les leds numérique
