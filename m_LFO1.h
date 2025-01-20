@@ -397,10 +397,10 @@ inline void LFO1(float fq, float mix_factor, float increment) {
                 {
                     if (WF1_reset) {
                         if(++g_LFO1_last_step >= (uint)nb_step) g_LFO1_last_step=0;
-                        uint32_t num_thomas = thomas_LFO1 + 3*g_LFO1_last_step;
-                        thomas(num_thomas, l_mix_factor*l_mix_factor);
+                        uint32_t num_drunk = drunk_LFO1 + 3*g_LFO1_last_step;
+                        drunk_lfo(num_drunk, l_mix_factor*l_mix_factor);
                         g_LFO1_noise[1] = g_LFO1_noise[0];
-                        g_LFO1_noise[0] = g_thomasX[num_thomas]*2.f - 1.f;
+                        g_LFO1_noise[0] = g_drunk_lfo[num_drunk]*2.f - 1.f;
                         g_Modulation_Reset[LFO1_OUT] = 1;
 
                     } else {

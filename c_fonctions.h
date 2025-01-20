@@ -154,11 +154,11 @@ inline float sign(float in) {
 	return ((in<0.f)?-1.f : 1.f);
 }
 
-void thomas(uint32_t i, float dt) { // numero de l'attracteur a calculer
-    float tmp = g_thomasX[i] + (_rnd_f()-0.5)*dt;
+void drunk_lfo(uint32_t i, float dt) { // numero de l'attracteur a calculer
+    float tmp = g_drunk_lfo[i] + (_rnd_f()-0.5)*dt;
     tmp = wrap2(tmp/2.f)*2.f; // pour se mettre entre 0 et 2
     tmp = 1.f-fabs(1.f-tmp);
-    g_thomasX[i] = tmp;
+    g_drunk_lfo[i] = tmp;
     }
 
 #define  write_binary_led(data) hw.binary_led.Write_data(data, 24)
@@ -412,8 +412,8 @@ void init_variables() {
 	while (tmp == 0 );
 	g_randomSeed_v = (tmp<<15)+tmp; // idem
 
-    for (i=0; i<nb_thomas_attractor; i++) {
-        g_thomasX[i] = _rnd_f();
+    for (i=0; i<nb_drunk_attractor; i++) {
+        g_drunk_lfo[i] = _rnd_f();
     }
 
     for (i=0; i<nb_voice; i++) {

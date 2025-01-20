@@ -130,8 +130,8 @@ int32_t g_randomSeed_v;
 int32_t g_randomSeed_u;
 
 // chaos :
-#define nb_thomas_attractor 3*16 // 16 for LFO 1 to 3
-volatile float g_thomasX[nb_thomas_attractor];
+#define nb_drunk_attractor 3*16 // 16 for LFO 1 to 3
+volatile float g_drunk_lfo[nb_drunk_attractor];
 
 // affichage de la sauvegarde des memoires sur le clavier
 int32_t g_last_load_save  = -1;
@@ -182,8 +182,8 @@ enum MOD_DESTINATION {
     modulation_destination_last
 };
 
-enum thomas_attractor {
-    thomas_LFO1, thomas_LFO2, thomas_LFO3
+enum drunk_attractor {
+    drunk_LFO1, drunk_LFO2, drunk_LFO3
 };
 
 enum MOD_TYPE { MOD_FM_exp, MOD_FM_Qtz, MOD_FM_lin, MOD_AM, MOD_PM, MOD_CLIP, MOD_WF, modulation_type_last }; // VCO modulation
