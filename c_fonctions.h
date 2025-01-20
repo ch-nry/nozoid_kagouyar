@@ -160,7 +160,7 @@ void drunk_lfo(uint32_t i, float dt) { // numero de l'attracteur a calculer
 void init_table_CV2freq() {
   int i;
   double const power = pow(2.0,1/12.0);
-  for (i=0; i<268; i++) {
+  for (i=0; i<269; i++) {
     table_CV2freq[i] = pow(power, i-(128+69)) * 440.;
   }
 }
