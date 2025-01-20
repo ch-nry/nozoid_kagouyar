@@ -871,15 +871,15 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 			switch (switch_keyboard) {
 				case 0: // load empty config
 					empty_config();
-					animation1_time = 70;
+					animation1_time = 30;
 				break;
 				case 1: // load standard config
 					standard_config();
-					animation2_time = 70;
+					animation2_time = 30;
 				break;
 				case 2: // load random config
 					random_config();
-					animation3_time = 70;
+					animation3_time = 30;
 				break;
 				case 3:
 				break;
