@@ -264,7 +264,7 @@ struct CONFIGURATION
 };
 
 // configuration actuel
-CONFIGURATION curent_config; // configuration actuel
+volatile CONFIGURATION curent_config; // configuration actuel
 
 // modulations, LFO
 float g_Modulation[2*modulation_source_last]; // valeur des diferentes g_Modulation
