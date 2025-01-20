@@ -25,7 +25,7 @@ const uint32_t table_led_shaser[] = { LED_VCO1, LED_VCO2, LED_VCO3, LED_ADSR, \
 
 void g_time_wait(uint32_t time) {
 	g_led_time = 0;
-	while(g_led_time < time) {}
+	while(g_led_time < time) {__NOP();}
 }
 
 static void AudioCallbackTest(AudioHandle::InterleavingInputBuffer in, AudioHandle::InterleavingOutputBuffer out, size_t size)
