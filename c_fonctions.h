@@ -399,11 +399,11 @@ void init_variables() {
     for (i=0; i<2.*modulation_source_last; i++) g_Modulation[i] = 0.;
 
 	do {tmp = hw.knobs_[k_CV1].Process_ch();} // on sort de l'initialisation, on attend d'avoir une valeur
-	while (tmp == 0 );
+	while (tmp == 0.);
 	g_randomSeed_u = (tmp<<15)+tmp; // on compte sur le bruit de fond pour generer une seed aleatoire
 
 	do {tmp = hw.knobs_[k_CV2].Process_ch();} // on sort de l'initialisation, on attend d'avoir une valeur
-	while (tmp == 0 );
+	while (tmp == 0.);
 	g_randomSeed_v = (tmp<<15)+tmp; // idem
 
     for (i=0; i<nb_drunk_attractor; i++) {
