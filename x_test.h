@@ -71,8 +71,9 @@ void test() {
     float tmpf;
     uint32_t led_keyboard = 0;
 
-	get_keyboard();
-	while (g_state_kb < 8) {get_keyboard();} // deconnection de la gestion des leds par le clavier
+	do
+		get_keyboard();
+	while (g_state_kb < 8) ; // deconnection de la gestion des leds par le clavier
 	g_state_kb = 1;
 	// permet de tester seulement 1 foit par boucle complette
 
