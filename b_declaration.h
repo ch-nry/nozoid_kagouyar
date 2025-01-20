@@ -282,6 +282,7 @@ struct voice
     uint32_t v_GATE_source; // 0 = Kb int, 1 = MIDI, 2 = v_GATE logic
     float  v_pitch;
     uint32_t v_GATE; // GATE on/off
+    //float  v_velocity;
 // VCO1
     float v_VCO1_phase = 0.f;
     float v_VCO1_last[2];

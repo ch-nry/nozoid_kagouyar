@@ -995,7 +995,7 @@ void midi_in(uint32_t MIDI_data) {
                 // we have a full midi message
                 if ( ( g_MIDI_status == 0x90) &&  (MIDI_data2 != 0) ) // note on
                 {
-                    add_voice(1, MIDI_data1-60);
+                    add_voice(1, MIDI_data1-60);//, (float)MIDI_data2/127.);
                     //g_Modulation[MIDI_vel] = MIDI_data2;
                 }
                 if ( ( (g_MIDI_status == 0x90) &&  (MIDI_data2 == 0) ) || ( g_MIDI_status == 0x80 ) )
