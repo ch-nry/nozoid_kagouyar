@@ -166,8 +166,9 @@ inline float VCO1(uint32_t j, float frequency) {
         break;
 	case 9:
 	    out=0.f;
-	    allvoice[j].v_VCO1_last[0] = 0;
-	    allvoice[j].v_VCO1_last[1] = 0;
+	    allvoice[j].v_VCO1_last[0] = 0.;
+	    allvoice[j].v_VCO1_last[1] = 0.;
+	    allvoice[j].v_VCO1_phase = 0.;
 	    break;
     }
     out *= VCO1_AM;
