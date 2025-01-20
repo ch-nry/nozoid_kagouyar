@@ -219,7 +219,7 @@ inline void get_keyboard() { // recupere les information des 6 capteurs capaciti
     if (g_time < 0) return; // on execute la fonction seulement si c'est le bon moment
                             // g_time est incrémenté ds la boucle audio
     g_menu_count++;
-    g_menu_count = (g_menu_count > 1000000)? 1000000:g_menu_count; // temps depuis le dernier changement
+    g_menu_count = (g_menu_count > 1000000)? 1000000:g_menu_count; // temps depuis le dernier changement pour les appuie long
 
     switch(g_state_kb) {
     case 0:
