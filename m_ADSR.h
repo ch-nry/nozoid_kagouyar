@@ -33,7 +33,7 @@ inline float ADSR_time2filter(float time) {
 float ADSR(uint32_t j) {
 	//float A = g_pot_audio[k_ADSR_a];
 	//float D = g_pot_audio[k_ADSR_d];
-	float const S = g_pot_audio[k_ADSR_s];
+	float const S = g_pot_audio[k_ADSR_s];// * allvoice[j].v_velocity;
 	//float R = g_pot_audio[k_ADSR_r];
 
     float tmp=0.;
