@@ -413,6 +413,15 @@ void init_variables() {
     for (i=0; i<nb_voice; i++) {
         allvoice[i].v_VCO1_last[1] = _rnd_f();
         allvoice[i].v_VCO1_last[0] = 0.;
+        allvoice[i].v_VCO1_phase= 0.;
+
+        allvoice[i].v_VCO2_last[1] = _rnd_f();
+        allvoice[i].v_VCO2_last[0] = 0.;
+        allvoice[i].v_VCO2_phase= 0.;
+
+        allvoice[i].v_VCO3_last[1] = _rnd_f();
+        allvoice[i].v_VCO3_last[0] = 0.;
+        allvoice[i].v_VCO3_phase= 0.;
     }
 
     // mtof table initialisation in RAM
