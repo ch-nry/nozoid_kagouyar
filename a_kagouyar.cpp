@@ -78,7 +78,7 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
 
     (g_pot_audio[k_ADSR_a] += coef_audio_to_block * g_pot_increment[k_ADSR_a]);
     (g_pot_audio[k_ADSR_d] += coef_audio_to_block * g_pot_increment[k_ADSR_d]);
-    (g_pot_audio[k_ADSR_r]  += coef_audio_to_block * g_pot_increment[k_ADSR_r]);
+    (g_pot_audio[k_ADSR_r] += coef_audio_to_block * g_pot_increment[k_ADSR_r]);
 
 	CV_pitch = g_Modulation[CV1_OUT] * 60.f*g_CV1_gain; // de -5V a +5V = +/- 5 octaves
 
