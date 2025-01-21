@@ -21,7 +21,7 @@ float g_LFO1_AR[nb_voice+1];
 float g_phase_LFO1_div;
 uint32_t g_LFO1_last_step, g_LFO1_reset;
 
-inline void LFO1(float fq, float mix_factor, float increment) {
+inline void LFO1(float const fq, float const mix_factor, float const increment) {
     float modulation = 0.f;
 
     if (curent_config.c_LFO1_WF == WF_AR) {
@@ -57,7 +57,7 @@ inline void LFO1(float fq, float mix_factor, float increment) {
                 g_Modulation_Reset[LFO1_OUT] = overflow_phase;
                 g_Modulation_Phase[LFO1_OUT] = phase;
 
-                float WF = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
+                float const WF = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
                 modulation = mix(WF, WF1, mix_factor);
             }
             break;
@@ -131,7 +131,6 @@ inline void LFO1(float fq, float mix_factor, float increment) {
                 g_Modulation_Phase[LFO1_OUT] = phase;
 
                 float WF = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
-
                 WF *= 1.f + (WF1+1.f)* mix_factor; // gain from 1 to 3
                 WF = (WF >  1.f)?  2.f - WF : WF; // fold
                 WF = (WF < -1.f)? -2.f - WF : WF;
