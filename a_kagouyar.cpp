@@ -48,9 +48,9 @@
 //14th slot to save curent preset on shutdown
 #define save_pos  0x90000000 + (14*4096)
 
-float mix1, mix2, mix3; // c'est plus rapide qd c'est declaré ici, meme si c'est des variable local
-
 static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle::InterleavingOutputBuffer out, size_t size) {
+    float mix1, mix2, mix3;
+
     hw.test_out(true); // write test_out pin;  10µs la premiere partie
     g_time++;
     g_led_blink += 1<<24; // on laisse les overflow passer de negatif a positif
