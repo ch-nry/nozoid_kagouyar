@@ -267,8 +267,8 @@ struct CONFIGURATION
 volatile CONFIGURATION curent_config; // configuration actuel
 
 // modulations, LFO
-float g_Modulation[2*modulation_source_last]; // valeur des diferentes g_Modulation
-uint32_t g_Modulation_Reset[modulation_source_last]; // bool pour marquer un reset de phase, utilisé pour les lfo 1 2 3 ds certain cas.
+volatile float g_Modulation[2*modulation_source_last]; // valeur des diferentes g_Modulation
+volatile uint32_t g_Modulation_Reset[modulation_source_last]; // bool pour marquer un reset de phase, utilisé pour les lfo 1 2 3 ds certain cas.
 float g_Modulation_Phase[modulation_source_last]; // valeur des phases des diferentes g_Modulation
 
 struct voice
@@ -280,7 +280,7 @@ struct voice
         // -1 : on vient de l'utiliser
         // -2 : celle qui a ete utilisé juste avant, etc
     uint32_t v_GATE_source; // 0 = Kb int, 1 = MIDI, 2 = v_GATE logic
-    volatile float  v_pitch;
+    volatile float v_pitch;
     volatile uint32_t v_GATE; // GATE on/off
     //float  v_velocity;
 // VCO1
