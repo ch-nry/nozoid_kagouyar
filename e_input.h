@@ -158,7 +158,7 @@ uint32_t g_switch1=0, g_switch2=0; // valeur des touches en cours de récupérat
 
 ///////////////////////////////////////////////////////
 uint32_t g_menu_count = 0; // pour compter le temps d'apuis sur une touche (pour tester les appuis long)
-int32_t g_led_blink;
+volatile int32_t g_led_blink;
 
 
 // sauvegarde des touches
