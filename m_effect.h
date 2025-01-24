@@ -182,6 +182,13 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		g_old_sound_out = sound_out;
 		return sound_out;
 	case 7 : //rien, utilisé lors du changement d'effet
+		g_effect1_phase = 0.;
+		g_effect1_last_out = 0.f;
+		g_effect1_param_filter = 0.f;
+		g_effect1_param_filter2 = 0.f;
+		g_vitesse = 0.f;
+		g_old_sound_out = 0.f;
+		g_last_sound_in = 0.;
 		return sound_in;
     }
     return 0;
@@ -245,6 +252,7 @@ inline float effect2(float sound_in) { //, float param, float param1) {
     case 5: // compresseur- attenuateur :
     //  qd pas de modulation, que faire avec param???
         tmp = fabs(sound_in);
+        tmp = _fmin(tmp, 3.f); // on ne devrait pas avoir de son plus fort que ca.
         if (tmp > g_effect2_sound_env) {
             g_effect2_sound_env = mix(g_effect2_sound_env, tmp, 0.01f); // temps de monté rapide
         } else {
@@ -259,6 +267,9 @@ inline float effect2(float sound_in) { //, float param, float param1) {
 
         return sound_out;
 	case 6 : //rien, utilisé lors du changement d'effet
+		g_effect2_sound_env = 0.;
+		g_Effect2_filtre = 0.f;
+		g_effect2_phase = 0.33f;
 		return sound_in;
     }
     return 0; //useless
