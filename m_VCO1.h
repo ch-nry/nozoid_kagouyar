@@ -78,7 +78,7 @@ inline float VCO1(uint32_t j, float frequency) {
     float phase2, tmp, out=0.f;
 
     float VCO1_phase_local = wrap2(allvoice[j].v_VCO1_phase + increment);
-    allvoice[j].v_VCO1_phase = VCO1_phase_local;
+    allvoice[j].v_VCO1_phase = _fclamp2(VCO1_phase_local, 0.f, 1.f);
 
 	increment = fabs(increment); // pour la FM, si increment est negatif cela pose des pb partout
 
@@ -174,6 +174,9 @@ inline float VCO1(uint32_t j, float frequency) {
     out *= VCO1_AM;
 
     out = _fclamp2(out, -1.1f, VCO1_clip); // on peut etre en dessous du minimum, dc il faut faire attention a l'ordre des min/max
+
+	v_VCO1_last = _fclamp2(v_VCO1_last, -1.1f, 1.1f);
+	v_VCO2_last = _fclamp2(v_VCO2_last, -1.1f, 1.1f);
 
     g_Modulation[VCO1_OUT] = out;
     return out;
