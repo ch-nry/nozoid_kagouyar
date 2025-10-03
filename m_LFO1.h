@@ -366,7 +366,7 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
             }
             break;
         case LFO_RndLoop :
-        // utilise la freqauence du LFO de modulation
+        // utilise la frequence du LFO de modulation
         // sans automodulation : fq = nb de step, mix_factor = variation speed
         // en automod : 'mod' permet de passer les step, il y a 2 step
             {
