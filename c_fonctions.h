@@ -551,18 +551,18 @@ void empty_config() {
 
     for (uint32_t i=0; i<modulation_destination_last; i++) { // pour tout les VCO
         curent_config.c_Modulation_Source[i] = NONE_OUT;
-        curent_config.c_Modulation_Type[i] = MOD_FM_exp;
+        curent_config.c_Modulation_Type[i] = 0; // FM_exp pour les VCO, LFO_mix pour les LFO
     }
-     curent_config.c_Modulation_Source[VCF1_MOD1] = NONE_OUT;
-     curent_config.c_Modulation_Source[VCF1_MOD2] = NONE_OUT;
-     curent_config.c_Modulation_Source[VCF2_MOD1] = NONE_OUT;
+ //    curent_config.c_Modulation_Source[VCF1_MOD1] = NONE_OUT;
+ //    curent_config.c_Modulation_Source[VCF1_MOD2] = NONE_OUT;
+ //    curent_config.c_Modulation_Source[VCF2_MOD1] = NONE_OUT;
 
     curent_config.c_Modulation_Source[LFO1_MOD] = LFO1_OUT;
     curent_config.c_Modulation_Source[LFO2_MOD] = LFO2_OUT;
     curent_config.c_Modulation_Source[LFO3_MOD] = LFO3_OUT;
-    curent_config.c_Modulation_Type[LFO1_MOD] = LFO_Mix;
-    curent_config.c_Modulation_Type[LFO2_MOD] = LFO_Mix;
-    curent_config.c_Modulation_Type[LFO3_MOD] = LFO_Mix;
+ //   curent_config.c_Modulation_Type[LFO1_MOD] = LFO_Mix;
+ //   curent_config.c_Modulation_Type[LFO2_MOD] = LFO_Mix;
+ //   curent_config.c_Modulation_Type[LFO3_MOD] = LFO_Mix;
 }
 
 void standard_config() {
