@@ -252,10 +252,10 @@ int main(void)
 // main loop
 ////////////////////////////////////////////////////////////////////////
     while(1) { // loop for low piority task
+		// this loop is between 25 and 30µs
 		uint32_t loop;
 
 		// hw.test_out(i>20); // test de performance
-
         if(++i > nb_CV) {
 			i=0;
 		    get_analog_in(); // analog gate and CV in
