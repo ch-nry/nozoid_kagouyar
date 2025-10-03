@@ -937,6 +937,8 @@ void midi_in(uint32_t MIDI_data) {
     uint32_t uint_tmp;
     float tmpf;
 
+  MIDI_data &= 0xFF; // on tronque au cas ou (???)
+
     if ((MIDI_data & 0xF0) == 0xF0) { // real time messages
         g_MIDI_led_time = 0.3f; // very small blink
 
