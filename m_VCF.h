@@ -115,41 +115,46 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
 
 float g_VCF2_last_input1 = 0.f;
 float g_VCF2_last_input2 = 0.f;
+float g_VCF2_last_input3 = 0.f;
+float g_VCF2_last_input4 = 0.f;
+
 float g_VCF2_out = 0.f;
 
 inline void VCF2(float &input) {
 // VCF2_type : 0 : no filter, 1 : LP, 2 : HP, 3 : DJ filter
-	uint32_t l_VCF2_type;
-
 	if (curent_config.c_VCF2_TYPE == 0)
 		return; // pas de filtre
 
 	float const fq = 127.f * ( g_pot_audio[k_VCF2_fq] += g_pot_increment[k_VCF2_fq]);
 	float const mod1 =  g_pot_audio[k_VCF2_mod] += g_pot_increment[k_VCF2_mod];
+	float filter1_fq, filter2_fq;
     float filter_fq = mod1 * g_Modulation[curent_config.c_Modulation_Source[VCF2_MOD1]];
 	filter_fq *= 48.f;
     filter_fq += fq;
-    filter_fq = _fclamp(filter_fq, -127.f, 127.f);
 
 	if (curent_config.c_VCF2_TYPE == 3) {
-		if(filter_fq > 63.5) {
-			l_VCF2_type = 2;
-			filter_fq = 2.*(filter_fq-63.5);
+		filter1_fq = 2*filter_fq;
+		filter2_fq = 2.*(filter_fq-63.5);
+	    filter1_fq = _fclamp(filter1_fq, -127.f, 127.f);
+		filter2_fq = _fclamp(filter2_fq, -127.f, 127.f);
 		}
 		else {
-			l_VCF2_type = 1;
-			filter_fq = 2.*filter_fq;
-			filter_fq = fmax(-127.f, filter_fq);
+			filter_fq = _fclamp(filter_fq, -127.f, 127.f);
+			filter1_fq = filter_fq;
+			filter2_fq = filter_fq;
 		}
+
+    filter1_fq = CV2freq(filter1_fq)*(1.f/13000.f);
+    filter2_fq = CV2freq(filter2_fq)*(1.f/13000.f);
+
+	if(curent_config.c_VCF2_TYPE & 0b01) { // LP
+		_fonepole(g_VCF2_last_input1, input,              filter1_fq);
+		_fonepole(g_VCF2_last_input2, g_VCF2_last_input1, filter1_fq);
+		input = g_VCF2_last_input2;
 	}
-	else {
-		l_VCF2_type = curent_config.c_VCF2_TYPE;
+	if(curent_config.c_VCF2_TYPE & 0b10) { // HP
+		_fonepole(g_VCF2_last_input3, input,              filter2_fq);
+		_fonepole(g_VCF2_last_input4, g_VCF2_last_input3, filter2_fq);
+		input -= g_VCF2_last_input4;
 	}
-
-    filter_fq = CV2freq(filter_fq)*(1.f/13000.f);
-
-    _fonepole(g_VCF2_last_input1, input,              filter_fq);
-    _fonepole(g_VCF2_last_input2, g_VCF2_last_input1, filter_fq);
-
-    input = (l_VCF2_type-1) ? (input - g_VCF2_last_input2) : g_VCF2_last_input2;
 }
