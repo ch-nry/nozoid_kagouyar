@@ -17,7 +17,7 @@
 
 
 float g_LFO1_noise[2]; // pour le noise avec interpolation cubic
-float g_LFO1_AR[nb_voice+1];
+float g_LFO1_AR[5]; // nb_voice+1
 float g_phase_LFO1_div;
 uint32_t g_LFO1_last_step, g_LFO1_reset;
 

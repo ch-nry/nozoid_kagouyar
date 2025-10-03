@@ -24,7 +24,7 @@
 
 #define major_version 1
 #define minor_version 2
-#define software_led_version major_version<<8 + minor_version // pour l'affichage de version en mode debug
+#define software_led_version (major_version << 8) + minor_version // pour l'affichage de version en mode debug
 
 // Les 3 led MSB servent a indiquer la présence d'une calibration des CVs
 // les 2 suivant sont la version majeur
@@ -34,7 +34,7 @@
 #define block_per_ms 2.f // (48/block_size) // combien de bock audio par ms, pour calcul du temps
 #define filter_order 4 // pour les pot et CV in
 
-#define nb_voice 4
+#define nb_voice 2
 
 #ifndef SAMPLE_RATE
 #define SAMPLE_RATE 48014.f
@@ -315,4 +315,4 @@ struct voice
     float v_ADSR_out = 0.f;
 };
 
-voice allvoice[nb_voice]; // declaration des memoires des voies de polyphonie
+voice allvoice[4]; // declaration des memoires des voies de polyphonie

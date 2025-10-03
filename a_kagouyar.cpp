@@ -21,7 +21,7 @@
 // tester les instruction arm_math
 // // __attribute__((section(".dtcmram_bss")))
 
-//#define proto2 // commenter pour la version final
+#define proto2 // commenter pour la version final
 // #define fabien // CV1 et CV2 switch pour faire octave + et octave -
 
 #include <stdio.h>
