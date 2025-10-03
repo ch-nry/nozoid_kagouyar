@@ -734,10 +734,10 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 						curent_config.c_VCF2_TYPE = 3;
 						}
 					else {
-						if(curent_config.c_VCF2_TYPE == switch_keyboard - 11)
-							curent_config.c_VCF2_TYPE = 2;
+						if(curent_config.c_VCF2_TYPE == switch_keyboard - 11+1)
+							curent_config.c_VCF2_TYPE = 0;
 						else
-							curent_config.c_VCF2_TYPE = switch_keyboard - 11;
+							curent_config.c_VCF2_TYPE = switch_keyboard - 11+1;
 						}
 					}
 			}

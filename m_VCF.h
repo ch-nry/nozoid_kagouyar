@@ -118,10 +118,10 @@ float g_VCF2_last_input2 = 0.f;
 float g_VCF2_out = 0.f;
 
 inline void VCF2(float &input) {
-// VCF2_type : 0 : LP, 1 : HP, 2 : no filter, 3 : DJ filter
+// VCF2_type : 0 : no filter, 1 : LP, 2 : HP, 3 : DJ filter
 	uint32_t l_VCF2_type;
 
-	if (curent_config.c_VCF2_TYPE == 2)
+	if (curent_config.c_VCF2_TYPE == 0)
 		return; // pas de filtre
 
 	float const fq = 127.f * ( g_pot_audio[k_VCF2_fq] += g_pot_increment[k_VCF2_fq]);
@@ -133,11 +133,11 @@ inline void VCF2(float &input) {
 
 	if (curent_config.c_VCF2_TYPE == 3) {
 		if(filter_fq > 63.5) {
-			l_VCF2_type = 1;
+			l_VCF2_type = 2;
 			filter_fq = 2.*(filter_fq-63.5);
 		}
 		else {
-			l_VCF2_type = 0;
+			l_VCF2_type = 1;
 			filter_fq = 2.*filter_fq;
 			filter_fq = fmax(-127.f, filter_fq);
 		}
@@ -151,5 +151,5 @@ inline void VCF2(float &input) {
     _fonepole(g_VCF2_last_input1, input,              filter_fq);
     _fonepole(g_VCF2_last_input2, g_VCF2_last_input1, filter_fq);
 
-    input = l_VCF2_type ? (input - g_VCF2_last_input2) : g_VCF2_last_input2;
+    input = (l_VCF2_type-1) ? (input - g_VCF2_last_input2) : g_VCF2_last_input2;
 }

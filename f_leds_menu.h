@@ -243,12 +243,12 @@ void leds_key_configuration(uint32_t my_menu_switch) { // led lorsque on appuie 
                 led_keyboard |= 1<< BIT_LED_MENU_KEY8; }
 		switch(curent_config.c_VCF2_TYPE) {
 		case 0 :
-			led_keyboard |= 1<< BIT_LED_MENU_KEY11;
 			break;
 		case 1 :
-			led_keyboard |= 1<< BIT_LED_MENU_KEY12;
+			led_keyboard |= 1<< BIT_LED_MENU_KEY11;
 			break;
 		case 2 :
+			led_keyboard |= 1<< BIT_LED_MENU_KEY12;
 			break;
 		case 3 :
 			led_keyboard |= 1<< BIT_LED_MENU_KEY11;
