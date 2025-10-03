@@ -34,7 +34,7 @@
 #define block_per_ms 2.f // (48/block_size) // combien de bock audio par ms, pour calcul du temps
 #define filter_order 4 // pour les pot et CV in
 
-#define nb_voice 2
+#define nb_voice 4
 
 #ifndef SAMPLE_RATE
 #define SAMPLE_RATE 48014.f
