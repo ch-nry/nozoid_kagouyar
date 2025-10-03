@@ -54,6 +54,9 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
                 phase = g_Modulation_Phase[LFO1_OUT] + increment;                               // calcul de la phase
                 overflow_phase = (int)phase;
                 phase -= overflow_phase;
+                phase = _fclamp(phase, 0., 1.);
+                if (!isfinite(phase)) {  phase = 0.0f; }
+
                 g_Modulation_Reset[LFO1_OUT] = overflow_phase;
                 g_Modulation_Phase[LFO1_OUT] = phase;
 
@@ -411,6 +414,10 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
             }
             break;
         }
+
+		modulation = _fclamp(modulation, 0., 1.);
+		if (!isfinite(modulation)) {  modulation = 0.0f; }
+
         g_LFO1_AR[0]= modulation; // sauvegarde pour ne pas avoir a tester la WF du LFO ds la boucle audio
         g_LFO1_AR[1]= modulation;
         g_LFO1_AR[2]= modulation;
