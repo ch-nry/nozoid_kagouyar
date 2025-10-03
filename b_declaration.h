@@ -23,7 +23,7 @@
 // this code use an old and sligtly customized daisy lib.
 
 #define major_version 1
-#define minor_version 2
+#define minor_version 3
 #define software_led_version (major_version << 8) + minor_version // pour l'affichage de version en mode debug
 
 // Les 3 led MSB servent a indiquer la présence d'une calibration des CVs
@@ -45,7 +45,7 @@
 
 #define nb_potentiometer 48
 #define nb_CV 50
-#define coef_CV_to_audio_filter 0.004f
+#define coef_CV_to_audio_filter 0.004f // pot update every 0.5ms, so 24 samples. 0.04 comme coef permettrait un lisage parfait. 0.004 implique un lowpass de 0.1 * la valeur a chaque block audio
 #define coef_audio_to_block block_size
 
 //#define PI_F 3.1415927410125732421875f
