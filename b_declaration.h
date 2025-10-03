@@ -188,10 +188,10 @@ enum drunk_attractor {
     drunk_LFO1, drunk_LFO2, drunk_LFO3
 };
 
-enum MOD_TYPE { MOD_FM_exp, MOD_FM_Qtz, MOD_FM_lin, MOD_AM, MOD_PM, MOD_CLIP, MOD_WF, modulation_type_last }; // VCO modulation
+enum MOD_TYPE_VCO { MOD_FM_exp, MOD_FM_Qtz, MOD_FM_lin, MOD_AM, MOD_PM, MOD_CLIP, MOD_WF, modulation_type_last }; // VCO modulation
 enum ADSR_MOD { Attack, Decay, Release, Release2};
 enum LFO_WF { WF_AR, WF_sin, WF_tri, WF_square, WF_ramp, WF_saw, WF_spike, WF_step, WF_noise };
-enum LFO_Mix_algo { LFO_Mix, LFO_AM, LFO_FM, LFO_PM, LFO_CLIP, LFO_Fold, LFO_Xor, LFO_FILTER, LFO_RESET, LFO_SYNC, LFO_GATE, LFO_TH, LFO_RndLoop, LFO_nb_algo}; // LFO modulation
+enum MOD_TYPE_LFO { LFO_Mix, LFO_AM, LFO_FM, LFO_PM, LFO_CLIP, LFO_Fold, LFO_Xor, LFO_FILTER, LFO_RESET, LFO_SYNC, LFO_GATE, LFO_TH, LFO_RndLoop, LFO_nb_algo}; // LFO modulation
 enum MENU_switch {MENU_VCO1, MENU_VCO2, MENU_VCO3, MENU_VCF1, MENU_ADSR, MENU_LFO1, MENU_LFO2, MENU_LFO3,
         MENU_LFO4, MENU_LFO5, MENU_LFO6, MENU_LFO7, MENU_MIDI, MENU_CV1, MENU_CV2, MENU_EFFECTS, MENU_LOAD, MENU_SAVE, MENU_LOAD_SAVE, MENU_OCTmoins, MENU_OCTplus };
 
@@ -272,6 +272,8 @@ volatile CONFIGURATION curent_config; // configuration actuel
 volatile float g_Modulation[2*modulation_source_last]; // valeur des diferentes g_Modulation
 volatile uint32_t g_Modulation_Reset[modulation_source_last]; // bool pour marquer un reset de phase, utilisé pour les lfo 1 2 3 ds certain cas.
 volatile float g_Modulation_Phase[modulation_source_last]; // valeur des phases des diferentes g_Modulation
+
+enum GATE_source {gate_KB_int, gate_MIDI, gate_5V};
 
 struct voice
 {
