@@ -175,8 +175,8 @@ inline float VCO1(uint32_t j, float frequency) {
 
     out = _fclamp2(out, -1.1f, VCO1_clip); // on peut etre en dessous du minimum, dc il faut faire attention a l'ordre des min/max
 
-	v_VCO1_last = _fclamp2(v_VCO1_last, -1.1f, 1.1f);
-	v_VCO2_last = _fclamp2(v_VCO2_last, -1.1f, 1.1f);
+	allvoice[j].v_VCO1_filter1 = _fclamp2(allvoice[j].v_VCO1_filter1, -1.1f, 1.1f);
+	allvoice[j].v_VCO1_filter2 = _fclamp2(allvoice[j].v_VCO1_filter2, -1.1f, 1.1f);
 
     g_Modulation[VCO1_OUT] = out;
     return out;
