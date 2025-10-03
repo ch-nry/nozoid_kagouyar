@@ -486,6 +486,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
     int32_t switch_configuration = g_switch_configuration;
     uint32_t switch_keyboard_bit = g_switch_keyboard_bit;
     int32_t switch_keyboard = g_switch_keyboard;
+    uint32_t l_last_switch_keyboard_bit;
 
     change_keyboard = (g_last_switch_keyboard_bit != switch_keyboard_bit);
     change_modulation = (g_last_switch_modulation != switch_modulation);
@@ -496,6 +497,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
     g_last_switch_modulation = switch_modulation;
     g_last_switch_configuration = switch_configuration;
     g_last_switch_keyboard = switch_keyboard;
+    l_last_switch_keyboard_bit = g_last_switch_keyboard_bit;
     g_last_switch_keyboard_bit = switch_keyboard_bit;
 
     // si il y a un changement : a quel niveau?
@@ -727,11 +729,16 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
             } else {
 				if (switch_keyboard <= 8)
 					curent_config.c_VCF1_pitch_TRACK = switch_keyboard - 6;
-				else if (switch_keyboard >= 11) {
-					if(curent_config.c_VCF2_TYPE == switch_keyboard - 11)
-						curent_config.c_VCF2_TYPE = 2;
-					else
-						curent_config.c_VCF2_TYPE = switch_keyboard - 11;
+				else if ((switch_keyboard >= 11) && (l_last_switch_keyboard_bit < switch_keyboard_bit )) { // seulement si on press une touche (car on test l'appuie simultané de 2 touches)
+					if ( ((switch_keyboard_bit>>11) & 0b11) == 0b11) { // kb11 et kb12 : les 2 derniere touches du clavier
+						curent_config.c_VCF2_TYPE = 3;
+						}
+					else {
+						if(curent_config.c_VCF2_TYPE == switch_keyboard - 11)
+							curent_config.c_VCF2_TYPE = 2;
+						else
+							curent_config.c_VCF2_TYPE = switch_keyboard - 11;
+						}
 					}
 			}
 			break;

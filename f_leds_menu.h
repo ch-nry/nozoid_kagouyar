@@ -237,14 +237,31 @@ void leds_key_configuration(uint32_t my_menu_switch) { // led lorsque on appuie 
         if(curent_config.c_VCF1_pitch_TRACK == 0)
             led_keyboard |= 1<< BIT_LED_MENU_KEY6;
         else
-            if(curent_config.c_VCF1_pitch_TRACK == 1)
-                led_keyboard |= 1<< BIT_LED_MENU_KEY7;
-            else
-                led_keyboard |= 1<< BIT_LED_MENU_KEY8;
+            if(curent_config.c_VCF1_pitch_TRACK == 1) {
+                led_keyboard |= 1<< BIT_LED_MENU_KEY7; }
+            else {
+                led_keyboard |= 1<< BIT_LED_MENU_KEY8; }
+		switch(curent_config.c_VCF2_TYPE) {
+		case 0 :
+			led_keyboard |= 1<< BIT_LED_MENU_KEY11;
+			break;
+		case 1 :
+			led_keyboard |= 1<< BIT_LED_MENU_KEY12;
+			break;
+		case 2 :
+			break;
+		case 3 :
+			led_keyboard |= 1<< BIT_LED_MENU_KEY11;
+			led_keyboard |= 1<< BIT_LED_MENU_KEY12;
+			break;
+		}
+
+		/*
         if(curent_config.c_VCF2_TYPE == 0)
             led_keyboard |= 1<< BIT_LED_MENU_KEY11;
         if(curent_config.c_VCF2_TYPE == 1)
             led_keyboard |= 1<< BIT_LED_MENU_KEY12;
+        */
     break;
     case MENU_ADSR :  // ADSR option
         led_keyboard |= 1<< BIT_LED_MENU_ADSR;
