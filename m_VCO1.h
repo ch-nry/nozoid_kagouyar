@@ -178,6 +178,10 @@ inline float VCO1(uint32_t j, float frequency) {
 	allvoice[j].v_VCO1_filter1 = _fclamp2(allvoice[j].v_VCO1_filter1, -1.1f, 1.1f);
 	allvoice[j].v_VCO1_filter2 = _fclamp2(allvoice[j].v_VCO1_filter2, -1.1f, 1.1f);
 
+	if (!isfinite(out)) {  out = 0.0f; } // Détecte NaN, +inf, -inf
+	if (!isfinite(allvoice[j].v_VCO1_filter1)) {  allvoice[j].v_VCO1_filter1 = 0.0f; }
+	if (!isfinite(allvoice[j].v_VCO1_filter2)) {  allvoice[j].v_VCO1_filter2 = 0.0f; }
+
     g_Modulation[VCO1_OUT] = out;
     return out;
 }
