@@ -533,9 +533,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
         if (pressed_modulation) return 1;
         if (pressed_configuration) {
 			if (change_configuration) { // action seulement a l'appuie de la touche
-				#ifndef fabien
-				if (g_hiden_fct && 0b00000001)
-				#endif
+				if (CV2KB)
 				{// octave + et - sur les touches CV1 et 2
 					if (switch_configuration == MENU_CV1)   curent_config.c_KEYBOARD_octave = _fmin(curent_config.c_KEYBOARD_octave+1, 2);
 					if (switch_configuration == MENU_CV2)   curent_config.c_KEYBOARD_octave = _fmax(curent_config.c_KEYBOARD_octave-1, -3);
@@ -907,7 +905,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 				case 11:
 				break;
 				case 12:
-					g_hiden_fct ^= 0b00000001; // on toggle le bit
+					CV2KB = !CV2KB; // on toggle le bit
 				break;
 			}
 			break;

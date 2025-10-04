@@ -91,13 +91,43 @@ void leds_mode_normal() {
     hw.led_driver_.SetLed_ch(LED_LFO5, (float)(0.55f + g_Modulation[LFO5_OUT_FILTER]*0.45f));
     hw.led_driver_.SetLed_ch(LED_LFO6, (float)(0.55f + g_Modulation[LFO6_OUT_FILTER]*0.45f));
     hw.led_driver_.SetLed_ch(LED_LFO7, (float)(0.55f + g_Modulation[LFO7_OUT_FILTER]*0.45f));
-    if(g_last_switch_configuration != MENU_MIDI)
+    if(g_last_switch_configuration != MENU_MIDI) {
         hw.led_driver_.SetLed_ch(LED_MIDI, (float)(g_Modulation[MIDI_modulation]));
-    else
+	}
+    else {
         hw.led_driver_.SetLed_ch(LED_MIDI, (float)g_MIDI_led_time);
-
-    hw.led_driver_.SetLed_ch(LED_CV1,  (float)(0.55f + g_Modulation[CV1_OUT]*0.45f));
-    hw.led_driver_.SetLed_ch(LED_CV2,  (float)(0.55f + g_Modulation[CV2_OUT]*0.45f));
+	}
+	if (!CV2KB) {
+		hw.led_driver_.SetLed_ch(LED_CV1,  (float)(0.55f + g_Modulation[CV1_OUT]*0.45f));
+		hw.led_driver_.SetLed_ch(LED_CV2,  (float)(0.55f + g_Modulation[CV2_OUT]*0.45f));
+	} else {
+		switch (curent_config.c_KEYBOARD_octave+3) {
+		case 0 :
+			hw.led_driver_.SetLed_ch(LED_CV1, 0.f);
+			hw.led_driver_.SetLed_ch(LED_CV2, 1.f);
+		break;
+		case 1 :
+			hw.led_driver_.SetLed_ch(LED_CV1, 0.0f);
+			hw.led_driver_.SetLed_ch(LED_CV2, 0.5f);
+		break;
+		case 2 :
+			hw.led_driver_.SetLed_ch(LED_CV1, 0.f);
+			hw.led_driver_.SetLed_ch(LED_CV2, 0.1f);
+		break;
+		case 3 :
+			hw.led_driver_.SetLed_ch(LED_CV1, 0.1f);
+			hw.led_driver_.SetLed_ch(LED_CV2, 0.0f);
+		break;
+		case 4 :
+			hw.led_driver_.SetLed_ch(LED_CV1, 0.5f);
+			hw.led_driver_.SetLed_ch(LED_CV2, 0.f);
+		break;
+		case 5 :
+			hw.led_driver_.SetLed_ch(LED_CV1, 1.f);
+			hw.led_driver_.SetLed_ch(LED_CV2, 0.f);
+		break;
+		}
+	}
     hw.led_driver_.SetLed_ch(LED_GAIN, g_clip);
 
     g_MIDI_led_time = _fmax(0.f, g_MIDI_led_time - 0.02f);
@@ -332,7 +362,7 @@ void leds_key_configuration(uint32_t my_menu_switch) { // led lorsque on appuie 
         if (animation1_time > 0)	animation1_time--; else led_keyboard |= 1 << BIT_LED_MENU_KEY0;
         if (animation2_time > 0)	animation2_time--; else led_keyboard |= 1 << BIT_LED_MENU_KEY1;
         if (animation3_time > 0)	animation3_time--; else led_keyboard |= 1 << BIT_LED_MENU_KEY2;
-        if (g_hiden_fct && 0b00000001) led_keyboard |= 1 << BIT_LED_MENU_KEY12;
+        if (CV2KB) led_keyboard |= 1 << BIT_LED_MENU_KEY12;
     break;
     }
     write_binary_led(led_keyboard);
