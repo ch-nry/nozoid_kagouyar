@@ -22,7 +22,6 @@
 // // __attribute__((section(".dtcmram_bss")))
 
 #define proto2 // commenter pour la version final
-// #define fabien // CV1 et CV2 switch pour faire octave + et octave -
 
 #include <stdio.h>
 #include <string.h>
@@ -260,7 +259,9 @@ int main(void)
 			i=0;
 		    get_analog_in(); // analog gate and CV in
 		}
-        get_pot(i); // get potentiometters value and filter them
+		if (g_switch_configuration != MENU_LOAD) {
+			get_pot(i); // get potentiometters value and filter them
+		}
         get_keyboard(); // test keyboard and display leds accordingly;
         get_midi(); // test reception de midi data
 
