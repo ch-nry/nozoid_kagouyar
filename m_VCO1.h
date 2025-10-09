@@ -71,16 +71,22 @@ inline float VCO1(uint32_t j, float frequency) {
     float freq = CV2freq(vco_pitch) + VCO1_FM_lin * 2000.f; // attention, la freq peux etre negative, ou nulle
 
     float increment = freq*OneOverSR;
-    increment += (increment == 0) * 1e-10; // increment ne doit pas etre nul car on a plein de /increment plus tard.
+
+	if (!isfinite(increment)) {  increment = 0.0f; } // Détecte NaN, +inf, -inf
+
+	float VCO1_phase_local = wrap2(allvoice[j].v_VCO1_phase + increment);
+    allvoice[j].v_VCO1_phase = VCO1_phase_local;
+
+    //increment += (increment == 0) * 1e-6; // increment ne doit pas etre nul car on a plein de /increment plus tard.
     //increment = _fmax(increment, 1e-10f); // bcp plus lent!
 	//increment = (increment == 0)?  1e-10f : increment; // plus lent
 	//increment = (increment == 0)?  1e-10 : increment; // lent
     float phase2, tmp, out=0.f;
 
-    float VCO1_phase_local = wrap2(allvoice[j].v_VCO1_phase + increment);
-    allvoice[j].v_VCO1_phase = _fclamp2(VCO1_phase_local, 0.f, 1.f);
+	increment = _fmax(fabs(increment), 1e-6f); // Au lieu de 1e-10
 
-	increment = fabs(increment); // pour la FM, si increment est negatif cela pose des pb partout
+
+	//increment = fabs(increment); // pour la FM, si increment est negatif cela pose des pb partout
 
     g_Modulation[VCO1_SIN] = _cos(VCO1_phase_local); // g_Modulation sinus
     g_Modulation[VCO1_SQUARE] = (VCO1_phase_local > 0.5f)? 1.f : -1.f; // g_Modulation square
