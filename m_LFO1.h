@@ -415,7 +415,7 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
             break;
         }
 
-		modulation = _fclamp(modulation, 0., 1.);
+		modulation = _fclamp(modulation, -1., 1.);
 		if (!isfinite(modulation)) {  modulation = 0.0f; }
 
         g_LFO1_AR[0]= modulation; // sauvegarde pour ne pas avoir a tester la WF du LFO ds la boucle audio
