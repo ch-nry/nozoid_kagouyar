@@ -76,14 +76,10 @@ inline float VCO1(uint32_t j, float frequency) {
 
 	float VCO1_phase_local = wrap2(allvoice[j].v_VCO1_phase + increment);
     allvoice[j].v_VCO1_phase = VCO1_phase_local;
+	//increment = _fmax(fabs(increment), 1e-6f); // Au lieu de 1e-10
+	increment = fabs(increment);
 
-    //increment += (increment == 0) * 1e-6; // increment ne doit pas etre nul car on a plein de /increment plus tard.
-    //increment = _fmax(increment, 1e-10f); // bcp plus lent!
-	//increment = (increment == 0)?  1e-10f : increment; // plus lent
-	//increment = (increment == 0)?  1e-10 : increment; // lent
     float phase2, tmp, out=0.f;
-
-	//increment = fabs(increment); // pour la FM, si increment est negatif cela pose des pb partout
 
     g_Modulation[VCO1_SIN] = _cos(VCO1_phase_local); // g_Modulation sinus
     g_Modulation[VCO1_SQUARE] = (VCO1_phase_local > 0.5f)? 1.f : -1.f; // g_Modulation square
@@ -92,15 +88,9 @@ inline float VCO1(uint32_t j, float frequency) {
     g_Modulation[VCO1_RAMP] = ramp;
     g_Modulation[VCO1_SAW] = -ramp; // saw down
 
-
-
-	increment = _fmax(increment, 1e-6f); // Au lieu de 1e-10
-
-
     VCO1_PM *= 4.f;
     VCO1_phase_local += VCO1_PM;
-    VCO1_phase_local -= wrap2(VCO1_phase_local); // car on peux aller ds le negatif, ou aller au dela de 2 a cause des multiples modulations
-	//VCO1_phase_local = _fclamp(VCO1_phase_local, 0.f,1.f); // inutil, mais au cas ou...
+    VCO1_phase_local = wrap2(VCO1_phase_local); // car on peux aller ds le negatif, ou aller au dela de 2 a cause des multiples modulations
 
     float PWM_local = _fclamp(PWM + VCO1_mod_PWM*0.5f, 0.f, 1.f);
 	float tmpf;
@@ -189,6 +179,7 @@ inline float VCO1(uint32_t j, float frequency) {
 	if (!isfinite(out)) {  out = 0.0f; } // Détecte NaN, +inf, -inf
 	if (!isfinite(allvoice[j].v_VCO1_filter1)) {  allvoice[j].v_VCO1_filter1 = 0.0f; }
 	if (!isfinite(allvoice[j].v_VCO1_filter2)) {  allvoice[j].v_VCO1_filter2 = 0.0f; }
+	if (!isfinite(allvoice[j].v_VCO1_phase)) {  allvoice[j].v_VCO1_phase = 0.0f; }
 
     g_Modulation[VCO1_OUT] = out;
     return out;
