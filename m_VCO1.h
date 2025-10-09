@@ -83,9 +83,6 @@ inline float VCO1(uint32_t j, float frequency) {
 	//increment = (increment == 0)?  1e-10 : increment; // lent
     float phase2, tmp, out=0.f;
 
-	increment = _fmax(fabs(increment), 1e-6f); // Au lieu de 1e-10
-
-
 	//increment = fabs(increment); // pour la FM, si increment est negatif cela pose des pb partout
 
     g_Modulation[VCO1_SIN] = _cos(VCO1_phase_local); // g_Modulation sinus
@@ -95,10 +92,15 @@ inline float VCO1(uint32_t j, float frequency) {
     g_Modulation[VCO1_RAMP] = ramp;
     g_Modulation[VCO1_SAW] = -ramp; // saw down
 
+
+
+	increment = _fmax(increment, 1e-6f); // Au lieu de 1e-10
+
+
     VCO1_PM *= 4.f;
     VCO1_phase_local += VCO1_PM;
-    VCO1_phase_local -= _floor(VCO1_phase_local); // car on peux aller ds le negatif, ou aller au dela de 2 a cause des multiples modulations
-	VCO1_phase_local = _fclamp(VCO1_phase_local, 0.f,1.f); // inutil, mais au cas ou...
+    VCO1_phase_local -= wrap2(VCO1_phase_local); // car on peux aller ds le negatif, ou aller au dela de 2 a cause des multiples modulations
+	//VCO1_phase_local = _fclamp(VCO1_phase_local, 0.f,1.f); // inutil, mais au cas ou...
 
     float PWM_local = _fclamp(PWM + VCO1_mod_PWM*0.5f, 0.f, 1.f);
 	float tmpf;
