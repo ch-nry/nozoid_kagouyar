@@ -1,4 +1,3 @@
-New Note 2025-10-09 15:11:11.148
 // --------------------------------------------------------------------------
 // This file is part of the KAGOUYAR firmware.
 //
@@ -16,284 +15,182 @@ New Note 2025-10-09 15:11:11.148
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
-// optimisation : -0fast
-// utilisation du dsp
-// tester de tout passer en double (pb de taille)
-// tester les instruction arm_math
-// // __attribute__((section(".dtcmram_bss")))
-
-#define proto2 // commenter pour la version final
-
-#include <stdio.h>
-#include <string.h>
-#include "daisysp.h"
-#include "b_declaration.h"
-#include "b_hardware.cpp"
-#include "c_fonctions.h"
-#include "d_voice.h"
-#include "e_input.h"
-#include "f_leds_menu.h"
-#include "m_VCO1.h"
-#include "m_VCO2.h"
-#include "m_VCO3.h"
-#include "m_VCF.h"
-#include "m_ADSR.h"
-#include "m_LFO1.h"
-#include "m_LFO2.h"
-#include "m_LFO3.h"
-#include "m_LFO7.h"
-#include "m_effect.h"
-#include "x_test.h"
-
-//14th slot to save curent preset on shutdown
-#define save_pos  0x90000000 + (14*4096)
-
-static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle::InterleavingOutputBuffer out, size_t size) {
-    float mix1, mix2, mix3;
-
-    hw.test_out(true); // write test_out pin;  10µs la premiere partie
-    g_time++;
-    g_led_blink += 1<<24; // on laisse les overflow passer de negatif a positif
-
-    float VCO1_fq;
-    float VCO2_fq;
-    float VCO3_fq;
-    float VCF1_fq;
-    float sig, sommeADSR;
-    float CV_pitch;
-
-    // variable ne necessitant pas d'etre recalculés a chaque sample
-    g_pot_audio[k_VCO1_fq] += coef_audio_to_block * g_pot_increment[k_VCO1_fq];
-    VCO1_fq = VCO_CV_range(curent_config.c_VCO1_RANGE, g_pot_audio[k_VCO1_fq]);
-    g_pot_audio[k_VCO2_fq] += coef_audio_to_block * g_pot_increment[k_VCO2_fq];
-    VCO2_fq = VCO_CV_range(curent_config.c_VCO2_RANGE, g_pot_audio[k_VCO2_fq]);
-    g_pot_audio[k_VCO3_fq] += coef_audio_to_block * g_pot_increment[k_VCO3_fq];
-    VCO3_fq = VCO_CV_range(curent_config.c_VCO3_RANGE, g_pot_audio[k_VCO3_fq]);
-
-	g_pot_audio[k_VCF1_fq] += coef_audio_to_block * g_pot_increment[k_VCF1_fq];
-    VCF1_fq = 112.f * g_pot_audio[k_VCF1_fq];
-    g_pot_audio[k_VCF1_q] += coef_audio_to_block * g_pot_increment[k_VCF1_q];
-    g_pot_audio[k_VCF1_mod1] += coef_audio_to_block * g_pot_increment[k_VCF1_mod1];
-    g_pot_audio[k_VCF1_mod2] += coef_audio_to_block * g_pot_increment[k_VCF1_mod2];
-
-    (g_pot_audio[k_ADSR_a] += coef_audio_to_block * g_pot_increment[k_ADSR_a]);
-    (g_pot_audio[k_ADSR_d] += coef_audio_to_block * g_pot_increment[k_ADSR_d]);
-    (g_pot_audio[k_ADSR_r] += coef_audio_to_block * g_pot_increment[k_ADSR_r]);
-
-	CV_pitch = g_Modulation[CV1_OUT] * 60.f*g_CV1_gain; // de -5V a +5V = +/- 5 octaves
-
-    if (allvoice[0].v_GATE_source == 2) allvoice[0].v_pitch = CV_pitch;
-    if (allvoice[1].v_GATE_source == 2) allvoice[1].v_pitch = CV_pitch;
-    if (allvoice[2].v_GATE_source == 2) allvoice[2].v_pitch = CV_pitch;
-    if (allvoice[3].v_GATE_source == 2) allvoice[3].v_pitch = CV_pitch;
-
-    LFO1_FQ  = g_knob[k_LFO1_fq]; // on ne filtre pas  les pots de frequence pour gagner en CPU
-    LFO1_INC = CV2increment_lfo(curent_config.c_LFO1_RANGE, LFO1_FQ);
-    LFO1_MIX = g_pot_audio[k_LFO1_mod] += coef_audio_to_block * g_pot_increment[k_LFO1_mod];
-
-    LFO2_FQ  = g_knob[k_LFO2_fq];
-    LFO2_INC = CV2increment_lfo(curent_config.c_LFO2_RANGE, LFO2_FQ);
-    LFO2_MIX = g_pot_audio[k_LFO2_mod] += coef_audio_to_block * g_pot_increment[k_LFO2_mod];
-
-    LFO3_FQ  = g_knob[k_LFO3_fq];
-    LFO3_INC = CV2increment_lfo(curent_config.c_LFO3_RANGE, LFO3_FQ);
-    LFO3_MIX = g_pot_audio[k_LFO3_mod] += coef_audio_to_block * g_pot_increment[k_LFO3_mod];
-
-    LFO4_INC = CV2increment_lfo(curent_config.c_LFO4_RANGE, g_knob[k_LFO4_fq] );
-    LFO5_INC = CV2increment_lfo(curent_config.c_LFO5_RANGE, g_knob[k_LFO5_fq] );
-    LFO6_INC = CV2increment_lfo(curent_config.c_LFO6_RANGE, g_knob[k_LFO6_fq] );
-
-    LFO7_INC = CV2increment_lfo(curent_config.c_LFO7_RANGE, g_knob[k_LFO7_fq]);
-    LFO7_WF =  g_pot_audio[k_LFO7_wf] += coef_audio_to_block * g_pot_increment[k_LFO7_wf];
-    LFO7_SYM =  g_pot_audio[k_LFO7_sym] += coef_audio_to_block * g_pot_increment[k_LFO7_sym];
-
-    // buffered Audio Loop
-    for(uint32_t i = 0; i < size; ) // size = 2* 24 : block audio de 0.5ms
-    // cad on actualise les potentiomettres a 2KHz, meme si le dac est a 200Hz
-    {
-		sig=0.f;
-		sommeADSR = 0.f;
-
-        if ((i & 0b111) == 0) // Sample Rate LFO = SR/4 (facteur 8 a cause du cannal droit et gauche)
-            LFO(); // SR = 12KHz
-
-        // filtre les PWM en audio, car on les utilise pour toutes les voies de polyphonie
-		g_pot_audio[k_VCO1_wfm] += g_pot_increment[k_VCO1_wfm];
-		g_pot_audio[k_VCO2_wfm] += g_pot_increment[k_VCO2_wfm];
-		g_pot_audio[k_VCO3_wfm] += g_pot_increment[k_VCO3_wfm];
-
-        // filtre les niveaux du mix en audio, car on les utilise pour toutes les voies de polyphonie
-		g_pot_audio[k_MIX1] += g_pot_increment[k_MIX1];
-		mix1 = g_pot_audio[k_MIX1]  * g_pot_audio[k_MIX1];
-		g_pot_audio[k_MIX2] += g_pot_increment[k_MIX2];
-		mix2 = g_pot_audio[k_MIX2]  * g_pot_audio[k_MIX2];
-		g_pot_audio[k_MIX3] += g_pot_increment[k_MIX3];
-		mix3 = g_pot_audio[k_MIX3]  * g_pot_audio[k_MIX3];
-		g_pot_audio[k_GAIN] += g_pot_increment[k_GAIN];
-
-		// filtrage audio des modulation des VCO
-		g_pot_audio[k_VCO1_mod1] += g_pot_increment[k_VCO1_mod1];
-		g_pot_audio[k_VCO1_mod2] += g_pot_increment[k_VCO1_mod2];
-		g_pot_audio[k_VCO1_mod3] += g_pot_increment[k_VCO1_mod3];
-		g_pot_audio[k_VCO2_mod1] += g_pot_increment[k_VCO2_mod1];
-		g_pot_audio[k_VCO2_mod2] += g_pot_increment[k_VCO2_mod2];
-		g_pot_audio[k_VCO2_mod3] += g_pot_increment[k_VCO2_mod3];
-		g_pot_audio[k_VCO3_mod1] += g_pot_increment[k_VCO3_mod1];
-		g_pot_audio[k_VCO3_mod2] += g_pot_increment[k_VCO3_mod2];
-		g_pot_audio[k_VCO3_mod3] += g_pot_increment[k_VCO3_mod3];
-
-		// filtrage audio du sustain
-		g_pot_audio[k_ADSR_s] += g_pot_increment[k_ADSR_s];
-
-        for (uint32_t j=nb_voice; j--;)
-        { // pour toutes les voies de polyphonie
-            float sound;
-            sommeADSR += ADSR(j);
-
-            g_Modulation[LFO1_OUT] = g_LFO1_AR[j];
-            g_Modulation[LFO1_OUT+modulation_source_last] = -g_LFO1_AR[j];
-            g_Modulation[LFO2_OUT] = g_LFO2_AR[j];
-            g_Modulation[LFO2_OUT+modulation_source_last] = -g_LFO2_AR[j];
-            g_Modulation[LFO3_OUT] = g_LFO3_AR[j];
-            g_Modulation[LFO3_OUT+modulation_source_last] = -g_LFO3_AR[j];
-
-            sound  =  mix1 * VCO1(j, VCO1_fq);
-            sound += mix2  * VCO2(j, VCO2_fq);
-            sound += mix3  * VCO3(j, VCO3_fq);
-            sound = VCF1(j, VCF1_fq, sound);
-
-            sig += VCA(j, sound);
-        }
-
-        // pour la suite, on utilise la somme des ADSR comme g_Modulation
-        sommeADSR *= 1.f/nb_voice;
-        g_Modulation[ADSR_OUT] = sommeADSR;
-        g_Modulation[ADSR_OUT+modulation_source_last] = - sommeADSR;
-        g_Modulation[LFO1_OUT] = g_LFO1_AR[nb_voice];
-        g_Modulation[LFO1_OUT+modulation_source_last] = -g_LFO1_AR[nb_voice];
-        g_Modulation[LFO2_OUT] = g_LFO2_AR[nb_voice];
-        g_Modulation[LFO2_OUT+modulation_source_last] = -g_LFO2_AR[nb_voice];
-        g_Modulation[LFO3_OUT] = g_LFO3_AR[nb_voice];
-        g_Modulation[LFO3_OUT+modulation_source_last] = -g_LFO3_AR[nb_voice];
-
-        sig = effect1(sig);
-        sig = effect2(sig);
-
-        VCF2(sig);
-        sig *= 0.5f * g_pot_audio[k_GAIN] * g_pot_audio[k_GAIN];
-        if(fabs(sig)>=1.f) g_clip = 1.f; else g_clip =  _fmax(fabs(sig)*0.3f, g_clip);
-
-        out[i++] = sig; // droite
-        out[i++] = -sig; // gauche
+#define modulation_VCO1(VCO_mod, VCO_MOD)																	\
+    modulation_value = VCO_mod; 																							\
+    modulation_value *= g_Modulation[curent_config.c_Modulation_Source[VCO_MOD]];		\
+    switch (curent_config.c_Modulation_Type[VCO_MOD]) {													\
+    case MOD_FM_exp :																											\
+        VCO1_FM_exp += modulation_value;																				\
+        break;																																\
+    case MOD_FM_Qtz :																											\
+        VCO1_FM_Qtz += modulation_value;																				\
+        break;																																\
+    case MOD_FM_lin :																												\
+        VCO1_FM_lin += VCO_mod * modulation_value;															\
+        break;                                                                      \
+    case MOD_AM :                                                                   \
+        VCO1_AM -= VCO_mod - modulation_value;                                      \
+        break;                                                                      \
+    case MOD_PM :                                                                   \
+        VCO1_PM += modulation_value ;                                               \
+        break;                                                                      \
+    case MOD_CLIP :                                                                 \
+        VCO1_clip -= modulation_value + VCO_mod;    \
+        break;                                                                      \
+    case MOD_WF :                                                                   \
+        VCO1_mod_PWM += modulation_value;                                           \
+        break;                                                                      \
     }
-    g_clip -= 0.003f;
-    hw.test_out(false);
+
+// used for multiple waveform
+#define v_VCO1_filter1 v_VCO1_last[0]
+#define v_VCO1_filter2 v_VCO1_last[1]
+
+inline float VCO1(uint32_t j, float frequency) {
+
+    float VCO1_AM = 1.f;
+    float VCO1_FM_lin = 0.f;
+    float VCO1_FM_exp = 0.f;
+    float VCO1_FM_Qtz = 0.f;
+    float VCO1_PM = 0.f;
+    float VCO1_mod_PWM = 0.f;
+    float VCO1_clip = 1.1f;
+    float modulation_value;
+    float PWM = g_pot_audio[k_VCO1_wfm];
+
+    // Modulation
+    modulation_VCO1(g_pot_audio[k_VCO1_mod1], VCO1_MOD1)
+    modulation_VCO1(g_pot_audio[k_VCO1_mod2], VCO1_MOD2)
+    modulation_VCO1(g_pot_audio[k_VCO1_mod3], VCO1_MOD3)
+
+    float vco_pitch = frequency + 48.f * VCO1_FM_exp;
+    vco_pitch += allvoice[j].v_pitch;
+    vco_pitch += (int)((12.f*VCO1_FM_Qtz)+0.5f);
+
+    VCO1_pitch(allvoice[j], vco_pitch); // sauve ou rapele la valeur de vco1 pour les pitch des vco2 et 3 syncro sur le 1 (cf fonction.h)
+    float freq = CV2freq(vco_pitch) + VCO1_FM_lin * 2000.f; // attention, la freq peux etre negative, ou nulle
+
+    float increment = freq*OneOverSR;
+
+	if (!isfinite(increment)) {  increment = 0.0f; } // Détecte NaN, +inf, -inf
+
+	float VCO1_phase_local = wrap2(allvoice[j].v_VCO1_phase + increment);
+    allvoice[j].v_VCO1_phase = VCO1_phase_local;
+	//increment = _fmax(fabs(increment), 1e-6f); // Au lieu de 1e-10
+	increment = fabs(increment);
+
+    float phase2, tmp, out=0.f;
+
+    g_Modulation[VCO1_SIN] = _cos(VCO1_phase_local); // g_Modulation sinus
+    g_Modulation[VCO1_SQUARE] = (VCO1_phase_local > 0.5f)? 1.f : -1.f; // g_Modulation square
+    g_Modulation[VCO1_TRI] = fabs(4.f*VCO1_phase_local-2.f)-1.f;
+    float const ramp = VCO1_phase_local + VCO1_phase_local - 1.f; // ramp (saw up)
+    g_Modulation[VCO1_RAMP] = ramp;
+    g_Modulation[VCO1_SAW] = -ramp; // saw down
+
+<<<<<<< HEAD
+	increment = fabs(increment); // pour la FM, si increment est negatif cela pose des pb partout
+	increment = _fmax(increment, 1e-6f); // Au lieu de 1e-10
+
+    VCO1_PM *= 4.f;
+    VCO1_phase_local += VCO1_PM;
+    VCO1_phase_local = wrap2(VCO1_phase_local); // car on peux aller ds le negatif, ou aller au dela de 2 a cause des multiples modulations
+	//VCO1_phase_local = _fclamp(VCO1_phase_local, 0.f,1.f); // inutil, mais au cas ou...
+=======
+    VCO1_PM *= 4.f;
+    VCO1_phase_local += VCO1_PM;
+    VCO1_phase_local = wrap2(VCO1_phase_local); // car on peux aller ds le negatif, ou aller au dela de 2 a cause des multiples modulations
+>>>>>>> 60f6c013b0cbba1c326cfa38254944a051320aaa
+
+    float PWM_local = _fclamp(PWM + VCO1_mod_PWM*0.5f, 0.f, 1.f);
+	float tmpf;
+
+    switch(curent_config.c_VCO1_WF) {
+    case 0 : //sin
+        phase2 = _sin(VCO1_phase_local);
+        _fonepole(allvoice[j].v_VCO1_filter1, phase2, 6000.f*OneOverSR);
+        phase2 = _cos_loop(VCO1_phase_local + allvoice[j].v_VCO1_filter1 * PWM_local * 0.4f);
+        _fonepole(allvoice[j].v_VCO1_filter2, phase2, 0.5f);
+		out = allvoice[j].v_VCO1_filter2;
+        break;
+    case 1 : //multi sin
+        phase2 = _sin(VCO1_phase_local);
+        _fonepole(allvoice[j].v_VCO1_filter1, phase2, 600.f*OneOverSR);
+        out = _cos_loop((0.7f+3.5f*PWM_local) * allvoice[j].v_VCO1_filter1 + 0.33f );
+        break;
+    case 2 : // tri
+        tmpf = 1.f - 0.5f*(PWM_local*PWM_local*(1.f+fast_cos(VCO1_phase_local)));
+        tmpf *= tmpf;
+        out = tri_bl(VCO1_phase_local, increment, allvoice[j].v_VCO1_filter1);
+        out +=1.f;
+        out *= tmpf * tmpf;
+        out -= 1.f;
+        break;
+    case 3 :  // rectangle
+        phase2 = wrap(VCO1_phase_local + (1.f-PWM_local)*0.5f);
+        out = (saw_bl(VCO1_phase_local,increment) - saw_bl(phase2,increment));
+        break;
+    case 4 :  // double saw
+        phase2 = wrap(VCO1_phase_local + PWM_local*0.5f);
+        out = (saw_bl(VCO1_phase_local,increment) + saw_bl(phase2, increment) ) / (2.f-PWM_local) ;
+        break;
+    case 5 :  // noise filter
+        tmp = 2.f*_rnd_f()-1.f;
+        _fonepole(allvoice[j].v_VCO1_filter1, tmp, abs(_fmin(increment*15.f, 1.f)));
+        tmp = CV2freq(60.f + PWM_local * 60.f)*(1.f/13000.f);
+        _fonepole(allvoice[j].v_VCO1_filter2, allvoice[j].v_VCO1_filter1, tmp);
+        out = 2.f * (allvoice[j].v_VCO1_filter2-allvoice[j].v_VCO1_filter1);
+        break;
+    case 6 :  // noise downsampled
+        if ( (wrap(4.f*VCO1_phase_local)) < abs(4.f*increment) ) {
+            phase2 = 2.f*_rnd_f() -1.f;
+            allvoice[j].v_VCO1_filter1 = phase2;
+        }
+        tmp = CV2freq( 0.f + (1.f-PWM_local) * 180.f) * (1.f/27000.f);
+        _fonepole(allvoice[j].v_VCO1_filter2, allvoice[j].v_VCO1_filter1, tmp);
+        out = allvoice[j].v_VCO1_filter2;
+        break;
+    case 7 : // random + interpolation lineaire
+        tmp = wrap(4.f*VCO1_phase_local); // 4 time * frequency
+        if ( (tmp/4.f) < increment ) {
+            allvoice[j].v_VCO1_last[0] = allvoice[j].v_VCO1_last[1];
+            allvoice[j].v_VCO1_last[1] = 2.f*(_rnd_f() - 0.5f);
+        }
+        out = mix( allvoice[j].v_VCO1_last[0], allvoice[j].v_VCO1_last[1], tmp); // linear interpolation
+        out *= mix(1.f,out*out,PWM_local);
+        out *= mix(1.f,out*out,PWM_local);
+        out *= mix(1.f,out*out,PWM_local);
+        break;
+    case 8 : // logistic oscillator, no interpolation
+        if ( (wrap(4.f*VCO1_phase_local)) < 4.f*increment ) {
+            tmp = allvoice[j].v_VCO1_last[1];
+            if ((tmp <= 0)||(tmp>=1)) tmp = _rnd_f(); //on peut avoir des nb qui sont en dehors des paramettres de la logistic, en venant d'une autre forme d'onde
+            allvoice[j].v_VCO1_last[0] = tmp;
+            PWM_local +=  PWM_local*PWM_local;
+            tmp *= (3.45f+0.51f*PWM_local) * (1.f-tmp);
+            allvoice[j].v_VCO1_last[1] = tmp;
+        }
+        out = 2.f*(allvoice[j].v_VCO1_last[1]) -1.f;
+        break;
+	case 9:
+	    out=0.f;
+	    allvoice[j].v_VCO1_last[0] = 0.;
+	    allvoice[j].v_VCO1_last[1] = 0.;
+	    allvoice[j].v_VCO1_phase = 0.;
+	    break;
+    }
+    out *= VCO1_AM;
+
+    out = _fclamp2(out, -1.1f, VCO1_clip); // on peut etre en dessous du minimum, dc il faut faire attention a l'ordre des min/max
+
+	allvoice[j].v_VCO1_filter1 = _fclamp2(allvoice[j].v_VCO1_filter1, -1.1f, 1.1f);
+	allvoice[j].v_VCO1_filter2 = _fclamp2(allvoice[j].v_VCO1_filter2, -1.1f, 1.1f);
+
+	if (!isfinite(out)) {  out = 0.0f; } // Détecte NaN, +inf, -inf
+	if (!isfinite(allvoice[j].v_VCO1_filter1)) {  allvoice[j].v_VCO1_filter1 = 0.0f; }
+	if (!isfinite(allvoice[j].v_VCO1_filter2)) {  allvoice[j].v_VCO1_filter2 = 0.0f; }
+	if (!isfinite(allvoice[j].v_VCO1_phase)) {  allvoice[j].v_VCO1_phase = 0.0f; }
+
+    g_Modulation[VCO1_OUT] = out;
+    return out;
 }
-
-int main(void)
-{
-    volatile uint32_t i; // get potentiometter loop
-
-////////////////////////////////////////////////////////////////////////
-// attend que l'allimentation se stabilise
-////////////////////////////////////////////////////////////////////////
-	if (!dsy_gpio_read(&low_power_pin)) { // si l'allim est en dessous des 7V
-		hw.test_out(true); hw.seed.SetLed(true);
-		hw.test_out(false); hw.seed.SetLed(false);
-	}
-
-////////////////////////////////////////////////////////////////////////
-// initialisation hardware et variable
-////////////////////////////////////////////////////////////////////////
-    hw.Init(); // Init the seed + hardware
-    hw.StartAdc();// start ADC callbacks
-    init_variables(); // init variables
-  	//g_delay_effect1.Init(); // init delay line
-    g_delay_effect2.Init();
-    //g_delay_effect3.Init();
-    hw.midi.StartRx(); // init MIDI
-
-
-////////////////////////////////////////////////////////////////////////
-// initialisation des memoires
-////////////////////////////////////////////////////////////////////////
-	if (true) { // normal operation
-		load_config(13); // only for the calibration
-		g_CV1_offset = curent_config.c_CV1_offset;
-		g_CV2_offset = curent_config.c_CV2_offset;
-		g_CV1_gain = curent_config.c_CV1_gain;
-		if(!load_config(14)) empty_config(); // load saved config, if failled, load an empty config
-	}
-	else {	// for test purpose
-		empty_config();
-	}
-
-////////////////////////////////////////////////////////////////////////
-// hardware test
-////////////////////////////////////////////////////////////////////////
-	//if(true) // test only
-    if( dsy_gpio_read(&HW_test) == 0)
-    { // test mode
-        hw.StartAudio(AudioCallbackTest); // just for testing the audio dac
-        while(1) // on est en mode de test
-            test();
-    } // end of test mode
-
-////////////////////////////////////////////////////////////////////////
-// erase memory that will be used to save the curent preset when shutdown
-// doing this now to gain time when shutdown
-	hw.seed.qspi.Erase(save_pos, save_pos + sizeof(CONFIGURATION));
-
-////////////////////////////////////////////////////////////////////////
-// start audio
-    hw.StartAudio(AudioCallback); // normal operation
-
-////////////////////////////////////////////////////////////////////////
-// main loop
-////////////////////////////////////////////////////////////////////////
-    while(1) { // loop for low piority task
-		// this loop is between 25 and 30µs
-		uint32_t loop;
-
-		// hw.test_out(i>20); // test de performance
-        if(++i > nb_CV) {
-			i=0;
-		    get_analog_in(); // analog gate and CV in
-		}
-		if (g_switch_configuration != MENU_LOAD) {
-			get_pot(i); // get potentiometters value and filter them
-		}
-        get_keyboard(); // test keyboard and display leds accordingly;
-        get_midi(); // test reception de midi data
-
-       // test shutdown
-        if (!dsy_gpio_read(&low_power_pin)) { // si l'allim passe en dessous des 7V,
-			// on arrete le son et tout les process qui prennent du temps ou du courant,
-			// ensuite, on sauve la config actuel pendant les qqs ms restante de courant ds les condensateurs
-
-			hw.test_out(true); // for oscillo debug only
-			hw.StopAudio(); //stop audio
-			set_all_led(0,0,0,0,0); //extinction des leds analogique pour economiser du courant
-			write_binary_led(0); // extinction des leds du clavier
-			hw.test_out(false);
-
-			hw.seed.qspi.Write(save_pos, sizeof(CONFIGURATION), (uint8_t*)&curent_config); // 4.5ms
-
-			loop = 0;
-			while(loop<100000) { // boucle pour montrer la fin  de la procedure de sauvegarde et tester le retour du courant
-				hw.test_out(true); hw.seed.SetLed(true);
-				hw.test_out(false); hw.seed.SetLed(false);
-				if (!dsy_gpio_read(&low_power_pin) )
-					loop = 0;
-				else loop++;
-			}
-
-			// le courant est revenu, on repart!
-			hw.StartAudio(AudioCallback); // on remet le son
-			//il faut aussi vider la memoire pour etre pret a la reecrire.
-			hw.seed.qspi.Erase(save_pos, save_pos + sizeof(CONFIGURATION));
-		}
-
-    } // everything else is done on the audio interuption
-}
-
