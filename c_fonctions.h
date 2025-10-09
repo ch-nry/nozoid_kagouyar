@@ -98,7 +98,8 @@ inline float wrap(float x) { // only for positive number, inversé pour les nomb
 }
 
 inline float wrap2(float x) {
-  return x - _floor(x);
+    x = x - floorf(x);
+    return x;
 }
 
 inline float _tanh(float x) {
