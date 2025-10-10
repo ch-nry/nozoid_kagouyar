@@ -744,6 +744,7 @@ inline void VCO3_pitch(voice &myvoice, float &pitch) {
     if(curent_config.c_VCO3_LINK) pitch += myvoice.v_VCO1_pitch -(60.f + myvoice.v_pitch); else pitch +=  g_MIDI_pitchWHEEL;
 }
 
+// --------------- potentiomettres -------------------
 inline void get_pot(uint32_t i) {
     uint32_t raw_value;
     float tmpf;
