@@ -251,7 +251,7 @@ int main(void)
 // main loop
 ////////////////////////////////////////////////////////////////////////
     while(1) { // loop for low piority task
-		// this loop is between 25 and 30µs
+		// this loop is between 15 and 20µs
 		uint32_t loop;
 		uint32_t i=0; // get potentiometter loop
 
@@ -260,13 +260,18 @@ int main(void)
 			    hw.test_out(true);
 		}
 		g_syncro = 0;
+		hw.test_out(true);
 
+		__disable_irq(); // pas d'interuption pendant l'assignation des valeurs des pots
+		 __asm__ volatile ("" ::: "memory"); // bloque la reoganisation desmemoire avec -O3
 		for (i=0; i<nb_CV; i++) {
 					if (g_switch_configuration != MENU_LOAD) { get_pot(i); }
 		}
 		get_analog_in();
         get_keyboard(); // test keyboard and display leds accordingly;
         get_midi(); // test reception de midi data
+		 __asm__ volatile ("" ::: "memory");
+        __enable_irq();  // fin de la partie critique
 
        // test shutdown
         if (!dsy_gpio_read(&low_power_pin)) { // si l'allim passe en dessous des 7V,
