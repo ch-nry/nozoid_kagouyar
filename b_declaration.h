@@ -122,10 +122,10 @@ int32_t g_filter_moins[nb_CV][filter_order];
 int32_t g_filter_plus[nb_CV][filter_order];
 
 // MIDI
-float g_midi_parameter[nb_CV];
-float g_knob[nb_CV];
-float g_MIDI_LFO_increment;
-float g_MIDI_led_time;
+volatile float g_midi_parameter[nb_CV];
+volatile float g_knob[nb_CV];
+volatile float g_MIDI_LFO_increment;
+volatile float g_MIDI_led_time;
 
 // Random
 volatile int32_t g_randomSeed_v;
