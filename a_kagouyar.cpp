@@ -22,6 +22,7 @@
 // // __attribute__((section(".dtcmram_bss")))
 
 #define proto2 // commenter pour la version final
+//TODO sauver le CV->Kb ds la meme actuel pour le reboot
 
 #include <stdio.h>
 #include <string.h>
@@ -187,12 +188,11 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
     }
     g_clip -= 0.003f;
     hw.test_out(false);
+    g_syncro = 1; // pour syncroniser l'aquisition des pots juste apres la fin de l'interuption audio
 }
 
 int main(void)
 {
-    volatile uint32_t i; // get potentiometter loop
-
 ////////////////////////////////////////////////////////////////////////
 // attend que l'allimentation se stabilise
 ////////////////////////////////////////////////////////////////////////
@@ -253,15 +253,18 @@ int main(void)
     while(1) { // loop for low piority task
 		// this loop is between 25 and 30µs
 		uint32_t loop;
+		uint32_t i=0; // get potentiometter loop
 
-		// hw.test_out(i>20); // test de performance
-        if(++i > nb_CV) {
-			i=0;
-		    get_analog_in(); // analog gate and CV in
+		while (g_syncro ==0) { // on attend la fin de la boucle audio
+			    hw.test_out(false);
+			    hw.test_out(true);
 		}
-		if (g_switch_configuration != MENU_LOAD) {
-			get_pot(i); // get potentiometters value and filter them
+		g_syncro = 0;
+
+		for (i=0; i<nb_CV; i++) {
+					if (g_switch_configuration != MENU_LOAD) { get_pot(i); }
 		}
+		get_analog_in();
         get_keyboard(); // test keyboard and display leds accordingly;
         get_midi(); // test reception de midi data
 

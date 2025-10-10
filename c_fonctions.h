@@ -19,6 +19,8 @@ void delay1_clear();
 
 float table_CV2freq[269]; // TODO optimisation : passer en const? en #define?
 
+volatile uint32_t g_syncro;
+
 ////////////////////////////////////////////////////
 // from daisysp
 /* one pole lpf
