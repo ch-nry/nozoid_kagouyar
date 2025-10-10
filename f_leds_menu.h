@@ -97,7 +97,7 @@ void leds_mode_normal() {
     else {
         hw.led_driver_.SetLed_ch(LED_MIDI, (float)g_MIDI_led_time);
 	}
-	if (!CV2KB) {
+	if (!g_CV2KB) {
 		hw.led_driver_.SetLed_ch(LED_CV1,  (float)(0.55f + g_Modulation[CV1_OUT]*0.45f));
 		hw.led_driver_.SetLed_ch(LED_CV2,  (float)(0.55f + g_Modulation[CV2_OUT]*0.45f));
 	} else {
@@ -362,7 +362,7 @@ void leds_key_configuration(uint32_t my_menu_switch) { // led lorsque on appuie 
         if (animation1_time > 0)	animation1_time--; else led_keyboard |= 1 << BIT_LED_MENU_KEY0;
         if (animation2_time > 0)	animation2_time--; else led_keyboard |= 1 << BIT_LED_MENU_KEY1;
         if (animation3_time > 0)	animation3_time--; else led_keyboard |= 1 << BIT_LED_MENU_KEY2;
-        if (CV2KB) led_keyboard |= 1 << BIT_LED_MENU_KEY12;
+        if (g_CV2KB) led_keyboard |= 1 << BIT_LED_MENU_KEY12;
     break;
     }
     write_binary_led(led_keyboard);

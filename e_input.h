@@ -905,7 +905,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 				case 11:
 				break;
 				case 12:
-					CV2KB = !CV2KB; // on toggle le bit
+					g_CV2KB = !g_CV2KB; // on toggle le bit
 				break;
 			}
 			break;
