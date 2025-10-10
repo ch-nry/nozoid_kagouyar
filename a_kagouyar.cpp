@@ -21,7 +21,7 @@
 // tester les instruction arm_math
 // // __attribute__((section(".dtcmram_bss")))
 
-#define proto2 // commenter pour la version final
+//#define proto2 // commenter pour la version final
 
 #include <stdio.h>
 #include <string.h>
