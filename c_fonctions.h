@@ -17,7 +17,7 @@
 
 void delay1_clear();
 
-float table_CV2freq[269]; // TODO optimisation : passer en const? en #define?
+float table_CV2freq[269]; // TODO optimisation : passer en #define?
 
 volatile uint32_t g_syncro;
 
@@ -729,6 +729,7 @@ int load_config(uint32_t slot)
 	curent_config.c_Modulation_Type[LFO2_MOD] = tmp_config.c_Modulation_Type[LFO2_MOD]%(LFO_nb_algo);
 	curent_config.c_Modulation_Type[LFO3_MOD] = tmp_config.c_Modulation_Type[LFO3_MOD]%(LFO_nb_algo);
 	}
+	if (slot == 14) { g_CV2KB = tmp_config.c_CV2KB != 0;} // on ne lit cette fct que pour la config sauvegardé lors de l'extinction
 	return(1); //id valid
 
 }

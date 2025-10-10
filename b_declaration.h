@@ -263,6 +263,9 @@ struct CONFIGURATION
     // modulation
     uint32_t c_Modulation_Source[modulation_destination_last]; // source des g_Modulation des diferents potentiomettres
     uint32_t c_Modulation_Type[modulation_destination_last];    // type de g_Modulation pour chaques g_Modulation des VCO et des LFO
+
+    //fonction special
+	uint32_t c_CV2KB;
 };
 
 // configuration actuel
