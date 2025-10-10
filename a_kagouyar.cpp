@@ -22,7 +22,6 @@
 // // __attribute__((section(".dtcmram_bss")))
 
 #define proto2 // commenter pour la version final
-//TODO sauver le CV->Kb ds la meme actuel pour le reboot
 
 #include <stdio.h>
 #include <string.h>
@@ -262,16 +261,18 @@ int main(void)
 		g_syncro = 0;
 		hw.test_out(true);
 
-		__disable_irq(); // pas d'interuption pendant l'assignation des valeurs des pots
-		 __asm__ volatile ("" ::: "memory"); // bloque la reoganisation desmemoire avec -O3
 		for (i=0; i<nb_CV; i++) {
-					if (g_switch_configuration != MENU_LOAD) { get_pot(i); }
+			__disable_irq(); // pas d'interuption pendant l'assignation des valeurs des pots
+			__asm__ volatile ("" ::: "memory"); // bloque la reoganisation desmemoire avec -O3
+			if (g_switch_configuration != MENU_LOAD)  {
+				get_pot(i);
+			}
+			__asm__ volatile ("" ::: "memory");
+			__enable_irq();  // fin de la partie critique
 		}
 		get_analog_in();
         get_keyboard(); // test keyboard and display leds accordingly;
         get_midi(); // test reception de midi data
-		 __asm__ volatile ("" ::: "memory");
-        __enable_irq();  // fin de la partie critique
 
        // test shutdown
         if (!dsy_gpio_read(&low_power_pin)) { // si l'allim passe en dessous des 7V,
@@ -284,6 +285,7 @@ int main(void)
 			write_binary_led(0); // extinction des leds du clavier
 			hw.test_out(false);
 
+			curent_config.c_CV2KB = g_CV2KB;
 			hw.seed.qspi.Write(save_pos, sizeof(CONFIGURATION), (uint8_t*)&curent_config); // 4.5ms
 
 			loop = 0;
