@@ -9,6 +9,12 @@
 //#error unknown compiler
 //#endif
 
+// optimisation : -0fast
+// tester les instruction arm_math
+// __attribute__((section(".dtcmram_bss")))
+//  volatile float critical_value __attribute__((aligned(4)));
+// static inline
+
 void UsbCallback(uint8_t* buf, uint32_t* len)
 {
     for(size_t i = 0; i < *len; i++)
@@ -27,7 +33,7 @@ void UsbCallback(uint8_t* buf, uint32_t* len)
         //sprintf(buff, "ping;\n");
         //hw.seed.usb_handle.TransmitInternal((uint8_t*)buff, strlen(buff));
 
-// VCO macro : 
+// VCO macro :
 // les multiples IF sont plus lent
 //#define modulation_VCO1(VCO_mod, VCO_MOD)                                           						\
 //    modulation_value = VCO_mod;                                                     										\
@@ -57,10 +63,10 @@ void UsbCallback(uint8_t* buf, uint32_t* len)
 //			VCO1_FM_exp += modulation_value ;                                           							\
 //		}																																	\
 //	}																																		\
-//}									
+//}
 
 ////////////////////////////////////
-// VCF 
+// VCF
 
     // pas plus rapide avec des if
     /*
@@ -73,16 +79,16 @@ void UsbCallback(uint8_t* buf, uint32_t* len)
 	} else { // == 0, 1 ou 2
 		if (curent_config.c_VCF1_TYPE == 2){
 			tmp = output1 + output1 - output2 - output2;
-		} else {// == 0 ou 1 
+		} else {// == 0 ou 1
 			if (curent_config.c_VCF1_TYPE == 0){
 				tmp = output4;
-			} else {// == 1 
+			} else {// == 1
 				tmp = output2;
 			}
 		}
 	} */
-	
-	
+
+
 ////////////////////////////////
 // ADSR
 
@@ -109,7 +115,7 @@ void UsbCallback(uint8_t* buf, uint32_t* len)
 ////////////////////////////////////////////////////////
 /*
 /*    case 4 : // chorus : ( WET + feedback, TIME, WET modulation) : OK
-		//param1 *= 1200.f;// 1/8 du temps max du chorus, en echantillons 
+		//param1 *= 1200.f;// 1/8 du temps max du chorus, en echantillons
         g_effect1_phase = wrap(g_effect1_phase + (0.2f*param1/48000.f)); // LFO : vitesse de variation du temps du chorus
         effect1_phase = g_effect1_phase;
         sound_out = 0.f; //sound_in;
@@ -177,7 +183,7 @@ void UsbCallback(uint8_t* buf, uint32_t* len)
             }
         return mix(sound_in, g_effect1_last_out, wet);
         //break;
-        * 
+        *
     case 3 : //  DOUBLE ; modulation sur amplitude
         param1M = _fclamp(param1 + param2_mod, 0.f, 1.f);
         tmp = param1;// * param1M;
@@ -272,13 +278,13 @@ void UsbCallback(uint8_t* buf, uint32_t* len)
         return sound_in;
     case 11 : delay chaos
     case 12 : WS : sin( b+(0.2+a)*in)
-    * 
+    *
     *     case 5 : // add bass : filtre (f=param1), add disto sur les basses (wet) et reforme le signal
         _fonepole(g_Effect2_filtre, sound_in, 250.f/48000.f); // on garde les basses en dessous de 150Hz
         tmp = _tanh_clip(g_Effect2_filtre * wet*5.f); // on les distord
         sound_out = sound_in+mix(0.f,(tmp-g_Effect2_filtre), wet); // ajoute a l'original
         return sound_out;
-        * 
+        *
 */
 
 /////////////////////
