@@ -17,7 +17,40 @@
 
 void delay1_clear();
 
-float table_CV2freq[269]; // TODO optimisation : passer en #define?
+float table_CV2freq[269] ;
+/* // un poile plus lent, mais 5% de flash en moins
+const float table_CV2freq[] = {
+	0.00503, 0.00533, 0.00565, 0.00598, 0.00634, 0.00671, 0.00711, 0.00754, 0.00798, 0.00846, 0.00896, 0.00949, 0.01006, 0.01066,
+	0.01129, 0.01196, 0.01267, 0.01343, 0.01423, 0.01507, 0.01597, 0.01692, 0.01792, 0.01899, 0.02012, 0.02132, 0.02258, 0.02393,
+	0.02535, 0.02686, 0.02845, 0.03014, 0.03194, 0.03384, 0.03585, 0.03798, 0.04024, 0.04263, 0.04517, 0.04785, 0.05070, 0.05371,
+	0.05690, 0.06029, 0.06387, 0.06767, 0.07170, 0.07596, 0.08048, 0.08526, 0.09033, 0.09570, 0.10139, 0.10742, 0.11381, 0.12058,
+	0.12775, 0.13534, 0.14339, 0.15192, 0.16095, 0.17052, 0.18066, 0.19140, 0.20279, 0.21484, 0.22762, 0.24115, 0.25549, 0.27069,
+	0.28678, 0.30383, 0.32190, 0.34104, 0.36132, 0.38281, 0.40557, 0.42969, 0.45524, 0.48231, 0.51099, 0.54137, 0.57356, 0.60767,
+	0.64380, 0.68209, 0.72265, 0.76562, 0.81114, 0.85938, 0.91048, 0.96462, 1.02197, 1.08274, 1.14713, 1.21534, 1.28761, 1.36417,
+	1.44529, 1.53123, 1.62228, 1.71875, 1.82095, 1.92923, 2.04395, 2.16549, 2.29426, 2.43068, 2.57522, 2.72835, 2.89058, 3.06246,
+	3.24457, 3.43750, 3.64190, 3.85846, 4.08790, 4.33098, 4.58851, 4.86136, 5.15043, 5.45669, 5.78116, 6.12493, 6.48914, 6.87500,
+	7.28381, 7.71693, 8.17580, 8.66196, 9.17702, 9.72272, 10.30086, 10.91338, 11.56233, 12.24986, 12.97827, 13.75000, 14.56762,
+	15.43385, 16.35160, 17.32391, 18.35405, 19.44544, 20.60172, 21.82677, 23.12465, 24.49971, 25.95654, 27.50000, 29.13523, 30.86771,
+	32.70320, 34.64783, 36.70810, 38.89087, 41.20345, 43.65353, 46.24930, 48.99943, 51.91309, 55.00000, 58.27047, 61.73541, 65.40639,
+	69.29565, 73.41619, 77.78175, 82.40689, 87.30706, 92.49860, 97.99886, 103.82617, 110.00000, 116.54094, 123.47083, 130.81279,
+	138.59131, 146.83238, 155.56349, 164.81378, 174.61412, 184.99721, 195.99771, 207.65234, 220.00000, 233.08188, 246.94165,
+	261.62558, 277.18262, 293.66476, 311.12698, 329.62756, 349.22824, 369.99442, 391.99542, 415.30469, 440.00000, 466.16376,
+	493.88330, 523.25116, 554.36523, 587.32953, 622.25397, 659.25513, 698.45648, 739.98883, 783.99084, 830.60938, 880.00000,
+	932.32751, 987.76660, 1046.50232, 1108.73047, 1174.65906, 1244.50793, 1318.51025, 1396.91296, 1479.97766, 1567.98169,
+	1661.21875, 1760.00000, 1864.65503, 1975.53320, 2093.00464, 2217.46094, 2349.31812, 2489.01587, 2637.02051, 2793.82593,
+	2959.95532, 3135.96338, 3322.43750, 3520.00000, 3729.31006, 3951.06641, 4186.00928, 4434.92188, 4698.63623, 4978.03174,
+	5274.04102, 5587.65186, 5919.91064, 6271.92676, 6644.87500, 7040.00000, 7458.62012, 7902.13281, 8372.01855, 8869.84375,
+	9397.27246, 9956.06348, 10548.08203, 11175.30371, 11839.82129, 12543.85352, 13289.75000, 14080.00000, 14917.24023, 15804.26562,
+	16744.03711, 17739.68750, 18794.54492, 19912.12695, 21096.16406, 22350.60742, 23679.64258, 25087.70703, 26579.50000
+};
+*/
+// case (int)freq/12:
+0:
+return
+1 : /2
+return
+2 : /4
+return
 
 volatile uint32_t g_syncro;
 
@@ -57,6 +90,70 @@ inline float _fmin(float a, float b)
 #endif // __arm__
     return r;
 }
+
+///////////////////////////////////////////////////////
+// abs
+static inline float _abs(float a) {
+    float r;
+    asm("vabs.f32 %[d], %[m]" : [d] "=t"(r) : [m] "t"(a) :);
+    return r;
+}
+// Arrondi vers zéro (trunc)
+static inline float vrintz_f32(float a) {
+    float r;
+    asm("vrintz.f32 %[d], %[m]" : [d] "=t"(r) : [m] "t"(a) :);
+    return r;
+}
+
+// Arrondi au plus proche (round)
+static inline float vrintn_f32(float a) {
+    float r;
+    asm("vrintn.f32 %[d], %[m]" : [d] "=t"(r) : [m] "t"(a) :);
+    return r;
+}
+
+// Arrondi vers +inf (ceil)
+static inline float vrintp_f32(float a) {
+    float r;
+    asm("vrintp.f32 %[d], %[m]" : [d] "=t"(r) : [m] "t"(a) :);
+    return r;
+}
+
+// Arrondi vers -inf (floor)
+static inline float vrintm_f32(float a) {
+    float r;
+    asm("vrintm.f32 %[d], %[m]" : [d] "=t"(r) : [m] "t"(a) :);
+    return r;
+}
+///// Float vers int (avec arrondi)
+static inline int32_t vcvt_s32_f32(float a) {
+    int32_t r;
+    asm("vcvt.s32.f32 %[d], %[m]" : [d] "=t"(r) : [m] "t"(a) :);
+    return r;
+}
+
+// Int vers float
+static inline float vcvt_f32_s32(int32_t a) {
+    float r;
+    asm("vcvt.f32.s32 %[d], %[m]" : [d] "=t"(r) : [m] "t"(a) :);
+    return r;
+}
+
+// Partie fractionnaire rapide
+static inline float wrap3(float x) {
+    float floor_val;
+    asm("vrintm.f32 %[d], %[m]" : [d] "=t"(floor_val) : [m] "t"(x) :);
+    return x - floor_val;
+}
+
+static inline float clamp_f32(float x, float low, float high) {
+    float r;
+    asm("vmaxnm.f32 %[d], %[n], %[m]" : [d] "=t"(r) : [n] "t"(x), [m] "t"(low) :);
+    asm("vminnm.f32 %[d], %[n], %[m]" : [d] "=t"(r) : [n] "t"(r), [m] "t"(high) :);
+    return r;
+}
+
+///////////////////////
 
 // quick clamp
 inline float _fclamp(float in, float min, float max) {
@@ -103,6 +200,7 @@ inline float wrap2(float x) {
     x = x - floorf(x);
     return x;
 }
+
 
 inline float _tanh(float x) {
   float const x2 = x*x;
@@ -749,18 +847,18 @@ inline void VCO3_pitch(voice &myvoice, float &pitch) {
 
 // --------------- potentiomettres -------------------
 inline void get_pot(uint32_t i) {
-    uint32_t raw_value;
     float tmpf;
-    uint32_t out, j, index;
-    int32_t value_min, value_max, diff;
+    uint32_t j, index;
+    int32_t raw_value, out, value_min, value_max, diff;
 
-    raw_value = hw.knobs_[i].Process_ch();
+    raw_value = (int32_t)knobs_[i].Process_ch();
     if (raw_value) { // raw_value = 0 si on n'as pas de nouvelle valeur
 		//hw.test_out(true);
 		//hw.seed.SetLed(true);
         index = ++g_filter_index[i];
         index = (index >= filter_order)? 0:index;
         g_filter_index[i] = index;
+
         out = g_pot16[i];
         diff = raw_value - out;
         if (diff > 0) {
@@ -782,7 +880,12 @@ inline void get_pot(uint32_t i) {
            ((value_min <= -64) ? value_min + 60 : value_min >> 4);
 
         out += diff;
-        g_pot16[i] = out;
+        if (out < 0) out = 0;
+		else if (out > 65535) out = 65535;
+    	if (!isfinite(out)) { out = 0; }
+
+		g_pot16[i] = out;
+
         tmpf = (float) out;
         tmpf -= 150.f;
         tmpf = _fmax(tmpf,0.f);
