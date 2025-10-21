@@ -15,12 +15,6 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
-// optimisation : -0fast
-// utilisation du dsp
-// tester de tout passer en double (pb de taille)
-// tester les instruction arm_math
-// // __attribute__((section(".dtcmram_bss")))
-
 //#define proto2 // commenter pour la version final
 
 #include <stdio.h>
@@ -187,7 +181,6 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
     }
     g_clip -= 0.003f;
     hw.test_out(false);
-    g_syncro = 1; // pour syncroniser l'aquisition des pots juste apres la fin de l'interuption audio
 }
 
 int main(void)
@@ -255,14 +248,9 @@ int main(void)
 		uint32_t loop;
 		uint32_t i=0; // get potentiometter loop
 
-		while (g_syncro ==0) { // on attend la fin de la boucle audio
-			    hw.test_out(false);
-			    hw.test_out(true);
-		}
-		g_syncro = 0;
-		hw.test_out(true);
+		//hw.test_out(true);
 
-		for (i=0; i<nb_CV; i++) {
+		for (i=0; i<nb_CV; i++) { // 6.5 µs
 			__disable_irq(); // pas d'interuption pendant l'assignation des valeurs des pots
 			__asm__ volatile ("" ::: "memory"); // bloque la reoganisation desmemoire avec -O3
 			if (g_switch_configuration != MENU_LOAD)  {
@@ -271,6 +259,8 @@ int main(void)
 			__asm__ volatile ("" ::: "memory");
 			__enable_irq();  // fin de la partie critique
 		}
+		//hw.test_out(false);
+
 		get_analog_in();
         get_keyboard(); // test keyboard and display leds accordingly;
         get_midi(); // test reception de midi data
