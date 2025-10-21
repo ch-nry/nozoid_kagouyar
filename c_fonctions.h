@@ -53,8 +53,6 @@ return
 return
 */
 
-volatile uint32_t g_syncro;
-
 ////////////////////////////////////////////////////
 // from daisysp
 /* one pole lpf
