@@ -43,7 +43,7 @@ const float table_CV2freq[] = {
 	9397.27246, 9956.06348, 10548.08203, 11175.30371, 11839.82129, 12543.85352, 13289.75000, 14080.00000, 14917.24023, 15804.26562,
 	16744.03711, 17739.68750, 18794.54492, 19912.12695, 21096.16406, 22350.60742, 23679.64258, 25087.70703, 26579.50000
 };
-*/
+
 // case (int)freq/12:
 0:
 return
@@ -51,6 +51,7 @@ return
 return
 2 : /4
 return
+*/
 
 volatile uint32_t g_syncro;
 
@@ -851,7 +852,7 @@ inline void get_pot(uint32_t i) {
     uint32_t j, index;
     int32_t raw_value, out, value_min, value_max, diff;
 
-    raw_value = (int32_t)knobs_[i].Process_ch();
+    raw_value = (int32_t)hw.knobs_[i].Process_ch();
     if (raw_value) { // raw_value = 0 si on n'as pas de nouvelle valeur
 		//hw.test_out(true);
 		//hw.seed.SetLed(true);
@@ -871,13 +872,14 @@ inline void get_pot(uint32_t i) {
         value_min = g_filter_moins[i][0];
         value_max = g_filter_plus[i][0];
         for (j=1; j < filter_order; j++) {
-            value_min = value_min>g_filter_moins[i][j]?value_min:g_filter_moins[i][j];
-            value_max = value_max<g_filter_plus[i][j]?value_max:g_filter_plus[i][j];
-        }
+            value_min = value_min>g_filter_moins[i][j]?value_min:g_filter_moins[i][j]; // on prend la plus haute valeur min
+            value_max = value_max<g_filter_plus[i][j]?value_max:g_filter_plus[i][j]; // on prend la plus basse valeur max
+        } // permet de virer les pics
 
         diff = (value_max > -value_min) ?
            ((value_max >= 64) ? value_max - 60 : value_max >> 4) :
            ((value_min <= -64) ? value_min + 60 : value_min >> 4);
+			// pour se recentrer rapidement en cas de mouvmeent brusque, ou lentement en cas de mvt tres lent
 
         out += diff;
         if (out < 0) out = 0;
