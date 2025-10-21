@@ -854,7 +854,6 @@ inline void get_pot(uint32_t i) {
 
     raw_value = (int32_t)hw.knobs_[i].Process_ch();
     if (raw_value) { // raw_value = 0 si on n'as pas de nouvelle valeur
-		//hw.test_out(true);
 		//hw.seed.SetLed(true);
         index = ++g_filter_index[i];
         index = (index >= filter_order)? 0:index;
@@ -889,9 +888,9 @@ inline void get_pot(uint32_t i) {
 		g_pot16[i] = out;
 
         tmpf = (float) out;
-        tmpf -= 150.f;
+        tmpf -= 250.f;
         tmpf = _fmax(tmpf,0.f);
-        tmpf *= 1.f/65300.f; // pour etre sur d'etre entre 0. et 1.
+        tmpf *= 1.f/65000.f; // pour etre sur d'etre entre 0. et 1.
         tmpf +=  g_midi_parameter[i];
         tmpf= _fmin(tmpf,1.f);
         g_knob[i] = tmpf;
