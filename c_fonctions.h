@@ -851,7 +851,8 @@ inline void get_pot(uint32_t i) {
     int32_t raw_value, out, value_min, value_max, diff;
 
     raw_value = (int32_t)hw.knobs_[i].Process_ch();
-    if (raw_value) { // raw_value = 0 si on n'as pas de nouvelle valeur
+    if ((raw_value > 0) && (raw_value < 65535) && (isfinite(raw_value))  ) { // raw_value = 0 si on n'as pas de nouvelle valeur
+		// on vire les valeurs abherentes
 		//hw.seed.SetLed(true);
         index = ++g_filter_index[i];
         index = (index >= filter_order)? 0:index;
@@ -872,19 +873,19 @@ inline void get_pot(uint32_t i) {
             value_min = value_min>g_filter_moins[i][j]?value_min:g_filter_moins[i][j]; // on prend la plus haute valeur min
             value_max = value_max<g_filter_plus[i][j]?value_max:g_filter_plus[i][j]; // on prend la plus basse valeur max
         } // permet de virer les pics
+		// ces 2 operations fonctionnent comme un filtre median : on vire les trop haute ou trop basse
+		// on ne se deplace que si les n dernier echantillons sont soit d'un coté, soit de l'autre
 
-        diff = (value_max > -value_min) ?
+        diff = (value_max > -value_min) ? // on regarde ou on se trouve par rapport a ces 2 valeurs
            ((value_max >= 64) ? value_max - 60 : value_max >> 4) :
            ((value_min <= -64) ? value_min + 60 : value_min >> 4);
-			// pour se recentrer rapidement en cas de mouvmeent brusque, ou lentement en cas de mvt tres lent
+			// pour se recentrer rapidement en cas de mouvement brusque, ou lentement en cas de mvt tres lent, tout en gardant un peu d'hysteresys
+			// si on est trop loin : on saute directement, si on est proche, on se recentre doucement
+			// ce filtre combine filtre median (FIR), low pass (IIR), hysteresys, tout en ayant une tres grande reactivité
 
-        out += diff;
-        if (out < 0) out = 0;
-		else if (out > 65535) out = 65535;
-    	if (!isfinite(out)) { out = 0; }
+		out += diff;
 
 		g_pot16[i] = out;
-
         tmpf = (float) out;
         tmpf -= 250.f;
         tmpf = _fmax(tmpf,0.f);
