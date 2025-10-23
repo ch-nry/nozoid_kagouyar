@@ -252,7 +252,7 @@ int main(void)
 
 		for (i=0; i<nb_CV; i++) { // 6.5 µs
 			__disable_irq(); // pas d'interuption pendant l'assignation des valeurs des pots
-			__asm__ volatile ("" ::: "memory"); // bloque la reoganisation desmemoire avec -O3
+			__asm__ volatile ("" ::: "memory"); // bloque la reoganisation des memoire avec -O3
 			if (g_switch_configuration != MENU_LOAD)  {
 				get_pot(i);
 			}
