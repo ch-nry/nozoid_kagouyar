@@ -256,6 +256,9 @@ int main(void)
 			if (g_switch_configuration != MENU_LOAD)  {
 				get_pot(i);
 			}
+			else {
+				g_pot_increment[i] = 0; // on coupe le filtrage si on ne veut pas continuer d'evoluer
+			}
 			__asm__ volatile ("" ::: "memory");
 			__enable_irq();  // fin de la partie critique
 		}
