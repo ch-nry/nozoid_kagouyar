@@ -264,7 +264,12 @@ int main(void)
 		}
 		//hw.test_out(false);
 
+		__disable_irq(); // pas d'interuption pendant l'assignation des valeurs des pots
+		__asm__ volatile ("" ::: "memory"); // bloque la reoganisation des memoire avec -O3
 		get_analog_in();
+		__asm__ volatile ("" ::: "memory");
+		__enable_irq();  // fin de la partie critique
+
         get_keyboard(); // test keyboard and display leds accordingly;
         get_midi(); // test reception de midi data
 
