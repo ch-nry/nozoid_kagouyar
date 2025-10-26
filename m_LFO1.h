@@ -120,8 +120,8 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
 
                 float const WF = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
 
-                modulation = _fmin(WF, WF1+2.f*(1.f-mix_factor));
-                modulation = _fmax(modulation, WF1-2.f*(1.f-mix_factor));
+                modulation = fminf(WF, WF1+2.f*(1.f-mix_factor));
+                modulation = fmaxf(modulation, WF1-2.f*(1.f-mix_factor));
             }
             break;
         case LFO_Fold : // fold : OK

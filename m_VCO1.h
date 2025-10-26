@@ -87,7 +87,7 @@ inline float VCO1(uint32_t j, float frequency) {
     g_Modulation[VCO1_SAW] = -ramp; // saw down
 
 	increment = fabs(increment); // pour la FM, si increment est negatif cela pose des pb partout
-	//increment = _fmax(increment, 1e-6f); // Au lieu de 1e-10
+	//increment = fmaxf(increment, 1e-6f); // Au lieu de 1e-10
 
     VCO1_PM *= 4.f;
     VCO1_phase_local += VCO1_PM;
@@ -127,7 +127,7 @@ inline float VCO1(uint32_t j, float frequency) {
         break;
     case 5 :  // noise filter
         tmp = 2.f*_rnd_f()-1.f;
-        _fonepole(allvoice[j].v_VCO1_filter1, tmp, abs(_fmin(increment*15.f, 1.f)));
+        _fonepole(allvoice[j].v_VCO1_filter1, tmp, abs(fminf(increment*15.f, 1.f)));
         tmp = CV2freq(60.f + PWM_local * 60.f)*(1.f/13000.f);
         _fonepole(allvoice[j].v_VCO1_filter2, allvoice[j].v_VCO1_filter1, tmp);
         out = 2.f * (allvoice[j].v_VCO1_filter2-allvoice[j].v_VCO1_filter1);

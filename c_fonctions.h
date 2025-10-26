@@ -53,6 +53,10 @@ return
 return
 */
 
+#define MIN(a,b) (((a) < (b)) ? (a) : (b))
+#define MAX(a,b) (((a) > (b)) ? (a) : (b))
+
+
 ////////////////////////////////////////////////////
 // from daisysp
 /* one pole lpf
@@ -69,28 +73,9 @@ inline void _fonepole(float &out, float in, float coeff) {
 /** efficient floating point min/max
 c/o stephen mccaul
 */
-inline float _fmax(float a, float b)
-{
-    float r;
-#ifdef __arm__
-    asm("vmaxnm.f32 %[d], %[n], %[m]" : [d] "=t"(r) : [n] "t"(a), [m] "t"(b) :);
-#else
-    r = (a > b) ? a : b;
-#endif // __arm__
-    return r;
-}
-inline float _fmin(float a, float b)
-{
-    float r;
-#ifdef __arm__
-    asm("vminnm.f32 %[d], %[n], %[m]" : [d] "=t"(r) : [n] "t"(a), [m] "t"(b) :);
-#else
-    r = (a < b) ? a : b;
-#endif // __arm__
-    return r;
-}
+/*
+///////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////
 // abs
 static inline float _abs(float a) {
     float r;
@@ -151,15 +136,15 @@ static inline float clamp_f32(float x, float low, float high) {
     asm("vminnm.f32 %[d], %[n], %[m]" : [d] "=t"(r) : [n] "t"(r), [m] "t"(high) :);
     return r;
 }
-
+*/
 ///////////////////////
 
 // quick clamp
 inline float _fclamp(float in, float min, float max) {
-    return _fmin(_fmax(in, min), max);
+    return fminf(fmaxf(in, min), max);
 }
 inline float _fclamp2(float in, float min, float max) {
-    return _fmax(_fmin(in, max), min);
+    return fmaxf(fminf(in, max), min);
 }
 
 inline float mix(float in1, float in2, float mix){ // mix from 0 to 1
@@ -785,7 +770,7 @@ int load_config(uint32_t slot)
 		curent_config.c_CV2_offset = tmp_config.c_CV2_offset;
 		curent_config.c_CV1_gain = tmp_config.c_CV1_gain;
 	}
-    curent_config.c_MIDI_channel = _fmin(12, _fmax(-1, tmp_config.c_MIDI_channel));
+    curent_config.c_MIDI_channel = MIN(12, MAX(-1, tmp_config.c_MIDI_channel));
     curent_config.c_VCO1_WF = tmp_config.c_VCO1_WF%10;
     curent_config.c_VCO1_RANGE = tmp_config.c_VCO1_RANGE%3;
     curent_config.c_VCO2_WF = tmp_config.c_VCO2_WF%10;
@@ -799,7 +784,7 @@ int load_config(uint32_t slot)
     curent_config.c_VCF1_MOD2_TYPE = tmp_config.c_VCF1_MOD2_TYPE%2;
     curent_config.c_VCF1_pitch_TRACK = tmp_config.c_VCF1_pitch_TRACK%3;
     curent_config.c_ADSR_LOOP = tmp_config.c_ADSR_LOOP%3;
-    curent_config.c_KEYBOARD_octave = _fmin(2, _fmax(-3,tmp_config.c_KEYBOARD_octave));
+    curent_config.c_KEYBOARD_octave = MIN(2, MAX(-3,tmp_config.c_KEYBOARD_octave));
     curent_config.c_KEYBOARD_toggle = tmp_config.c_KEYBOARD_toggle%2;
     curent_config.c_VCA_TYPE = tmp_config.c_VCA_TYPE%2;
     curent_config.c_LFO1_RANGE = tmp_config.c_LFO1_RANGE%4;
@@ -888,10 +873,10 @@ inline void get_pot(uint32_t i) {
 		g_pot16[i] = out;
         tmpf = (float) out;
         tmpf -= 250.f;
-        tmpf = _fmax(tmpf,0.f);
+        tmpf = fmaxf(tmpf,0.f);
         tmpf *= 1.f/65000.f; // pour etre sur d'etre entre 0. et 1.
         tmpf +=  g_midi_parameter[i];
-        tmpf= _fmin(tmpf,1.f);
+        tmpf= fminf(tmpf,1.f);
         g_knob[i] = tmpf;
         g_pot_increment[i] = (tmpf - g_pot_audio[i]) * coef_CV_to_audio_filter;
     }

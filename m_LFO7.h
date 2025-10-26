@@ -39,7 +39,7 @@ inline void LFO7(float increment, float WF, float sym) {
     }
 
     float const forme = WF * 3.f;                                 // on separe en 4 WF : tri / sin / tanh(sin) / square
-    float const forme1 = _fmin(forme,1.f);                        // tri a sinus
+    float const forme1 = fminf(forme,1.f);                        // tri a sinus
     float const forme2 = _fclamp(forme-1.f,0.f,2.f)*0.5f;         // sinus a disto(sin)
 
     out = (out + out) -1.f;  // triangle

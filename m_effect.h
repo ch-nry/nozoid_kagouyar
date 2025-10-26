@@ -126,7 +126,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
         //g_delay_effect1.SetDelay(tmp);
         //tmp = g_delay_effect1.Read();
         tmp = delay1_read_f(tmp);
-        _fonepole(g_effect1_last_out, tmp,_fmin(1.,CV2freq(wet*127.f)*(1.f/12000.f)));
+        _fonepole(g_effect1_last_out, tmp,fminf(1.,CV2freq(wet*127.f)*(1.f/12000.f)));
         sound_out = sound_in - g_effect1_last_out;
 
         if(sound_out >  1.f) sound_out =  1.f + _tanh_clip(sound_out - 1.f); // soft clip with ID between -1 and 1;
@@ -228,13 +228,13 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         //sound_out = sign(sound_out) * (1.5f - 1.5f/(2.f*fabs(sound_out) + 1.f));
         sound_out = _floor(sound_out/wet)*wet;
         //sound_out = sign(sound_out) * (-0.5f - 0.75f/(fabs(sound_out)-1.5f)); // Pq ca ne marche pas???
-        return mix(sound_in, sound_out, _fmin(1.f,10.f*wet));
+        return mix(sound_in, sound_out, fminf(1.f,10.f*wet));
     case 3: // auto doppler : on utilise le son comme temps de delay : OK
         g_delay_effect2.Write(sound_in);
         tmp = wet * 10000.f;
         tmp *=  (1.f+sound_in);
         _fonepole(g_Effect2_filtre, tmp, 0.001f); // smooth le paramettre de temps et filtre le audio in
-        g_delay_effect2.SetDelay(_fmax(1.f,g_Effect2_filtre));
+        g_delay_effect2.SetDelay(fmaxf(1.f,g_Effect2_filtre));
         sound_out = g_delay_effect2.Read();
         return sound_out;
     case 4 : // granular sub frequency generator : OK
@@ -252,13 +252,13 @@ inline float effect2(float sound_in) { //, float param, float param1) {
     case 5: // compresseur- attenuateur :
     //  qd pas de modulation, que faire avec param???
         tmp = fabs(sound_in);
-        tmp = _fmin(tmp, 3.f); // on ne devrait pas avoir de son plus fort que ca.
+        tmp = fminf(tmp, 3.f); // on ne devrait pas avoir de son plus fort que ca.
         if (tmp > g_effect2_sound_env) {
             g_effect2_sound_env = mix(g_effect2_sound_env, tmp, 0.01f); // temps de monté rapide
         } else {
             g_effect2_sound_env = mix(g_effect2_sound_env, tmp, 0.001f); // temps de descente lent
         }
-        tmp = _fmax(g_effect2_sound_env, 0.1f);                        // volume actuel
+        tmp = fmaxf(g_effect2_sound_env, 0.1f);                        // volume actuel
         tmp2 = tmp*param*param*param*20.f;
         tmp2 = (tmp + tmp2) / (1.f + fabs(tmp2));             // new volume
         sound_out = sound_in * tmp2/tmp;        // compress

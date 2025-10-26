@@ -130,7 +130,7 @@ void leds_mode_normal() {
 	}
     hw.led_driver_.SetLed_ch(LED_GAIN, g_clip);
 
-    g_MIDI_led_time = _fmax(0.f, g_MIDI_led_time - 0.02f);
+    g_MIDI_led_time = fmaxf(0.f, g_MIDI_led_time - 0.02f);
 
     hw.led_driver_.SwapBuffersAndTransmit();
 }

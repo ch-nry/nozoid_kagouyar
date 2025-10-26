@@ -94,7 +94,7 @@ float ADSR(uint32_t j) {
         ADSR_out = 1.f;
         ADSR_mode = Decay;
     } else
-        ADSR_out = _fmax(0.f,ADSR_out);
+        ADSR_out = fmaxf(0.f,ADSR_out);
 
     allvoice[j].v_ADSR_out = ADSR_out;
     g_Modulation[ADSR_OUT] = ADSR_out; // on met la bonne ADSR ds les modulations
@@ -107,7 +107,7 @@ inline float VCA(uint32_t j, float sound) { // each voice gain
     if (curent_config.c_VCA_TYPE == 0) {
         return sound * allvoice[j].v_ADSR_out * allvoice[j].v_ADSR_out;
     } else {
-        _fonepole(allvoice[j].v_LPG_last, sound, _fmin(1.,CV2freq(-80.f + allvoice[j].v_ADSR_out * 208.f)*(1.f/12000.f)));
+        _fonepole(allvoice[j].v_LPG_last, sound, fminf(1.,CV2freq(-80.f + allvoice[j].v_ADSR_out * 208.f)*(1.f/12000.f)));
         return allvoice[j].v_LPG_last;
     }
 }

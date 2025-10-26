@@ -535,8 +535,8 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 			if (change_configuration) { // action seulement a l'appuie de la touche
 				if (g_CV2KB)
 				{// octave + et - sur les touches CV1 et 2
-					if (switch_configuration == MENU_CV1)   curent_config.c_KEYBOARD_octave = _fmin(curent_config.c_KEYBOARD_octave+1, 2);
-					if (switch_configuration == MENU_CV2)   curent_config.c_KEYBOARD_octave = _fmax(curent_config.c_KEYBOARD_octave-1, -3);
+					if (switch_configuration == MENU_CV1)   curent_config.c_KEYBOARD_octave = MIN(curent_config.c_KEYBOARD_octave+1, 2);
+					if (switch_configuration == MENU_CV2)   curent_config.c_KEYBOARD_octave = MAX(curent_config.c_KEYBOARD_octave-1, -3);
 				}
 				if (switch_configuration == MENU_LOAD)   led_time = 0;
 				if (switch_configuration == MENU_SAVE)   led_time = 0;
