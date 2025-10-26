@@ -24,9 +24,9 @@ inline float ADSR_time2filter(float time) {
 // time*SR = 1 000 000 : 20s
     float tmp;
     tmp = CV2freq(time*(128.f+36.f) -36.3763f); // from 1 to 12 000
-    tmp *= 80.; // from 80 to 1 000 000
-    tmp -= 79; // from 1 to 1 000 000
-    return 1 / tmp;
+    tmp *= 80.f; // from 80 to 1 000 000
+    tmp -= 79.f; // from 1 to 1 000 000
+    return 1.f / tmp;
 }
 
 //float ADSR(uint32_t j, float A, float D, float S, float R) {
