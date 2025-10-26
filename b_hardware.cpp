@@ -143,8 +143,8 @@ static constexpr I2CHandle::Config i2c_kb_config
 void Kagouyar::Init()
 { // Initialize the hardware.
 
-	//SCB->CPACR |= (0xF << 20); // activer CP10 et CP11 (accès complet)
-	//FPU->FPCCR |= (FPU_FPCCR_ASPEN_Msk | FPU_FPCCR_LSPEN_Msk);
+	SCB->CPACR |= (0xF << 20); // activer CP10 et CP11 (accès complet)
+	FPU->FPCCR |= (FPU_FPCCR_ASPEN_Msk | FPU_FPCCR_LSPEN_Msk);
 
     seed.Configure();
     seed.Init(true); // true = c'est le boost mode des adc
