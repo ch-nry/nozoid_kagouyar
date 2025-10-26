@@ -505,6 +505,8 @@ void init_variables() {
         allvoice[i].v_VCO3_last[1] = _rnd_f();
         allvoice[i].v_VCO3_last[0] = 0.;
         allvoice[i].v_VCO3_phase= 0.;
+
+        allvoice[i].v_ADSR_mode = Release;
     }
 
     // mtof table initialisation in RAM
@@ -514,8 +516,9 @@ void init_variables() {
     g_state_kb = 7; // force le recalcul des boutons etc
 
     //MIDI
-    for (i=0; i<nb_potentiometer; i++) g_midi_parameter[i] = 0.;
-
+    for (i=0; i<nb_potentiometer; i++) {
+		g_midi_parameter[i] = 0.;
+	}
     // Init des voies de polyphonie
     for (int i=0; i<nb_voice; i++) {
         allvoice[i].v_priority = i+1; // la voie 1 est la plus prioritaire apres l'initialisation

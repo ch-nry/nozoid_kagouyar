@@ -114,18 +114,18 @@ const uint32_t table_midi_order[] = {k_VCO1_fq,  k_VCO1_wfm, k_VCO1_mod1, k_VCO1
 	 k_LFO7_sym, k_EFFECT1_wet, k_EFFECT1_p1, k_EFFECT1_p2, k_EFFECT2_wet, k_EFFECT2_p1, k_VCF2_fq, k_VCF2_mod, k_GAIN};
 
 // potentiomettres:
-volatile float g_pot_increment[nb_CV] __attribute__((aligned(4))); // utilisé pour le filtre IIR en audio
-volatile float g_pot_audio[nb_CV] __attribute__((aligned(4))); // valeur des pots mais filtré en audio
-volatile int32_t g_pot16[nb_CV] __attribute__((aligned(4))); // filtre en 16 bit
-volatile uint32_t g_filter_index[nb_CV] __attribute__((aligned(4)));
-int32_t g_filter_moins[nb_CV][filter_order];
-int32_t g_filter_plus[nb_CV][filter_order];
+volatile float g_pot_increment[nb_CV] __attribute__((aligned(4))) = {0.0f}; // utilisé pour le filtre IIR en audio
+volatile float g_pot_audio[nb_CV] __attribute__((aligned(4))) = {0.0f}; // valeur des pots mais filtré en audio
+volatile int32_t g_pot16[nb_CV] __attribute__((aligned(4))) = {0}; // filtre en 16 bit
+volatile uint32_t g_filter_index[nb_CV] __attribute__((aligned(4))) = {0};
+int32_t g_filter_moins[nb_CV][filter_order] = {0};
+int32_t g_filter_plus[nb_CV][filter_order] = {0};
 
 // MIDI
-volatile float g_midi_parameter[nb_CV];
-volatile float g_knob[nb_CV];
-volatile float g_MIDI_LFO_increment;
-volatile float g_MIDI_led_time;
+volatile float g_midi_parameter[nb_CV] = {0.0f};
+volatile float g_knob[nb_CV] = {0.0f};
+volatile float g_MIDI_LFO_increment = 0.0f;
+volatile float g_MIDI_led_time = 0.0f;
 
 // Random
 volatile int32_t g_randomSeed_v;
@@ -141,7 +141,7 @@ int32_t g_last_load_save  = -1;
 uint32_t led_time = 0;
 
 // sheduller :
-volatile int32_t g_time;
+volatile int32_t g_time = 0;
 
 // MIDI
 uint32_t g_MIDI_exprssion_LSB = 0, g_MIDI_MODWHEEL_LSB = 0, g_RNPN_value_MSB = 0, g_RNPN_value_LSB = 0, g_RNPN_addresse_MSB = 0, g_RNPN_addresse_LSB = 0;
