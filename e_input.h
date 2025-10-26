@@ -1058,7 +1058,8 @@ void midi_in(uint32_t MIDI_data) {
 // analogue input
 ///////////////////////////////////////////////////////
 
-inline void get_analog_in() {
+inline void compute_CV_in() {
+	// les valeurs sont deja recupérer par get_pot()
     uint32_t analog_gate;
 	float tmpf;
 	tmpf = ((0.5f -  g_knob[k_CV1]) - g_CV1_offset) * 2.f ;

@@ -266,7 +266,7 @@ int main(void)
 
 		__disable_irq(); // pas d'interuption pendant l'assignation des valeurs des pots
 		__asm__ volatile ("" ::: "memory"); // bloque la reoganisation des memoire avec -O3
-		get_analog_in();
+		compute_CV_in();
 		__asm__ volatile ("" ::: "memory");
 		__enable_irq();  // fin de la partie critique
 
