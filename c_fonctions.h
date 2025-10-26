@@ -475,11 +475,73 @@ inline float tri_bl(float phase, float increment, float &last_out) {
     return 4.*out;
 }
 
+
+// --------------- potentiomettres -------------------
+inline uint32_t get_pot(uint32_t i) {
+    float tmpf;
+    uint32_t j, index;
+    int32_t raw_value, out, value_min, value_max, diff;
+
+    raw_value = (int32_t)hw.knobs_[i].Process_ch();
+    if ((raw_value > 0) && (raw_value < 65535) && (isfinite(raw_value))  ) { // raw_value = 0 si on n'as pas de nouvelle valeur
+		// on vire les valeurs abherentes
+		//hw.seed.SetLed(true);
+        index = ++g_filter_index[i];
+        index = (index >= filter_order)? 0:index;
+        g_filter_index[i] = index;
+
+        out = g_pot16[i];
+        diff = raw_value - out;
+        if (diff > 0) {
+            g_filter_moins[i][index] = 0;
+            g_filter_plus[i][index]  = diff;
+        } else {
+            g_filter_moins[i][index] = diff;
+            g_filter_plus[i][index]  = 0;
+        }
+        value_min = g_filter_moins[i][0];
+        value_max = g_filter_plus[i][0];
+        for (j=1; j < filter_order; j++) {
+            value_min = value_min>g_filter_moins[i][j]?value_min:g_filter_moins[i][j]; // on prend la plus haute valeur min
+            value_max = value_max<g_filter_plus[i][j]?value_max:g_filter_plus[i][j]; // on prend la plus basse valeur max
+        } // permet de virer les pics
+		// ces 2 operations fonctionnent comme un filtre median : on vire les trop haute ou trop basse
+		// on ne se deplace que si les n dernier echantillons sont soit d'un coté, soit de l'autre
+
+        diff = (value_max > -value_min) ? // on regarde ou on se trouve par rapport a ces 2 valeurs
+           ((value_max >= 64) ? value_max - 60 : value_max >> 4) :
+           ((value_min <= -64) ? value_min + 60 : value_min >> 4);
+			// pour se recentrer rapidement en cas de mouvement brusque, ou lentement en cas de mvt tres lent, tout en gardant un peu d'hysteresys
+			// si on est trop loin : on saute directement, si on est proche, on se recentre doucement
+			// ce filtre combine filtre median (FIR), low pass (IIR), hysteresys, tout en ayant une tres grande reactivité
+
+		out += diff;
+
+		g_pot16[i] = out;
+        tmpf = (float) out;
+        tmpf -= 250.f;
+        tmpf = fmaxf(tmpf,0.f);
+        tmpf *= 1.f/65000.f; // pour etre sur d'etre entre 0. et 1.
+        tmpf +=  g_midi_parameter[i];
+        tmpf= fminf(tmpf,1.f);
+        g_knob[i] = tmpf;
+        g_pot_increment[i] = (tmpf - g_pot_audio[i]) * coef_CV_to_audio_filter;
+        return(1);
+    }
+    return(0);
+    //hw.seed.SetLed(false);
+    //hw.test_out(false);
+}
+
 void init_variables() {
     uint32_t i;
   	volatile uint32_t tmp;
 
     for (i=0; i<2.*modulation_source_last; i++) g_Modulation[i] = 0.;
+
+	for (i=0; i<48; i++) {
+		while (get_pot(i) == 0.); // initialisation des valeurs des potentiomettres
+	}
 
 	do {tmp = hw.knobs_[k_CV1].Process_ch();} // on sort de l'initialisation, on attend d'avoir une valeur
 	while (tmp == 0.);
@@ -828,59 +890,4 @@ inline void VCO2_pitch(voice &myvoice, float &pitch) {
 }
 inline void VCO3_pitch(voice &myvoice, float &pitch) {
     if(curent_config.c_VCO3_LINK) pitch += myvoice.v_VCO1_pitch -(60.f + myvoice.v_pitch); else pitch +=  g_MIDI_pitchWHEEL;
-}
-
-// --------------- potentiomettres -------------------
-inline void get_pot(uint32_t i) {
-    float tmpf;
-    uint32_t j, index;
-    int32_t raw_value, out, value_min, value_max, diff;
-
-    raw_value = (int32_t)hw.knobs_[i].Process_ch();
-    if ((raw_value > 0) && (raw_value < 65535) && (isfinite(raw_value))  ) { // raw_value = 0 si on n'as pas de nouvelle valeur
-		// on vire les valeurs abherentes
-		//hw.seed.SetLed(true);
-        index = ++g_filter_index[i];
-        index = (index >= filter_order)? 0:index;
-        g_filter_index[i] = index;
-
-        out = g_pot16[i];
-        diff = raw_value - out;
-        if (diff > 0) {
-            g_filter_moins[i][index] = 0;
-            g_filter_plus[i][index]  = diff;
-        } else {
-            g_filter_moins[i][index] = diff;
-            g_filter_plus[i][index]  = 0;
-        }
-        value_min = g_filter_moins[i][0];
-        value_max = g_filter_plus[i][0];
-        for (j=1; j < filter_order; j++) {
-            value_min = value_min>g_filter_moins[i][j]?value_min:g_filter_moins[i][j]; // on prend la plus haute valeur min
-            value_max = value_max<g_filter_plus[i][j]?value_max:g_filter_plus[i][j]; // on prend la plus basse valeur max
-        } // permet de virer les pics
-		// ces 2 operations fonctionnent comme un filtre median : on vire les trop haute ou trop basse
-		// on ne se deplace que si les n dernier echantillons sont soit d'un coté, soit de l'autre
-
-        diff = (value_max > -value_min) ? // on regarde ou on se trouve par rapport a ces 2 valeurs
-           ((value_max >= 64) ? value_max - 60 : value_max >> 4) :
-           ((value_min <= -64) ? value_min + 60 : value_min >> 4);
-			// pour se recentrer rapidement en cas de mouvement brusque, ou lentement en cas de mvt tres lent, tout en gardant un peu d'hysteresys
-			// si on est trop loin : on saute directement, si on est proche, on se recentre doucement
-			// ce filtre combine filtre median (FIR), low pass (IIR), hysteresys, tout en ayant une tres grande reactivité
-
-		out += diff;
-
-		g_pot16[i] = out;
-        tmpf = (float) out;
-        tmpf -= 250.f;
-        tmpf = fmaxf(tmpf,0.f);
-        tmpf *= 1.f/65000.f; // pour etre sur d'etre entre 0. et 1.
-        tmpf +=  g_midi_parameter[i];
-        tmpf= fminf(tmpf,1.f);
-        g_knob[i] = tmpf;
-        g_pot_increment[i] = (tmpf - g_pot_audio[i]) * coef_CV_to_audio_filter;
-    }
-    //hw.seed.SetLed(false);
-    //hw.test_out(false);
 }
