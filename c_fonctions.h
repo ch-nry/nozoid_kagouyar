@@ -383,12 +383,10 @@ inline float Polyblep2(const float increment, const float phase) {
     if (t >= increment && t - 1.f <= -increment) {
         return 0.0f;
     }
-
     if (t < increment) {
         const float normalizedT = t / increment;
         return normalizedT * (2.f - normalizedT) - 1.0f;
     }
-
     const float normalizedT = (t - 1.0f) / increment;
     return normalizedT * (normalizedT + 2.f) + 1.0f;
 }
