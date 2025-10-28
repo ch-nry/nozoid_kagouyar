@@ -17,6 +17,9 @@
 
 //#define proto2 // commenter pour la version final
 
+// TODO : passer fabs en fabsf, ainsi que les autre fonctions
+//utiliser les fonctions definit, et moins de definitions perso
+
 #include <stdio.h>
 #include <string.h>
 #include "daisysp.h"

@@ -43,14 +43,6 @@ const float table_CV2freq[] = {
 	9397.27246, 9956.06348, 10548.08203, 11175.30371, 11839.82129, 12543.85352, 13289.75000, 14080.00000, 14917.24023, 15804.26562,
 	16744.03711, 17739.68750, 18794.54492, 19912.12695, 21096.16406, 22350.60742, 23679.64258, 25087.70703, 26579.50000
 };
-
-// case (int)freq/12:
-0:
-return
-1 : /2
-return
-2 : /4
-return
 */
 
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
@@ -70,29 +62,58 @@ inline void _fonepole(float &out, float in, float coeff) {
     out += coeff * (in - out);
 }
 
-/** efficient floating point min/max
-c/o stephen mccaul
-*/
 /*
 ///////////////////////////////////////////////////
+ceilf  arrondi vers le bas
+floorf : arondi vers le haut
+truncf : tronque (vers zero)
+modf() = x-floor(x)
+fabsf
+fminf
+sqrtf : assez rapide
+modff(x,1.f);
 
-// abs
-static inline float _abs(float a) {
-    float r;
-    asm("vabs.f32 %[d], %[m]" : [d] "=t"(r) : [m] "t"(a) :);
-    return r;
+float result = __builtin_floorf(x);
+result = __builtin_ceilf(x);
+result = __builtin_truncf(x);
+result = __builtin_roundf(x);
+//#include "arm_math.h"
+arm_truncf(x)
+
+
+static inline float floorf_fast(float x)
+{
+    int i = (int)x;                   // conversion tronquée (vers 0)
+    return (x < 0.0f && x != (float)i) ? (float)(i - 1) : (float)i;
 }
+
+static inline float signf_fast(float x)
+{
+    return (x > 0.0f) - (x < 0.0f);
+}
+
+static inline float wrap01f(float x)
+{
+    x = x - (int)x;            // enlève la partie entière
+    if (x < 0.0f) x += 1.0f;   // corrige si négatif
+    return x;
+}
+
+static inline float wrap01f_fast(float x)
+{
+    float y = x - (int)x;
+    return (y < 0.0f) ? (y + 1.0f) : y;
+}
+static inline float wrap01f_bits(float x)
+{
+    // Pas totalement exacte mais rapide pour |x| < 2^23
+    return x - (float)((int)x);
+}
+
 // Arrondi vers zéro (trunc)
 static inline float vrintz_f32(float a) {
     float r;
     asm("vrintz.f32 %[d], %[m]" : [d] "=t"(r) : [m] "t"(a) :);
-    return r;
-}
-
-// Arrondi au plus proche (round)
-static inline float vrintn_f32(float a) {
-    float r;
-    asm("vrintn.f32 %[d], %[m]" : [d] "=t"(r) : [m] "t"(a) :);
     return r;
 }
 
@@ -109,33 +130,7 @@ static inline float vrintm_f32(float a) {
     asm("vrintm.f32 %[d], %[m]" : [d] "=t"(r) : [m] "t"(a) :);
     return r;
 }
-///// Float vers int (avec arrondi)
-static inline int32_t vcvt_s32_f32(float a) {
-    int32_t r;
-    asm("vcvt.s32.f32 %[d], %[m]" : [d] "=t"(r) : [m] "t"(a) :);
-    return r;
-}
 
-// Int vers float
-static inline float vcvt_f32_s32(int32_t a) {
-    float r;
-    asm("vcvt.f32.s32 %[d], %[m]" : [d] "=t"(r) : [m] "t"(a) :);
-    return r;
-}
-
-// Partie fractionnaire rapide
-static inline float wrap3(float x) {
-    float floor_val;
-    asm("vrintm.f32 %[d], %[m]" : [d] "=t"(floor_val) : [m] "t"(x) :);
-    return x - floor_val;
-}
-
-static inline float clamp_f32(float x, float low, float high) {
-    float r;
-    asm("vmaxnm.f32 %[d], %[n], %[m]" : [d] "=t"(r) : [n] "t"(x), [m] "t"(low) :);
-    asm("vminnm.f32 %[d], %[n], %[m]" : [d] "=t"(r) : [n] "t"(r), [m] "t"(high) :);
-    return r;
-}
 */
 ///////////////////////
 
@@ -146,7 +141,7 @@ inline float _fclamp(float in, float min, float max) {
 inline float _fclamp2(float in, float min, float max) {
     return fmaxf(fminf(in, max), min);
 }
-
+// mix
 inline float mix(float in1, float in2, float mix){ // mix from 0 to 1
   return(in1 + (in2-in1) * mix); // return in1 when mix=0, and in2 when mix= 1
 }
