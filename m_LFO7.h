@@ -47,7 +47,7 @@ inline void LFO7(float increment, float WF, float sym) {
     out += forme2 * ( sym + sym - 1.f);                     // offset
 
     tmp = CV2freq((256.f*forme2)-127.f)*out;                // distortion coef a : f(y) = (x+ax)/(1+abs(ax))
-    out = (out + tmp)/(1.f+fabs(tmp)); // distortion
+    out = (out + tmp)/(1.f+fabsf(tmp)); // distortion
     out = _fclamp(out, -1.f, 1.f);
     g_Modulation[LFO7_OUT] = out;
     g_Modulation[LFO7_OUT + modulation_source_last] = -out;

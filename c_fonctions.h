@@ -48,7 +48,6 @@ const float table_CV2freq[] = {
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
 
-
 ////////////////////////////////////////////////////
 // from daisysp
 /* one pole lpf
@@ -66,69 +65,18 @@ inline void _fonepole(float &out, float in, float coeff) {
 ///////////////////////////////////////////////////
 ceilf  arrondi vers le bas
 floorf : arondi vers le haut
-truncf : tronque (vers zero)
+truncf : arondi vers zero
 modf() = x-floor(x)
-fabsf
-fminf
-sqrtf : assez rapide
-modff(x,1.f);
-
-float result = __builtin_floorf(x);
-result = __builtin_ceilf(x);
-result = __builtin_truncf(x);
-result = __builtin_roundf(x);
-//#include "arm_math.h"
-arm_truncf(x)
-
-
-static inline float floorf_fast(float x)
-{
-    int i = (int)x;                   // conversion tronquée (vers 0)
-    return (x < 0.0f && x != (float)i) ? (float)(i - 1) : (float)i;
-}
 
 static inline float signf_fast(float x)
 {
     return (x > 0.0f) - (x < 0.0f);
 }
 
-static inline float wrap01f(float x)
-{
-    x = x - (int)x;            // enlève la partie entière
-    if (x < 0.0f) x += 1.0f;   // corrige si négatif
-    return x;
-}
-
-static inline float wrap01f_fast(float x)
-{
-    float y = x - (int)x;
-    return (y < 0.0f) ? (y + 1.0f) : y;
-}
 static inline float wrap01f_bits(float x)
 {
     // Pas totalement exacte mais rapide pour |x| < 2^23
     return x - (float)((int)x);
-}
-
-// Arrondi vers zéro (trunc)
-static inline float vrintz_f32(float a) {
-    float r;
-    asm("vrintz.f32 %[d], %[m]" : [d] "=t"(r) : [m] "t"(a) :);
-    return r;
-}
-
-// Arrondi vers +inf (ceil)
-static inline float vrintp_f32(float a) {
-    float r;
-    asm("vrintp.f32 %[d], %[m]" : [d] "=t"(r) : [m] "t"(a) :);
-    return r;
-}
-
-// Arrondi vers -inf (floor)
-static inline float vrintm_f32(float a) {
-    float r;
-    asm("vrintm.f32 %[d], %[m]" : [d] "=t"(r) : [m] "t"(a) :);
-    return r;
 }
 
 */
@@ -167,19 +115,19 @@ inline float _rnd_f() { // from 0 to 1
         return _rnd_ui() * 2.3283064e-010f;
 }
 
-inline int _floor(float x) {
-    return (int) x - (x < (int) x);
+static inline int _floor(float x) {
+	return (int) x - (x < (int) x);
+	//return (floorf(x));
 }
 
-inline float wrap(float x) { // only for positive number, inversé pour les nombres negatifs
+static inline float wrap(float x) { // only for positive number, inversé pour les nombres negatifs
   return x - (int)x;
 }
 
-inline float wrap2(float x) {
+static inline float wrap2(float x) {
     x = x - floorf(x);
     return x;
 }
-
 
 inline float _tanh(float x) {
   float const x2 = x*x;
@@ -191,8 +139,8 @@ inline float _tanh_clip(float index){
 }
 
 inline float fast_cos(float index) { // index from 0 to 1 only
-  const float x = fabs(4.f*index-2.f)-1.f;
-  return 2.f*x-x*fabs(x);
+  const float x = fabsf(4.f*index-2.f)-1.f;
+  return 2.f*x-x*fabsf(x);
 }
 
 inline float fast_cos_loop(float index) { //
@@ -231,7 +179,7 @@ inline float sign(float in) {
 void drunk_lfo(uint32_t i, float dt) { // numero de l'attracteur a calculer
     float tmp = g_drunk_lfo[i] + (_rnd_f()-0.5)*dt;
     tmp = wrap2(tmp/2.f)*2.f; // pour se mettre entre 0 et 2
-    tmp = 1.f-fabs(1.f-tmp);
+    tmp = 1.f-fabsf(1.f-tmp);
     g_drunk_lfo[i] = tmp;
     }
 
@@ -287,7 +235,7 @@ float LFO_compute_WF(float phase, uint32_t WF, float *last, uint32_t reset) {
     case WF_sin:
         return _sin(phase);
     case WF_tri:
-        return 1.f - 2.f*(fabs(2.f*wrap(phase+0.25f) - 1.f));
+        return 1.f - 2.f*(fabsf(2.f*wrap(phase+0.25f) - 1.f));
     case WF_square:
         return (phase < 0.5f)? 1.f:-1.f;
     case WF_ramp:
@@ -297,7 +245,7 @@ float LFO_compute_WF(float phase, uint32_t WF, float *last, uint32_t reset) {
     case WF_spike:
         {
             float tmpf;
-            tmpf = fabs(2.f*wrap(phase+0.275f) - 1.f);
+            tmpf = fabsf(2.f*wrap(phase+0.275f) - 1.f);
             tmpf *= tmpf;
             tmpf *= tmpf;
             return 2.f*tmpf -1.f;

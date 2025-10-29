@@ -81,12 +81,12 @@ inline float VCO1(uint32_t j, float frequency) {
 
     g_Modulation[VCO1_SIN] = _cos(VCO1_phase_local); // g_Modulation sinus
     g_Modulation[VCO1_SQUARE] = (VCO1_phase_local > 0.5f)? 1.f : -1.f; // g_Modulation square
-    g_Modulation[VCO1_TRI] = fabs(4.f*VCO1_phase_local-2.f)-1.f;
+    g_Modulation[VCO1_TRI] = fabsf(4.f*VCO1_phase_local-2.f)-1.f;
     float const ramp = VCO1_phase_local + VCO1_phase_local - 1.f; // ramp (saw up)
     g_Modulation[VCO1_RAMP] = ramp;
     g_Modulation[VCO1_SAW] = -ramp; // saw down
 
-	increment = fabs(increment); // pour la FM, si increment est negatif cela pose des pb partout
+	increment = fabsf(increment); // pour la FM, si increment est negatif cela pose des pb partout
 	//increment = fmaxf(increment, 1e-6f); // Au lieu de 1e-10
 
     VCO1_PM *= 4.f;

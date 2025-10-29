@@ -97,9 +97,9 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		// Waveform : a zero : on est sur une disto, a full sur un WS sauvage
 		// DRY Modulation
 		tmp = sound_in/(1.f + 10.f*param1)*150.f*(wetM+1.f)*wetM*wetM*wetM;
-		tmp = (1.f-param1)*(sound_in+tmp)/(1.f+fabs(tmp));
+		tmp = (1.f-param1)*(sound_in+tmp)/(1.f+fabsf(tmp));
 		tmp += (1.f-wetM)*param1*sound_in;
-		tmp += wetM*param1*fabs(sound_in)*_sin_loop(5.f*param1*sound_in*(1.f+fabs(sound_in)));
+		tmp += wetM*param1*fabsf(sound_in)*_sin_loop(5.f*param1*sound_in*(1.f+fabsf(sound_in)));
 		return tmp;
     case 1 : // ECHO : long delay (wet /  param1 : time / param2 : feedback) : OK
         tmp = ((delay1_sizei - 101.f) * param1) + 100.f;
@@ -172,7 +172,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		// un paramettre control cette quantité d'inertie
 		// c'est un bitcrusher assez sauvage, avec bcp d'instabilité qd on monte le paramettre
 		sound_out = sound_in - g_old_sound_out;
-		if( fabs(sound_out) > wet*wet ) {
+		if( fabsf(sound_out) > wet*wet ) {
 			sound_out = sound_in;
 			g_vitesse = sound_in - g_last_sound_in;
 			g_last_sound_in = sound_in;
@@ -217,17 +217,17 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         tmp = wet*(wet+1.f);
         tmp = wet*wet;
         tmp = wet*wet*sound_in*150.f;
-        sound_out = (sound_in + tmp)/(1.f+fabs(tmp));
+        sound_out = (sound_in + tmp)/(1.f+fabsf(tmp));
         return sound_out;
      case 1: // WS : OK
         tmp = wet*15.f;
-        return (sound_in + tmp*tmp*_sin_positiv_loop(1000.f + sound_in*fabs(0.25*sound_in*tmp))) / (tmp*tmp + 1.f);
+        return (sound_in + tmp*tmp*_sin_positiv_loop(1000.f + sound_in*fabsf(0.25*sound_in*tmp))) / (tmp*tmp + 1.f);
      case 2 : // BITCRUSH : OK
         wet = 0.01f + wet*0.99f;
         sound_out = sound_in;
-        //sound_out = sign(sound_out) * (1.5f - 1.5f/(2.f*fabs(sound_out) + 1.f));
+        //sound_out = sign(sound_out) * (1.5f - 1.5f/(2.f*fabsf(sound_out) + 1.f));
         sound_out = _floor(sound_out/wet)*wet;
-        //sound_out = sign(sound_out) * (-0.5f - 0.75f/(fabs(sound_out)-1.5f)); // Pq ca ne marche pas???
+        //sound_out = sign(sound_out) * (-0.5f - 0.75f/(fabsf(sound_out)-1.5f)); // Pq ca ne marche pas???
         return mix(sound_in, sound_out, fminf(1.f,10.f*wet));
     case 3: // auto doppler : on utilise le son comme temps de delay : OK
         g_delay_effect2.Write(sound_in);
@@ -251,7 +251,7 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         return mix(sound_in, sound_out*0.5, wet);
     case 5: // compresseur- attenuateur :
     //  qd pas de modulation, que faire avec param???
-        tmp = fabs(sound_in);
+        tmp = fabsf(sound_in);
         tmp = fminf(tmp, 3.f); // on ne devrait pas avoir de son plus fort que ca.
         if (tmp > g_effect2_sound_env) {
             g_effect2_sound_env = mix(g_effect2_sound_env, tmp, 0.01f); // temps de monté rapide
@@ -260,7 +260,7 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         }
         tmp = fmaxf(g_effect2_sound_env, 0.1f);                        // volume actuel
         tmp2 = tmp*param*param*param*20.f;
-        tmp2 = (tmp + tmp2) / (1.f + fabs(tmp2));             // new volume
+        tmp2 = (tmp + tmp2) / (1.f + fabsf(tmp2));             // new volume
         sound_out = sound_in * tmp2/tmp;        // compress
 
         sound_out *= _fclamp(1.f - param1 * (1.f-g_Modulation[curent_config.c_Modulation_Source[EFFECT2_MOD]]), 0.f, 1.f); // attenuation

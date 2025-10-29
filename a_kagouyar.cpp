@@ -17,8 +17,8 @@
 
 //#define proto2 // commenter pour la version final
 
-// TODO : passer fabs en fabsf, ainsi que les autre fonctions
-//utiliser les fonctions definit, et moins de definitions perso
+// TODO :
+// verifier les double promotion
 
 #include <stdio.h>
 #include <string.h>
@@ -177,7 +177,7 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
 
         VCF2(sig);
         sig *= 0.5f * g_pot_audio[k_GAIN] * g_pot_audio[k_GAIN];
-        if(fabs(sig)>=1.f) g_clip = 1.f; else g_clip =  fmaxf(fabs(sig)*0.3f, g_clip);
+        if(fabsf(sig)>=1.f) g_clip = 1.f; else g_clip =  fmaxf(fabsf(sig)*0.3f, g_clip);
 
         out[i++] = sig; // droite
         out[i++] = -sig; // gauche
