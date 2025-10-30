@@ -19,6 +19,8 @@
 
 // TODO :
 // verifier les double promotion
+//-fno-strict-aliasing
+//-Wall -Wextra
 
 #include <stdio.h>
 #include <string.h>
