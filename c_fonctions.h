@@ -19,7 +19,7 @@ void delay1_clear();
 
 float table_CV2freq[269] ;
 /* // un poile plus lent, mais 5% de flash en moins
-const float table_CV2freq[] = {
+static const float table_CV2freq[] = {
 	0.00503, 0.00533, 0.00565, 0.00598, 0.00634, 0.00671, 0.00711, 0.00754, 0.00798, 0.00846, 0.00896, 0.00949, 0.01006, 0.01066,
 	0.01129, 0.01196, 0.01267, 0.01343, 0.01423, 0.01507, 0.01597, 0.01692, 0.01792, 0.01899, 0.02012, 0.02132, 0.02258, 0.02393,
 	0.02535, 0.02686, 0.02845, 0.03014, 0.03194, 0.03384, 0.03585, 0.03798, 0.04024, 0.04263, 0.04517, 0.04785, 0.05070, 0.05371,
@@ -142,6 +142,33 @@ inline float fast_cos(float index) { // index from 0 to 1 only
   const float x = fabsf(4.f*index-2.f)-1.f;
   return 2.f*x-x*fabsf(x);
 }
+/*
+static const float cos_table[16] = {
+  1.0f, 0.9239f, 0.7071f, 0.3827f, 0.0f, -0.3827f, -0.7071f, -0.9239f,
+  -1.0f, -0.9239f, -0.7071f, -0.3827f, 0.0f, 0.3827f, 0.7071f, 0.9239f
+};
+
+inline float fast_cos3(float x) {
+    x *= 15.0f;               // scale to table
+    int i = (int)x;
+    float t = x - i;
+    float a = cos_table[i & 15];
+    float b = cos_table[(i+1) & 15];
+    return a + t * (b - a);
+}
+
+// Approximation rapide
+static inline float fast_cos4(float x) {
+    // x doit être dans [0,1)
+    x -= (int)x; // wrap rapide
+    float fx = x * 128.f;
+    int i = (int)fx;
+    float t = fx - (float)i;
+    float a = cos_table2[i];
+    float b = cos_table2[i + 1];
+    return a + t * (b - a);
+}
+*/
 
 inline float fast_cos_loop(float index) { //
     return fast_cos(wrap2(index) );
