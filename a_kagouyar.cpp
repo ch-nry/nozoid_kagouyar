@@ -258,6 +258,7 @@ int main(void)
 		for (i=0; i<nb_CV; i++) { // 6.5 µs
 			__disable_irq(); // pas d'interuption pendant l'assignation des valeurs des pots
 			__asm__ volatile ("" ::: "memory"); // bloque la reoganisation des memoire avec -O3
+			g_pot_audio[i] = _fclamp(g_pot_audio[i], 0.f, 1.f);
 			if (g_switch_configuration != MENU_LOAD)  {
 				get_pot(i);
 			}
