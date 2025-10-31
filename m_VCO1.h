@@ -94,7 +94,6 @@ inline float VCO1(uint32_t j, float frequency) {
     VCO1_phase_local = wrap2(VCO1_phase_local); // car on peux aller ds le negatif, ou aller au dela de 2 a cause des multiples modulations
 
     float PWM_local = _fclamp(PWM + VCO1_mod_PWM*0.5f, 0.f, 1.f);
-	float tmpf;
 
     switch(curent_config.c_VCO1_WF) {
     case 0 : //sin
@@ -110,11 +109,13 @@ inline float VCO1(uint32_t j, float frequency) {
         out = _cos_loop((0.7f+3.5f*PWM_local) * allvoice[j].v_VCO1_filter1 + 0.33f );
         break;
     case 2 : // tri
+    	float tmpf;
         tmpf = 1.f - 0.5f*(PWM_local*PWM_local*(1.f+fast_cos(VCO1_phase_local)));
+        tmpf *= tmpf;
         tmpf *= tmpf;
         out = tri_bl(VCO1_phase_local, increment, allvoice[j].v_VCO1_filter1);
         out +=1.f;
-        out *= tmpf * tmpf;
+        out *= tmpf;
         out -= 1.f;
         break;
     case 3 :  // rectangle
