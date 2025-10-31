@@ -369,11 +369,11 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
             }
             break;
         case LFO_RndLoop :
-        // utilise la frequence du LFO de modulation
-        // sans automodulation : fq = nb de step, mix_factor = variation speed
-        // en automod : 'mod' permet de passer les step, il y a 2 step
             {
-                uint32_t WF1_reset, nb_step;
+			// utilise la frequence du LFO de modulation
+			// sans automodulation : fq = nb de step, mix_factor = variation speed
+			// en automod : 'mod' permet de passer les step, il y a 2 step
+				uint32_t WF1_reset, nb_step;
                 float l_mix_factor;
                 if ((source_addresse != NONE_OUT) && (source_addresse != LFO1_OUT) && (source_addresse != LFO1_OUT + modulation_source_last))  { // pas automodulation
                     WF1_reset = g_Modulation_Reset[source_addresse];
