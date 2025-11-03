@@ -189,26 +189,21 @@ inline float VCO1(uint32_t j, float frequency) {
     case 13 :  // sin(mix(phase, sin(phase), param);
         out = _sin_loop(mix(VCO1_phase_local, _sin(VCO1_phase_local),PWM_local));
         break;
-    case 14 : // waveshaping feedback ; _tanh(_sin_loop(phase) + delay(10.fms));
-		out =  _tanh(_sin_loop(VCO1_phase_local) + PWM_local * VCO1_delay[j][VCO1_delay_index[j]]);
-		VCO1_delay_index[j] = (VCO1_delay_index[j]+ 1) %512;
-		VCO1_delay[j][VCO1_delay_index[j]] = out;
-        break;
-    case 15 : //fb    y = sin(phase + feedback * prevY); prevY = y;
+    case 14 : //fb    y = sin(phase + feedback * prevY); prevY = y;
         out = _sin_loop(VCO1_phase_local + 0.6 * PWM_local * allvoice[j].v_VCO1_filter1);
         allvoice[j].v_VCO1_filter1 = out;
         break;
-    case 16 : // quantizer la phase : floorf(phase * steps) / steps;
+    case 15 : // quantizer la phase : floorf(phase * steps) / steps;
 		phase2 = _floor(1./(0.3*PWM_local+0.001f));
         out = _sin_loop( _floor(VCO1_phase_local * phase2)/phase2);
         break;
-    case 17 : //
+    case 16 : //
 		fa = VCO1_phase_local * (0.5f + PWM_local * 3.0f);
 		fa = fa - floorf(fa);
 		fa = fabsf(2.0f * fa - 1.0f);
 		out = _sin_loop(fa);
         break;
-    case 18 : // table rnd et boucler dessus : TODO : mvt moins brusque
+    case 17 : // table rnd et boucler dessus : TODO : mvt moins brusque
 		fa = 7.f * VCO1_phase_local;
 		fb = allvoice[j].v_VCO1_last[0];
 		allvoice[j].v_VCO1_last[0] = fa;
@@ -217,7 +212,7 @@ inline float VCO1(uint32_t j, float frequency) {
 		if( int(ua !=ub) && (PWM_local >_rnd_f()*1000.f ) ) { g_VCO1WF[j][ua] = 2.f * _rnd_f() -1.f; }
 		out = g_VCO1WF[j][ua];
         break;
-    case 19 : // sin noise : ok
+    case 18 : // sin noise : ok
 		fa = wrap(4.f * VCO1_phase_local);
 		if( fa < increment * 4.f) {
 			g_VCO1WF[j][0] = g_VCO1WF[j][1];
@@ -230,7 +225,7 @@ inline float VCO1(uint32_t j, float frequency) {
 		}
 		out = interpol4(fa, g_VCO1WF[j][0], g_VCO1WF[j][1], g_VCO1WF[j][2], g_VCO1WF[j][3]);
         break;
-    case 20 : // squarenoise
+    case 19 : // squarenoise
         fa = wrap(2.f * VCO1_phase_local);
 		if ( fa < 2.f * increment) {
 			fb = g_VCO1WF[j][0];
@@ -242,14 +237,14 @@ inline float VCO1(uint32_t j, float frequency) {
 		}
 		out = g_VCO1WF[j][0];// + fa * ( g_VCO1WF[j][1] - g_VCO1WF[j][0]);
         break;
-    case 21 : // sawnoise
+    case 20 : // sawnoise
 		if ( VCO1_phase_local < increment) {
 			g_VCO1WF[j][0] = mix(g_VCO1WF[j][0], _rnd_f() * -1, PWM_local);
 			g_VCO1WF[j][1] =  mix(g_VCO1WF[j][1], _rnd_f(), PWM_local);
 		}
 		out = g_VCO1WF[j][0] + VCO1_phase_local * ( g_VCO1WF[j][1] - g_VCO1WF[j][0]);
         break;
-    case 22 : //
+    case 21 : //
 		fa = wrap(4.f*VCO1_phase_local);
 		if( fa < increment*4.f) {
 			g_VCO1WF[j][0] = g_VCO1WF[j][1];
