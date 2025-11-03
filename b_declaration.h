@@ -277,7 +277,18 @@ volatile uint32_t g_Modulation_Reset[modulation_source_last]; // bool pour marqu
 volatile float g_Modulation_Phase[modulation_source_last]; // valeur des phases des diferentes g_Modulation
 
 enum GATE_source {gate_KB_int, gate_MIDI, gate_5V};
-
+/*
+//TODO :! a mettre ds voice
+volatile float g_VCO1WF[4][8] = {0};
+volatile float g_VCO2WF[4][8] = {0};
+volatile float g_VCO3WF[4][8] = {0};
+float VCO1_delay[4][512] = {0.f};
+uint32_t VCO1_delay_index[4] = {0};
+float VCO2_delay[4][512] = {0.f};
+uint32_t VCO2_delay_index[4] = {0};
+float VCO3_delay[4][512] = {0.f};
+uint32_t VCO3_delay_index[4] = {0};
+*/
 struct voice
 {
 // general

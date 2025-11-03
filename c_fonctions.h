@@ -210,6 +210,15 @@ void drunk_lfo(uint32_t i, float dt) { // numero de l'attracteur a calculer
     g_drunk_lfo[i] = tmp;
     }
 
+float interpol4(float mu, float y0, float y1, float y2, float y3) {
+    float a1, a2, a3;
+    // 4-point, 3rd-order Hermite (x-form)
+    a1 = 0.5f * (y2 - y0);
+    a2 = y0 - 2.5f * y1 + y2 + y2 - 0.5f * y3;
+    a3 = 0.5f * (y3 - y0) + 1.5f * (y1 - y2);
+    return ((a3 * mu + a2) * mu + a1) * mu + y1;
+}
+
 #define  write_binary_led(data) hw.binary_led.Write_data(data, 24)
 
 void init_table_CV2freq() {

@@ -67,7 +67,7 @@ inline float VCO1(uint32_t j, float frequency) {
     vco_pitch += allvoice[j].v_pitch;
     vco_pitch += (int)((12.f*VCO1_FM_Qtz)+0.5f);
 
-    VCO1_pitch(allvoice[j], vco_pitch); // sauve ou rapele la valeur de vco1 pour les pitch des vco2 et 3 syncro sur le 1 (cf fonction.h)
+    VCO1_pitch(allvoice[j], vco_pitch); // sauve ou rapele la valeur de vco1 pour les pitch des VCO1 et 3 syncro sur le 1 (cf fonction.h)
     float freq = CV2freq(vco_pitch) + VCO1_FM_lin * 2000.f; // attention, la freq peux etre negative, ou nulle
 
     float increment = freq*OneOverSR;
@@ -96,6 +96,8 @@ inline float VCO1(uint32_t j, float frequency) {
     float PWM_local = _fclamp(PWM + VCO1_mod_PWM*0.5f, 0.f, 1.f);
 
     switch(curent_config.c_VCO1_WF) {
+	//float fa, fb;
+	//uint32_t ua, ub;
     case 0 : //sin
         phase2 = _sin(VCO1_phase_local);
         _fonepole(allvoice[j].v_VCO1_filter1, phase2, 6000.f*OneOverSR);
@@ -110,13 +112,9 @@ inline float VCO1(uint32_t j, float frequency) {
         break;
     case 2 : // tri
     	float tmpf;
-        tmpf = 1.f - 0.5f*(PWM_local*PWM_local*(1.f+fast_cos(VCO1_phase_local)));
-        tmpf *= tmpf;
-        tmpf *= tmpf;
-        out = tri_bl(VCO1_phase_local, increment, allvoice[j].v_VCO1_filter1);
-        out +=1.f;
-        out *= tmpf;
-        out -= 1.f;
+        tmpf = tri_bl(VCO1_phase_local, increment, allvoice[j].v_VCO1_filter1);
+        out = tmpf + fast_cos(VCO1_phase_local);
+        out = tmpf + 7.f * PWM_local * out;
         break;
     case 3 :  // rectangle
         phase2 = wrap(VCO1_phase_local + (1.f-PWM_local)*0.5f);
@@ -158,8 +156,8 @@ inline float VCO1(uint32_t j, float frequency) {
             tmp = allvoice[j].v_VCO1_last[1];
             if ((tmp <= 0)||(tmp>=1)) tmp = _rnd_f(); //on peut avoir des nb qui sont en dehors des paramettres de la logistic, en venant d'une autre forme d'onde
             allvoice[j].v_VCO1_last[0] = tmp;
-            PWM_local +=  PWM_local*PWM_local;
-            tmp *= (3.45f+0.51f*PWM_local) * (1.f-tmp);
+            PWM_local =  PWM_local*PWM_local;
+            tmp *= (3.7f+0.5f*PWM_local) * (1.f-tmp);
             allvoice[j].v_VCO1_last[1] = tmp;
         }
         out = 2.f*(allvoice[j].v_VCO1_last[1]) -1.f;
@@ -175,8 +173,96 @@ inline float VCO1(uint32_t j, float frequency) {
 		g_Modulation[VCO1_TRI] = 0.;
 		g_Modulation[VCO1_RAMP] = 0.;
 		g_Modulation[VCO1_SAW] = 0.;
-
-	    break;
+	    break; /*
+	case 10 : //atan(sin)
+        phase2 = _sin(VCO1_phase_local);
+        _fonepole(allvoice[j].v_VCO1_filter1, phase2, 6000.f*OneOverSR);
+        out = _tanh_clip ( phase2 * (1.f + 12.f*PWM_local*PWM_local));
+        break;
+    case 11 :
+    	out = wrap2(VCO1_phase_local + PWM_local * _sin_loop(VCO1_phase_local * 1.5f));
+		out = _tanh_clip(_sin_loop(out)*(1.f+3.f*PWM_local));
+        break;
+    case 12 : // sin(clip(phase*gain));
+		out = _sin_loop(_fclamp(VCO1_phase_local * (1.f + 3.f * PWM_local), 0.f, 1.f));
+        break;
+    case 13 :  // sin(mix(phase, sin(phase), param);
+        out = _sin_loop(mix(VCO1_phase_local, _sin(VCO1_phase_local),PWM_local));
+        break;
+    case 14 : // waveshaping feedback ; _tanh(_sin_loop(phase) + delay(10.fms));
+		out =  _tanh(_sin_loop(VCO1_phase_local) + PWM_local * VCO1_delay[j][VCO1_delay_index[j]]);
+		VCO1_delay_index[j] = (VCO1_delay_index[j]+ 1) %512;
+		VCO1_delay[j][VCO1_delay_index[j]] = out;
+        break;
+    case 15 : //fb    y = sin(phase + feedback * prevY); prevY = y;
+        out = _sin_loop(VCO1_phase_local + 0.6 * PWM_local * allvoice[j].v_VCO1_filter1);
+        allvoice[j].v_VCO1_filter1 = out;
+        break;
+    case 16 : // quantizer la phase : floorf(phase * steps) / steps;
+		phase2 = _floor(1./(0.3*PWM_local+0.001f));
+        out = _sin_loop( _floor(VCO1_phase_local * phase2)/phase2);
+        break;
+    case 17 : //
+		fa = VCO1_phase_local * (0.5f + PWM_local * 3.0f);
+		fa = fa - floorf(fa);
+		fa = fabsf(2.0f * fa - 1.0f);
+		out = _sin_loop(fa);
+        break;
+    case 18 : // table rnd et boucler dessus : TODO : mvt moins brusque
+		fa = 7.f * VCO1_phase_local;
+		fb = allvoice[j].v_VCO1_last[0];
+		allvoice[j].v_VCO1_last[0] = fa;
+		ua = (int)fa;
+		ub = (int)fb;
+		if( int(ua !=ub) && (PWM_local >_rnd_f()*1000.f ) ) { g_VCO1WF[j][ua] = 2.f * _rnd_f() -1.f; }
+		out = g_VCO1WF[j][ua];
+        break;
+    case 19 : // sin noise : ok
+		fa = wrap(4.f * VCO1_phase_local);
+		if( fa < increment * 4.f) {
+			g_VCO1WF[j][0] = g_VCO1WF[j][1];
+			g_VCO1WF[j][1] = g_VCO1WF[j][2];
+			g_VCO1WF[j][2] = g_VCO1WF[j][3];
+			fb = g_VCO1WF[j][0] + PWM_local * PWM_local * 2.f * (_rnd_f() -0.5f);
+			fb = 2.f * wrap2(fb/2.f);
+			fb = 1. - fabsf(fb-1.f);
+			g_VCO1WF[j][3]  = -1.f * sign(g_VCO1WF[j][1]) * fb;
+		}
+		out = interpol4(fa, g_VCO1WF[j][0], g_VCO1WF[j][1], g_VCO1WF[j][2], g_VCO1WF[j][3]);
+        break;
+    case 20 : // squarenoise
+        fa = wrap(2.f * VCO1_phase_local);
+		if ( fa < 2.f * increment) {
+			fb = g_VCO1WF[j][0];
+			g_VCO1WF[j][0] = -g_VCO1WF[j][1];
+			fb += PWM_local * PWM_local * 2.f * (_rnd_f() -0.5f);
+			fb = 2.f * wrap2(fb/2.f);
+			fb = 1. - fabsf(fb-1.f);
+			g_VCO1WF[j][1]  = -fabs(fb);
+		}
+		out = g_VCO1WF[j][0];// + fa * ( g_VCO1WF[j][1] - g_VCO1WF[j][0]);
+        break;
+    case 21 : // sawnoise
+		if ( VCO1_phase_local < increment) {
+			g_VCO1WF[j][0] = mix(g_VCO1WF[j][0], _rnd_f() * -1, PWM_local);
+			g_VCO1WF[j][1] =  mix(g_VCO1WF[j][1], _rnd_f(), PWM_local);
+		}
+		out = g_VCO1WF[j][0] + VCO1_phase_local * ( g_VCO1WF[j][1] - g_VCO1WF[j][0]);
+        break;
+    case 22 : //
+		fa = wrap(4.f*VCO1_phase_local);
+		if( fa < increment*4.f) {
+			g_VCO1WF[j][0] = g_VCO1WF[j][1];
+			g_VCO1WF[j][1] = g_VCO1WF[j][2];
+			g_VCO1WF[j][2] = g_VCO1WF[j][3];
+			fb = g_VCO1WF[j][0] + PWM_local * PWM_local * 2.f * (_rnd_f() -0.5f);
+			fb = 2.f * wrap2(fb/2.f);
+			fb = 1. - fabsf(fb-1.f);
+			g_VCO1WF[j][3]  = fb;
+		}
+		out = interpol4(fa, g_VCO1WF[j][0], g_VCO1WF[j][1], g_VCO1WF[j][2], g_VCO1WF[j][3]);
+		out = 2.f * out - 1.f;
+        break;*/
     }
     out *= VCO1_AM;
 
