@@ -246,7 +246,8 @@ void leds_key_configuration(uint32_t my_menu_switch) { // led lorsque on appuie 
     switch (my_menu_switch) {
     case MENU_VCO1 :
         led_keyboard |= 1 << BIT_LED_MENU_VCO;
-        if (curent_config.c_VCO1_WF<9) led_keyboard |= 1 << table_led_key[curent_config.c_VCO1_WF];
+        if (!VCO_WF_alternatif && curent_config.c_VCO1_WF<9) led_keyboard |= 1 << table_led_key[curent_config.c_VCO1_WF];
+        else if ( VCO_WF_alternatif && (curent_config.c_VCO1_WF<9) && (g_led_blink>0) )led_keyboard |= 1 << table_led_key[curent_config.c_VCO1_WF];
         led_keyboard |= 1 << table_led_key[10+curent_config.c_VCO1_RANGE];
         break;
     case MENU_VCO2 :
@@ -362,6 +363,7 @@ void leds_key_configuration(uint32_t my_menu_switch) { // led lorsque on appuie 
         if (animation1_time > 0)	animation1_time--; else led_keyboard |= 1 << BIT_LED_MENU_KEY0;
         if (animation2_time > 0)	animation2_time--; else led_keyboard |= 1 << BIT_LED_MENU_KEY1;
         if (animation3_time > 0)	animation3_time--; else led_keyboard |= 1 << BIT_LED_MENU_KEY2;
+        if (VCO_WF_alternatif) led_keyboard |= 1 << BIT_LED_MENU_KEY11;
         if (g_CV2KB) led_keyboard |= 1 << BIT_LED_MENU_KEY12;
     break;
     }
