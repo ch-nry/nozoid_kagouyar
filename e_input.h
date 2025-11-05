@@ -653,7 +653,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
         switch(switch_configuration){
         case MENU_VCO1 :
             if (switch_keyboard <= 8)
-				if(curent_config.c_VCO1_WF == (uint32_t)switch_keyboard) curent_config.c_VCO1_WF=9;
+				if(curent_config.c_VCO1_WF == (uint32_t)switch_keyboard) curent_config.c_VCO1_WF=100;
                 else curent_config.c_VCO1_WF = switch_keyboard;
             else {
                 switch (switch_keyboard-9) {
@@ -902,6 +902,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 				case 10:
 				break;
 				case 11:
+					VCO_WF_alternatif = !VCO_WF_alternatif; // waveform alternative
 				break;
 				case 12:
 					g_CV2KB = !g_CV2KB; // on toggle le bit
