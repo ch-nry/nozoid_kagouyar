@@ -37,11 +37,11 @@ static void AudioCallbackTest(AudioHandle::InterleavingInputBuffer in, AudioHand
     float increment2 = 440.f*OneOverSR;
 
     for(size_t i = 0; i < size; ) {
-        allvoice[0].v_VCO1_phase = wrap(allvoice[0].v_VCO1_phase + increment1);
-		out[i++] =_cos(allvoice[0].v_VCO1_phase);
+        allvoice[0].v_VCO_phase[0] = wrap(allvoice[0].v_VCO_phase[0] + increment1);
+		out[i++] =_cos(allvoice[0].v_VCO_phase[0]);
 
-        allvoice[0].v_VCO2_phase = wrap(allvoice[0].v_VCO2_phase + increment2);
-        out[i++] = _cos(allvoice[0].v_VCO2_phase);
+        allvoice[0].v_VCO_phase[1] = wrap(allvoice[0].v_VCO_phase[1] + increment2);
+        out[i++] = _cos(allvoice[0].v_VCO_phase[1]);
     }
 }
 

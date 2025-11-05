@@ -15,7 +15,7 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
-//#define proto2 // commenter pour la version final
+#define proto2 // commenter pour la version final
 
 // TODO :
 // verifier les double promotion
@@ -31,6 +31,7 @@
 #include "d_voice.h"
 #include "e_input.h"
 #include "f_leds_menu.h"
+#include "m_VCO.h"
 #include "m_VCO1.h"
 #include "m_VCO2.h"
 #include "m_VCO3.h"

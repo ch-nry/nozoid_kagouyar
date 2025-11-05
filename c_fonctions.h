@@ -535,17 +535,18 @@ void init_variables() {
     }
 
     for (i=0; i<nb_voice; i++) {
-        allvoice[i].v_VCO1_last[1] = _rnd_f();
-        allvoice[i].v_VCO1_last[0] = 0.;
-        allvoice[i].v_VCO1_phase= 0.;
+		// TODO : plus d'init ds last
+        allvoice[i].v_VCO_last[0][1] = _rnd_f();
+        allvoice[i].v_VCO_last[0][0] = 0.;
+        allvoice[i].v_VCO_phase[0]= 0.;
 
-        allvoice[i].v_VCO2_last[1] = _rnd_f();
-        allvoice[i].v_VCO2_last[0] = 0.;
-        allvoice[i].v_VCO2_phase= 0.;
+        allvoice[i].v_VCO_last[1][1] = _rnd_f();
+        allvoice[i].v_VCO_last[1][0] = 0.;
+        allvoice[i].v_VCO_phase[1]= 0.;
 
-        allvoice[i].v_VCO3_last[1] = _rnd_f();
-        allvoice[i].v_VCO3_last[0] = 0.;
-        allvoice[i].v_VCO3_phase= 0.;
+        allvoice[i].v_VCO_last[2][1] = _rnd_f();
+        allvoice[i].v_VCO_last[2][0] = 0.;
+        allvoice[i].v_VCO_phase[2]= 0.;
 
         allvoice[i].v_ADSR_mode = Release;
     }

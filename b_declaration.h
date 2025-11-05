@@ -156,6 +156,7 @@ float g_CV1_offset, g_CV2_offset, g_CV1_gain;
 
 // fonctions speciale
 uint32_t g_CV2KB = 0;
+uint32_t VCO_WF_alternatif = 0;
 
 // g_Modulation
 enum MOD_OUT {
@@ -186,6 +187,10 @@ enum MOD_DESTINATION {
 
 enum drunk_attractor {
     drunk_LFO1, drunk_LFO2, drunk_LFO3
+};
+
+enum VCO_list {
+	VCO1_Id, VCO2_Id, VCO3_Id
 };
 
 enum MOD_TYPE_VCO { MOD_FM_exp, MOD_FM_Qtz, MOD_FM_lin, MOD_AM, MOD_PM, MOD_CLIP, MOD_WF, modulation_type_last }; // VCO modulation
@@ -277,15 +282,7 @@ volatile uint32_t g_Modulation_Reset[modulation_source_last]; // bool pour marqu
 volatile float g_Modulation_Phase[modulation_source_last]; // valeur des phases des diferentes g_Modulation
 
 enum GATE_source {gate_KB_int, gate_MIDI, gate_5V};
-/*
-//TODO : a mettre ds voice
-volatile float g_VCO1WF[4][8] = {0};
-volatile float g_VCO2WF[4][8] = {0};
-volatile float g_VCO3WF[4][8] = {0};
-uint32_t VCO1_delay_index[4] = {0};
-uint32_t VCO2_delay_index[4] = {0};
-uint32_t VCO3_delay_index[4] = {0};
-*/
+
 struct voice
 {
 // general
@@ -298,16 +295,12 @@ struct voice
     volatile float v_pitch;
     volatile uint32_t v_GATE; // GATE on/off
     //float  v_velocity;
-// VCO1
-    volatile float v_VCO1_phase = 0.f;
-    float v_VCO1_last[2];
+
+    // VCO*
+    volatile float v_VCO_phase[3] = {0};
+    float v_VCO_last[3][8] = {0};
     volatile float v_VCO1_pitch = 0.f;
-// VCO2
-    volatile float v_VCO2_phase = 0.f;
-    float v_VCO2_last[2];
-// VCO3
-    volatile float v_VCO3_phase = 0.f;
-    float v_VCO3_last[2];
+
 // MIX
 // Low Pass v_GATE
     float v_LPG_last = 0.f;
