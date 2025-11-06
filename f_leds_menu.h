@@ -305,32 +305,38 @@ void leds_key_configuration(uint32_t my_menu_switch) { // led lorsque on appuie 
     break;
     case MENU_LFO1 :
         led_keyboard |= 1 << BIT_LED_MENU_LFO;
-        led_keyboard |= 1 << table_led_key[curent_config.c_LFO1_WF];
+        if(curent_config.c_LFO1_WF<9) led_keyboard |= 1 << table_led_key[curent_config.c_LFO1_WF];
+        else if ((curent_config.c_LFO1_WF<18)  &&  (g_led_blink>0))  led_keyboard |= 1 << table_led_key[curent_config.c_LFO1_WF-9];
         led_keyboard |= 1 << table_led_key[9+curent_config.c_LFO1_RANGE];
     break;
     case MENU_LFO2 :
         led_keyboard |= 1 << BIT_LED_MENU_LFO;
-        led_keyboard |= 1 << table_led_key[curent_config.c_LFO2_WF];
+        if(curent_config.c_LFO2_WF<9) led_keyboard |= 1 << table_led_key[curent_config.c_LFO2_WF];
+        else if ((curent_config.c_LFO2_WF<18)  &&  (g_led_blink>0))  led_keyboard |= 1 << table_led_key[curent_config.c_LFO2_WF-9];
         led_keyboard |= 1 << table_led_key[9+curent_config.c_LFO2_RANGE];
     break;
     case MENU_LFO3 :
         led_keyboard |= 1 << BIT_LED_MENU_LFO;
-        led_keyboard |= 1 << table_led_key[curent_config.c_LFO3_WF];
+        if(curent_config.c_LFO3_WF<9) led_keyboard |= 1 << table_led_key[curent_config.c_LFO3_WF];
+        else if ((curent_config.c_LFO3_WF<18)  &&  (g_led_blink>0))  led_keyboard |= 1 << table_led_key[curent_config.c_LFO3_WF-9];
         led_keyboard |= 1 << table_led_key[9+curent_config.c_LFO3_RANGE];
     break;
     case MENU_LFO4 :
         led_keyboard |= 1 << BIT_LED_MENU_LFO;
-        led_keyboard |= 1 << table_led_key[curent_config.c_LFO4_WF];
+        if(curent_config.c_LFO4_WF<9) led_keyboard |= 1 << table_led_key[curent_config.c_LFO4_WF];
+        else if ((curent_config.c_LFO4_WF<18)  &&  (g_led_blink>0))  led_keyboard |= 1 << table_led_key[curent_config.c_LFO4_WF-9];
         led_keyboard |= 1 << table_led_key[9+curent_config.c_LFO4_RANGE];
     break;
     case MENU_LFO5 :
         led_keyboard |= 1 << BIT_LED_MENU_LFO;
-        led_keyboard |= 1 << table_led_key[curent_config.c_LFO5_WF];
+        if(curent_config.c_LFO5_WF<9) led_keyboard |= 1 << table_led_key[curent_config.c_LFO5_WF];
+        else if ((curent_config.c_LFO5_WF<18)  &&  (g_led_blink>0))  led_keyboard |= 1 << table_led_key[curent_config.c_LFO5_WF-9];
         led_keyboard |= 1 << table_led_key[9+curent_config.c_LFO5_RANGE];
     break;
     case MENU_LFO6 :
         led_keyboard |= 1 << BIT_LED_MENU_LFO;
-        led_keyboard |= 1 << table_led_key[curent_config.c_LFO6_WF];
+        if(curent_config.c_LFO6_WF<9) led_keyboard |= 1 << table_led_key[curent_config.c_LFO6_WF];
+        else if ((curent_config.c_LFO6_WF<18)  &&  (g_led_blink>0))  led_keyboard |= 1 << table_led_key[curent_config.c_LFO6_WF-9];
         led_keyboard |= 1 << table_led_key[9+curent_config.c_LFO6_RANGE];
     break;
     case MENU_LFO7 :

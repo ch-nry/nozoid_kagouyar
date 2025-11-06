@@ -265,6 +265,7 @@ inline float VCO_CV_range(uint32_t range, float cv) {
 }
 
 float LFO_compute_WF(float phase, uint32_t WF, float *last, uint32_t reset) {
+	float tmp;
     switch (WF) {
     case WF_AR:
         return 0.f; // not used
@@ -279,34 +280,51 @@ float LFO_compute_WF(float phase, uint32_t WF, float *last, uint32_t reset) {
     case WF_saw:
         return 1.f - (phase + phase);
     case WF_spike:
-        {
-            float tmpf;
-            tmpf = fabsf(2.f*wrap(phase+0.275f) - 1.f);
-            tmpf *= tmpf;
-            tmpf *= tmpf;
-            return 2.f*tmpf -1.f;
-        }
+            tmp = fabsf(2.f*wrap(phase+0.275f) - 1.f);
+            tmp *= tmp;
+            tmp *= tmp;
+            return 2.f*tmp -1.f;
     case WF_step:
-        if ( reset ) {
-            last[0] = (_rnd_f()-0.5f)*2.f;
-        }
+        if ( reset ) { last[0] = (_rnd_f()-0.5f)*2.f; }
         return last[0];
     case WF_noise:
-        if ( reset ) {
-            last[1] = last[0];
-            last[0] = (_rnd_f()-0.5f)*2.f;
-        }
+        if ( reset ) { last[1] = last[0]; last[0] = (_rnd_f()-0.5f)*2.f; }
         return mix(last[1], last[0], phase*phase*(3.f-2.f*phase));
     case WF_AR2:
+		return 0.f; // TODO, mais pas ici
     case WF_sin2:
+		tmp = wrap(2.f*phase);
+		if ( reset ) { last[0] = last[2];  last[1] = -1 * _rnd_f() * sign(last[0]);  last[2] = -1 * _rnd_f() * sign(last[1]); }
+		if (tmp > phase) return mix(last[0], last[1], tmp*tmp*(3.f-2.f*tmp));
+		else return mix(last[1], last[2], tmp*tmp*(3.f-2.f*tmp));
     case WF_tri2:
+		tmp = wrap(2.f*phase);
+		if ( reset ) { last[0] = last[2];  last[1] = -1 * _rnd_f() * sign(last[0]);  last[2] = -1 * _rnd_f() * sign(last[1]); }
+		if (tmp > phase) return mix(last[0], last[1], tmp);
+		else return mix(last[1], last[2], tmp);
     case WF_square2:
-    case WF_ramp2:
+       	tmp = wrap(2.f*phase);
+		if ( reset ) { last[0] = last[2];  last[1] = -1 * _rnd_f() * sign(last[0]);  last[2] = -1 * _rnd_f() * sign(last[1]); }
+		if (tmp > phase) return last[0];
+		else return last[1];
+     case WF_ramp2:
+    	if ( reset ) { last[0] = _rnd_f(); }// de 0 a1
+		return -1 + phase * (1+last[0]);
     case WF_saw2:
+      	if ( reset ) { last[0] = _rnd_f(); }// de 0 a1
+		return 1 - phase * (1+last[0]);
     case WF_spike2:
+        if ( reset ) { last[0] = _rnd_f(); }// de 0 a1
+		tmp = fabsf(2.f*wrap(phase+0.275f) - 1.f);
+		tmp *= tmp;
+		tmp *= tmp;
+		return last[0] * 2.f*tmp -1.f;
     case WF_step2:
+        if ( reset ) { last[0] = sign(_rnd_f()-0.5f); }
+        return last[0];
     case WF_noise2:
-        return 0.f; //TODO
+        if ( reset && (_rnd_f() > 0.5) ) { last[1] = last[0]; last[0] = 2.f*(_rnd_f()-0.5f); }
+        return mix(last[1], last[0], phase*phase*(3.f-2.f*phase));
     }
     return(0.f);// not used
 }
