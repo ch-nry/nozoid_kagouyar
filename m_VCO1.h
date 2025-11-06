@@ -91,9 +91,9 @@ inline float VCO1(uint32_t j, float frequency) {
 
     float PWM_local = _fclamp(PWM + VCO1_mod_PWM*0.5f, 0.f, 1.f);
 
-	out = VCO_WF(curent_config.c_VCO1_WF + 9*VCO_WF_alternatif, VCO1_phase_local, increment, PWM_local, allvoice[j].v_VCO_last[VCO1_Id]);
+	out = VCO_WF(curent_config.c_VCO1_WF, VCO1_phase_local, increment, PWM_local, allvoice[j].v_VCO_last[VCO1_Id]);
 
-	if (curent_config.c_VCO1_WF ==100) { // TODO : optimiser (?)
+	if (curent_config.c_VCO1_WF >= 18) { // TODO : optimiser (?)
 	    allvoice[j].v_VCO_last[VCO1_Id][0] = 0.;
 	    allvoice[j].v_VCO_last[VCO1_Id][1] = 0.; // TODO : plus d'initialisation
 	    allvoice[j].v_VCO_phase[VCO1_Id] = 0.;
