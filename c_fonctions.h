@@ -312,7 +312,7 @@ float LFO_compute_WF(float phase, uint32_t WF, float *last, uint32_t reset) {
 		return -1 + phase * (1+last[0]);
     case WF_saw2:
       	if ( reset ) { last[0] = _rnd_f(); }// de 0 a1
-		return 1 - phase * (1+last[0]);
+		return 2.f*((1 - phase) * last[0])-1.f;
     case WF_spike2:
         if ( reset ) { last[0] = _rnd_f(); }// de 0 a1
 		tmp = fabsf(2.f*wrap(phase+0.275f) - 1.f);
