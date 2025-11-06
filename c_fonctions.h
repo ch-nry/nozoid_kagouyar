@@ -291,7 +291,7 @@ float LFO_compute_WF(float phase, uint32_t WF, float *last, uint32_t reset) {
         if ( reset ) { last[1] = last[0]; last[0] = (_rnd_f()-0.5f)*2.f; }
         return mix(last[1], last[0], phase*phase*(3.f-2.f*phase));
     case WF_AR2:
-		return 0.f; // TODO, mais pas ici
+		return 0.f; // calculé avec l'AR
     case WF_sin2:
 		tmp = wrap(2.f*phase);
 		if ( reset ) { last[0] = last[2];  last[1] = -1 * _rnd_f() * sign(last[0]);  last[2] = -1 * _rnd_f() * sign(last[1]); }
