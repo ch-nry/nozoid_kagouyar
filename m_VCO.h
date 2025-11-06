@@ -1,6 +1,7 @@
 
 // --------------- VCO -------------------
-// on le met ici pour pouvoir avoir des fonctions diferentes pour chaques VCO (le reste du code est un copié-collé a la compilation)
+// diference entre VCO1 et les 2 autres :
+
 inline void VCO1_pitch(voice &myvoice, float &pitch) {
     pitch += g_MIDI_pitchWHEEL;
     myvoice.v_VCO1_pitch = pitch;
@@ -12,6 +13,8 @@ inline void VCO3_pitch(voice &myvoice, float &pitch) {
     if(curent_config.c_VCO3_LINK) pitch += myvoice.v_VCO1_pitch -(60.f + myvoice.v_pitch); else pitch +=  g_MIDI_pitchWHEEL;
 }
 
+// --------------- VCO -------------------
+// forme d'onde
 
 float VCO_WF(uint32_t VCO_WF, float VCO_phase, float increment, float PWM_local, float* v_VCO_last)
 {
