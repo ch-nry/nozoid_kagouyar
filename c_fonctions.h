@@ -287,7 +287,7 @@ float LFO_compute_WF(float phase, uint32_t WF, float *last, uint32_t reset) {
     case WF_step:
         if ( reset ) { last[0] = (_rnd_f()-0.5f)*2.f; }
         return last[0];
-    case WF_noise:
+    case WF_noise: // (drunk)
         if ( reset ) { last[1] = last[0]; last[0] = (_rnd_f()-0.5f)*2.f; }
         return mix(last[1], last[0], phase*phase*(3.f-2.f*phase));
     case WF_AR2:
@@ -320,11 +320,22 @@ float LFO_compute_WF(float phase, uint32_t WF, float *last, uint32_t reset) {
 		tmp *= tmp;
 		return last[0] * 2.f*tmp -1.f;
     case WF_step2:
-        if ( reset ) { last[0] = sign(_rnd_f()-0.5f); }
-        return last[0];
+		if(  wrap2(phase-last[1]) > last[0] ) {
+			last[0] = _rnd_f(); // duré de la prochaine step
+			last[1] = phase; // moment ou on reset
+			last[2] = _rnd_f();// valeur de la prochaine step
+		}
+		return last[2];
     case WF_noise2:
-        if ( reset && (_rnd_f() > 0.5) ) { last[1] = last[0]; last[0] = 2.f*(_rnd_f()-0.5f); }
-        return mix(last[1], last[0], phase*phase*(3.f-2.f*phase));
+		tmp = wrap2(phase-last[1]);
+		if(  tmp > last[0] ) {
+			last[0] = _rnd_f(); // duré de la prochaine step
+			last[1] = phase; // moment ou on reset
+			last[2] = last[3];
+			last[3] = 2.f * _rnd_f() - 1.f;// valeur de la prochaine step
+			tmp = 0.f;
+		}
+		return last[2] +  (tmp/last[0]) * (last[3] - last[2]);
     }
     return(0.f);// not used
 }
