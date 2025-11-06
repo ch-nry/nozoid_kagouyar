@@ -81,11 +81,11 @@ void leds_mode_normal() {
     hw.led_driver_.SetLed_ch(LED_VCO2, (float)0.f);
     hw.led_driver_.SetLed_ch(LED_VCO3, (float)0.f);
     hw.led_driver_.SetLed_ch(LED_ADSR, g_Modulation[ADSR_OUT]);
-    if(curent_config.c_LFO1_WF != WF_AR) { hw.led_driver_.SetLed_ch(LED_LFO1, (float)(0.55f + g_Modulation[LFO1_OUT_FILTER]*0.45f)); }
+    if ( (curent_config.c_LFO1_WF != WF_AR) && (curent_config.c_LFO1_WF != WF_AR2) )  { hw.led_driver_.SetLed_ch(LED_LFO1, (float)(0.55f + g_Modulation[LFO1_OUT_FILTER]*0.45f)); }
     else { hw.led_driver_.SetLed_ch(LED_LFO1, g_Modulation[LFO1_OUT]); }
-    if(curent_config.c_LFO2_WF != WF_AR) { hw.led_driver_.SetLed_ch(LED_LFO2, (float)(0.55f + g_Modulation[LFO2_OUT_FILTER]*0.45f)); }
+    if ( (curent_config.c_LFO2_WF != WF_AR) && (curent_config.c_LFO2_WF != WF_AR2) )  { hw.led_driver_.SetLed_ch(LED_LFO2, (float)(0.55f + g_Modulation[LFO2_OUT_FILTER]*0.45f)); }
     else { hw.led_driver_.SetLed_ch(LED_LFO2, g_Modulation[LFO2_OUT]); }
-    if(curent_config.c_LFO3_WF != WF_AR) { hw.led_driver_.SetLed_ch(LED_LFO3, (float)(0.55f + g_Modulation[LFO3_OUT_FILTER]*0.45f)); }
+    if ( (curent_config.c_LFO3_WF != WF_AR) && (curent_config.c_LFO3_WF != WF_AR2) )  { hw.led_driver_.SetLed_ch(LED_LFO3, (float)(0.55f + g_Modulation[LFO3_OUT_FILTER]*0.45f)); }
     else { hw.led_driver_.SetLed_ch(LED_LFO3, g_Modulation[LFO3_OUT]); }
     hw.led_driver_.SetLed_ch(LED_LFO4, (float)(0.55f + g_Modulation[LFO4_OUT_FILTER]*0.45f));
     hw.led_driver_.SetLed_ch(LED_LFO5, (float)(0.55f + g_Modulation[LFO5_OUT_FILTER]*0.45f));

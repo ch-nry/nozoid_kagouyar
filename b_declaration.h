@@ -293,6 +293,7 @@ struct voice
     uint32_t v_GATE_source; // 0 = Kb int, 1 = MIDI, 2 = v_GATE logic
     volatile float v_pitch;
     volatile uint32_t v_GATE; // GATE on/off
+    volatile uint32_t v_TRIG; // for the A/Decay
     //float  v_velocity;
 
     // VCO*
