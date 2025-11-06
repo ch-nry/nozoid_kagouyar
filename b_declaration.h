@@ -156,7 +156,6 @@ float g_CV1_offset, g_CV2_offset, g_CV1_gain;
 
 // fonctions speciale
 uint32_t g_CV2KB = 0;
-uint32_t VCO_WF_alternatif = 0;
 
 // g_Modulation
 enum MOD_OUT {
