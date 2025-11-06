@@ -507,52 +507,8 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 
     if (!change_keyboard && !change_modulation && !change_configuration && !change_time)  return 3; // si rien n'a changé, on ne fait rien de neuf
 
-	if (change_time && !(pressed_modulation && pressed_configuration) ) return 3; // si change_time, alors il n'y a qu'un cas qui nous interesse
-	// si change_time on reste ssi modulation et configuration sont aussi appuyé
-	// cad on sort si change_time et si (modulation et configuration) ne sont pas appuyé simultanement
 
-	if( pressed_keyboard && change_modulation)
-		return 3; // on appuie sur une touche de modulation alors que le clavier est appuyé : le clavier a la priorité : on joue des notes
-	if( pressed_keyboard && change_configuration)
-		return 3; // on appuie sur une touche de configuration alors que le clavier est appuyé : le clavier a la priorité : on joue des notes
-	if( pressed_configuration && change_modulation)
-		return 3; // on appuie sur une touche de modulation alors qu'une touche de configuration est appuyé : on ne fait rien : priorité a la configuration
-
-    if (!pressed_keyboard && !pressed_modulation && !pressed_configuration) { // on a relaché toutes les touches
-        g_last_load_save = -1; // pour l'affichage des derniere sauvegarde
-        if (change_keyboard == 0) return 0 ; // Ce n'est pas le clavier, dc on a relaché une touche de configuration ou de modulation : on n'as rien a faire
-        change_key(switch_keyboard_bit); // else : on a relaché une touche du clavier : on gere ca ailleur
-        return 0 ;
-    }
-    if (pressed_keyboard && pressed_modulation && pressed_configuration) { // on ne gere pas l'appuie sur 3 touches simultanement : on ignore le clavier
-        switch_keyboard = -1;
-        change_keyboard = 0;
-        pressed_keyboard = 0;
-    }
-    if ( (pressed_keyboard + pressed_modulation + pressed_configuration) == 1 ) { // une seule touche : on a juste a afficher les leds, a moins que ce ne soit le clavier
-        if (pressed_modulation) return 1;
-        if (pressed_configuration) {
-			if (change_configuration) { // action seulement a l'appuie de la touche
-				if (g_CV2KB)
-				{// octave + et - sur les touches CV1 et 2
-					if (switch_configuration == MENU_CV1)   curent_config.c_KEYBOARD_octave = MIN(curent_config.c_KEYBOARD_octave+1, 2);
-					if (switch_configuration == MENU_CV2)   curent_config.c_KEYBOARD_octave = MAX(curent_config.c_KEYBOARD_octave-1, -3);
-				}
-				if (switch_configuration == MENU_LOAD)   led_time = 0;
-				if (switch_configuration == MENU_SAVE)   led_time = 0;
-				if (switch_configuration == MENU_LOAD_SAVE) { animation1_time = 0; animation2_time = 0; animation3_time = 0; }
-			}
-			return 2; // on reste ds le menu tant que la touche est appuyé
-		}
-
-        // on as donc une touche du clavier seul
-        if (change_keyboard == 0) return 0; // seul une touche de clavier est apuyé, mais c'est une touche de configuration ou de selection qui a changé : c'est un reste de la configuration que l'on viens de relacher : on ne la gere pas
-        // defaut : c'est une touche du clavier qui a ete appuyé
-        change_key(switch_keyboard_bit); // le clavier a changé, on gere ca ailleur
-        return 0;
-    }
-    // 2 touches sont appuyés, il y a forcement une configuration qq part a changer
-    if (pressed_modulation && pressed_configuration ) { // changement de source de modulation
+   if (pressed_modulation && pressed_configuration ) { // changement de source de modulation
         switch (switch_configuration) {
            case MENU_VCO1:
 				set_modulation_special(switch_modulation, VCO1_OUT, change_time);
@@ -602,59 +558,13 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
         }
         return 1;
     }
-    if (pressed_modulation && pressed_keyboard) { // changement de paramettre de modulation
-        switch(switch_modulation){
-        case VCO1_MOD1 :
-        case VCO1_MOD2 :
-        case VCO1_MOD3 :
-        case VCO2_MOD1 :
-        case VCO2_MOD2 :
-        case VCO2_MOD3 :
-        case VCO3_MOD1 :
-        case VCO3_MOD2 :
-        case VCO3_MOD3 :
-            if (switch_keyboard < 7) { // modulation type
-                curent_config.c_Modulation_Type[switch_modulation] = switch_keyboard;
-            } else { // alternate modulation in case of VCO_MOD
-                uint_tmp = switch_keyboard - 7;
-                uint_tmp2 = curent_config.c_Modulation_Source[switch_modulation]; // source de modulation actuel
-                if(uint_tmp2 < LFO1_OUT) { // on as une modulation issue d'un VCO
-                    uint_tmp2 -= uint_tmp2%6; // on enleve les formes d'ondes "speciales"
-                    uint_tmp2 += uint_tmp; // on ajoute la config du clavier
-                    curent_config.c_Modulation_Source[switch_modulation] = uint_tmp2;
-                }
-            }
-            break;
-        case VCF1_MOD1 :
-            if (switch_keyboard == 9)
-                curent_config.c_VCF1_MOD1_TYPE = 0;
-            else  if (switch_keyboard == 10)
-                curent_config.c_VCF1_MOD1_TYPE = 1;
-            break;
-        case VCF1_MOD2 :
-            if (switch_keyboard == 9)
-                curent_config.c_VCF1_MOD2_TYPE = 0;
-            else  if (switch_keyboard == 10)
-                curent_config.c_VCF1_MOD2_TYPE = 1;
-            break;
-        case LFO1_MOD :
-            curent_config.c_Modulation_Type[LFO1_MOD] = switch_keyboard;
-            break;
-        case LFO2_MOD :
-            curent_config.c_Modulation_Type[LFO2_MOD] = switch_keyboard;
-            break;
-        case LFO3_MOD :
-            curent_config.c_Modulation_Type[LFO3_MOD] = switch_keyboard;
-            break;
-        }
-        return 1;
-    }
+
     if (pressed_configuration && pressed_keyboard) { // changement de paramettre de configuration
         switch(switch_configuration){
         case MENU_VCO1 :
             if (switch_keyboard <= 8)
-				if(curent_config.c_VCO1_WF == (uint32_t)switch_keyboard) curent_config.c_VCO1_WF=100;
-                else curent_config.c_VCO1_WF = switch_keyboard;
+				if(curent_config.c_VCO1_WF == (uint32_t)switch_keyboard + 9 * change_time) curent_config.c_VCO1_WF=18;
+                else curent_config.c_VCO1_WF = switch_keyboard + 9 * change_time;
             else {
                 switch (switch_keyboard-9) {
                 case 0 :
@@ -676,8 +586,8 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
         break;
         case MENU_VCO2 :
             if (switch_keyboard <= 8)
-				if(curent_config.c_VCO2_WF == (uint32_t)switch_keyboard) curent_config.c_VCO2_WF=9;
-                else curent_config.c_VCO2_WF = switch_keyboard;
+				if(curent_config.c_VCO2_WF == (uint32_t)switch_keyboard+ 9 * change_time) curent_config.c_VCO2_WF=18;
+                else curent_config.c_VCO2_WF = switch_keyboard+ 9 * change_time;
             else {
                 switch (switch_keyboard-9) {
                 case 0 :
@@ -699,8 +609,8 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
         break;
         case MENU_VCO3 :
             if (switch_keyboard <= 8)
- 				if(curent_config.c_VCO3_WF == (uint32_t)switch_keyboard) curent_config.c_VCO3_WF=9;
-                else curent_config.c_VCO3_WF = switch_keyboard;
+ 				if(curent_config.c_VCO3_WF == (uint32_t)switch_keyboard+ 9 * change_time) curent_config.c_VCO3_WF=18;
+                else curent_config.c_VCO3_WF = switch_keyboard+ 9 * change_time;
             else {
                 switch (switch_keyboard-9) {
                 case 0 :
@@ -902,7 +812,6 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 				case 10:
 				break;
 				case 11:
-					VCO_WF_alternatif = !VCO_WF_alternatif; // waveform alternative
 				break;
 				case 12:
 					g_CV2KB = !g_CV2KB; // on toggle le bit
@@ -911,6 +820,94 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 			break;
         }
         return 2;
+    }
+
+	if (change_time) return 3; // si change_time, alors il n'y a qu'un cas qui nous interesse
+	// si change_time on reste ssi modulation et configuration sont aussi appuyé
+	// cad on sort si change_time et si (modulation et configuration) ne sont pas appuyé simultanement
+
+	if( pressed_keyboard && change_modulation)
+		return 3; // on appuie sur une touche de modulation alors que le clavier est appuyé : le clavier a la priorité : on joue des notes
+	if( pressed_keyboard && change_configuration)
+		return 3; // on appuie sur une touche de configuration alors que le clavier est appuyé : le clavier a la priorité : on joue des notes
+	if( pressed_configuration && change_modulation)
+		return 3; // on appuie sur une touche de modulation alors qu'une touche de configuration est appuyé : on ne fait rien : priorité a la configuration
+
+    if (!pressed_keyboard && !pressed_modulation && !pressed_configuration) { // on a relaché toutes les touches
+        g_last_load_save = -1; // pour l'affichage des derniere sauvegarde
+        if (change_keyboard == 0) return 0 ; // Ce n'est pas le clavier, dc on a relaché une touche de configuration ou de modulation : on n'as rien a faire
+        change_key(switch_keyboard_bit); // else : on a relaché une touche du clavier : on gere ca ailleur
+        return 0 ;
+    }
+    if ( (pressed_keyboard + pressed_modulation + pressed_configuration) == 1 ) { // une seule touche : on a juste a afficher les leds, a moins que ce ne soit le clavier
+        if (pressed_modulation) return 1;
+        if (pressed_configuration) {
+			if (change_configuration) { // action seulement a l'appuie de la touche
+				if (g_CV2KB)
+				{// octave + et - sur les touches CV1 et 2
+					if (switch_configuration == MENU_CV1)   curent_config.c_KEYBOARD_octave = MIN(curent_config.c_KEYBOARD_octave+1, 2);
+					if (switch_configuration == MENU_CV2)   curent_config.c_KEYBOARD_octave = MAX(curent_config.c_KEYBOARD_octave-1, -3);
+				}
+				if (switch_configuration == MENU_LOAD)   led_time = 0;
+				if (switch_configuration == MENU_SAVE)   led_time = 0;
+				if (switch_configuration == MENU_LOAD_SAVE) { animation1_time = 0; animation2_time = 0; animation3_time = 0; }
+			}
+			return 2; // on reste ds le menu tant que la touche est appuyé
+		}
+
+        // on as donc une touche du clavier seul
+        if (change_keyboard == 0) return 0; // seul une touche de clavier est apuyé, mais c'est une touche de configuration ou de selection qui a changé : c'est un reste de la configuration que l'on viens de relacher : on ne la gere pas
+        // defaut : c'est une touche du clavier qui a ete appuyé
+        change_key(switch_keyboard_bit); // le clavier a changé, on gere ca ailleur
+        return 0;
+    }
+    // 2 touches sont appuyés, il y a forcement une configuration qq part a changer
+    if (pressed_modulation && pressed_keyboard) { // changement de paramettre de modulation
+        switch(switch_modulation){
+        case VCO1_MOD1 :
+        case VCO1_MOD2 :
+        case VCO1_MOD3 :
+        case VCO2_MOD1 :
+        case VCO2_MOD2 :
+        case VCO2_MOD3 :
+        case VCO3_MOD1 :
+        case VCO3_MOD2 :
+        case VCO3_MOD3 :
+            if (switch_keyboard < 7) { // modulation type
+                curent_config.c_Modulation_Type[switch_modulation] = switch_keyboard;
+            } else { // alternate modulation in case of VCO_MOD
+                uint_tmp = switch_keyboard - 7;
+                uint_tmp2 = curent_config.c_Modulation_Source[switch_modulation]; // source de modulation actuel
+                if(uint_tmp2 < LFO1_OUT) { // on as une modulation issue d'un VCO
+                    uint_tmp2 -= uint_tmp2%6; // on enleve les formes d'ondes "speciales"
+                    uint_tmp2 += uint_tmp; // on ajoute la config du clavier
+                    curent_config.c_Modulation_Source[switch_modulation] = uint_tmp2;
+                }
+            }
+            break;
+        case VCF1_MOD1 :
+            if (switch_keyboard == 9)
+                curent_config.c_VCF1_MOD1_TYPE = 0;
+            else  if (switch_keyboard == 10)
+                curent_config.c_VCF1_MOD1_TYPE = 1;
+            break;
+        case VCF1_MOD2 :
+            if (switch_keyboard == 9)
+                curent_config.c_VCF1_MOD2_TYPE = 0;
+            else  if (switch_keyboard == 10)
+                curent_config.c_VCF1_MOD2_TYPE = 1;
+            break;
+        case LFO1_MOD :
+            curent_config.c_Modulation_Type[LFO1_MOD] = switch_keyboard;
+            break;
+        case LFO2_MOD :
+            curent_config.c_Modulation_Type[LFO2_MOD] = switch_keyboard;
+            break;
+        case LFO3_MOD :
+            curent_config.c_Modulation_Type[LFO3_MOD] = switch_keyboard;
+            break;
+        }
+        return 1;
     }
     return 0; // on ne devrait jamais arriver ici
 }
