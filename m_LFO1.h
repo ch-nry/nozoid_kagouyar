@@ -409,7 +409,7 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
                     } else {
                         g_Modulation_Reset[LFO1_OUT] = 0;
                     }
-                    modulation = Interpolation_Curve(g_Modulation_Phase[source_addresse], curent_config.c_LFO1_WF, g_LFO1_noise); // TODO : limiter aux bonnes WF
+                    modulation = Interpolation_Curve(g_Modulation_Phase[source_addresse], curent_config.c_LFO1_WF%9, g_LFO1_noise);
                     g_Modulation_Phase[LFO1_OUT] = g_Modulation_Phase[source_addresse];
                 }
             }
