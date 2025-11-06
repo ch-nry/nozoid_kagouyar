@@ -297,8 +297,18 @@ float LFO_compute_WF(float phase, uint32_t WF, float *last, uint32_t reset) {
             last[0] = (_rnd_f()-0.5f)*2.f;
         }
         return mix(last[1], last[0], phase*phase*(3.f-2.f*phase));
+    case WF_AR2:
+    case WF_sin2:
+    case WF_tri2:
+    case WF_square2:
+    case WF_ramp2:
+    case WF_saw2:
+    case WF_spike2:
+    case WF_step2:
+    case WF_noise2:
+        return 0.f; //TODO
     }
-    return(0.f);
+    return(0.f);// not used
 }
 
 float Interpolation_Curve(float phase, uint32_t WF, float *last_point) { // interpol through diferent points depending on the LFO waveform
@@ -587,16 +597,16 @@ void random_config() {
     curent_config.c_VCA_TYPE = _rnd_ui()%2; // VCA or LowPasse_GATE
     curent_config.c_VCF2_TYPE = 0;
 
-	curent_config.c_VCO1_WF = _rnd_ui()%9;
-    curent_config.c_VCO2_WF =  _rnd_ui()%9;
-    curent_config.c_VCO3_WF =  _rnd_ui()%9;
+	curent_config.c_VCO1_WF = _rnd_ui()%18;
+    curent_config.c_VCO2_WF =  _rnd_ui()%18;
+    curent_config.c_VCO3_WF =  _rnd_ui()%18;
 
-    curent_config.c_LFO1_WF = 1 + _rnd_ui()%8;
-    curent_config.c_LFO2_WF = 1 + _rnd_ui()%8;
-    curent_config.c_LFO3_WF = 1 + _rnd_ui()%8;
-    curent_config.c_LFO4_WF = 1 + _rnd_ui()%8;
-    curent_config.c_LFO5_WF = 1 + _rnd_ui()%8;
-    curent_config.c_LFO6_WF = 1 + _rnd_ui()%8;
+    curent_config.c_LFO1_WF = 1 + _rnd_ui()%17;
+    curent_config.c_LFO2_WF = 1 + _rnd_ui()%17;
+    curent_config.c_LFO3_WF = 1 + _rnd_ui()%17;
+    curent_config.c_LFO4_WF = 1 + _rnd_ui()%17;
+    curent_config.c_LFO5_WF = 1 + _rnd_ui()%17;
+    curent_config.c_LFO6_WF = 1 + _rnd_ui()%17;
 
     curent_config.c_LFO1_RANGE = _rnd_ui()%3;
     curent_config.c_LFO2_RANGE = _rnd_ui()%3;
@@ -814,11 +824,11 @@ int load_config(uint32_t slot)
 		curent_config.c_CV1_gain = tmp_config.c_CV1_gain;
 	}
     curent_config.c_MIDI_channel = MIN(12, MAX(-1, tmp_config.c_MIDI_channel));
-    curent_config.c_VCO1_WF = tmp_config.c_VCO1_WF%10;
+    curent_config.c_VCO1_WF = tmp_config.c_VCO1_WF%19;
     curent_config.c_VCO1_RANGE = tmp_config.c_VCO1_RANGE%3;
-    curent_config.c_VCO2_WF = tmp_config.c_VCO2_WF%10;
+    curent_config.c_VCO2_WF = tmp_config.c_VCO2_WF%19;
     curent_config.c_VCO2_RANGE = tmp_config.c_VCO2_RANGE%3;
-    curent_config.c_VCO3_WF = tmp_config.c_VCO3_WF%10;
+    curent_config.c_VCO3_WF = tmp_config.c_VCO3_WF%19;
     curent_config.c_VCO3_RANGE = tmp_config.c_VCO3_RANGE%3;
     curent_config.c_VCO2_LINK = tmp_config.c_VCO2_LINK%2;
     curent_config.c_VCO3_LINK = tmp_config.c_VCO3_LINK%2;
@@ -837,12 +847,12 @@ int load_config(uint32_t slot)
     curent_config.c_LFO5_RANGE = tmp_config.c_LFO5_RANGE%4;
     curent_config.c_LFO6_RANGE = tmp_config.c_LFO6_RANGE%4;
     curent_config.c_LFO7_RANGE = tmp_config.c_LFO7_RANGE%4;
-    curent_config.c_LFO1_WF = tmp_config.c_LFO1_WF%9;
-    curent_config.c_LFO2_WF = tmp_config.c_LFO2_WF%9;
-    curent_config.c_LFO3_WF = tmp_config.c_LFO3_WF%9;
-    curent_config.c_LFO4_WF = ((tmp_config.c_LFO4_WF-1)%8)+1;
-    curent_config.c_LFO5_WF = ((tmp_config.c_LFO5_WF-1)%8)+1;
-    curent_config.c_LFO6_WF = ((tmp_config.c_LFO6_WF-1)%8)+1;
+    curent_config.c_LFO1_WF = tmp_config.c_LFO1_WF%18;
+    curent_config.c_LFO2_WF = tmp_config.c_LFO2_WF%18;
+    curent_config.c_LFO3_WF = tmp_config.c_LFO3_WF%18;
+    curent_config.c_LFO4_WF = ((tmp_config.c_LFO4_WF-1)%17)+1;
+    curent_config.c_LFO5_WF = ((tmp_config.c_LFO5_WF-1)%17)+1;
+    curent_config.c_LFO6_WF = ((tmp_config.c_LFO6_WF-1)%17)+1;
     curent_config.c_EFFECT1_TYPE = 7;
 	delay1_clear();
     curent_config.c_EFFECT1_TYPE = tmp_config.c_EFFECT1_TYPE%8;

@@ -507,7 +507,6 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 
     if (!change_keyboard && !change_modulation && !change_configuration && !change_time)  return 3; // si rien n'a changé, on ne fait rien de neuf
 
-
    if (pressed_modulation && pressed_configuration ) { // changement de source de modulation
         switch (switch_configuration) {
            case MENU_VCO1:
@@ -693,21 +692,21 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
             }
         break;
         case MENU_LFO1 :
-            if (switch_keyboard < 9) curent_config.c_LFO1_WF = switch_keyboard;
+            if (switch_keyboard < 9) curent_config.c_LFO1_WF = switch_keyboard + 9 * change_time;
             else {
                 switch_keyboard -= 9;
                 curent_config.c_LFO1_RANGE = switch_keyboard;
             }
             break;
         case MENU_LFO2 :
-            if (switch_keyboard < 9) curent_config.c_LFO2_WF = switch_keyboard;
+            if (switch_keyboard < 9) curent_config.c_LFO2_WF = switch_keyboard + 9 * change_time;
             else {
                 switch_keyboard -= 9;
                 curent_config.c_LFO2_RANGE = switch_keyboard;
             }
             break;
         case MENU_LFO3 :
-            if (switch_keyboard < 9) curent_config.c_LFO3_WF = switch_keyboard;
+            if (switch_keyboard < 9) curent_config.c_LFO3_WF = switch_keyboard + 9 * change_time;
             else {
                 switch_keyboard -= 9;
                 curent_config.c_LFO3_RANGE = switch_keyboard;
@@ -715,7 +714,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
             break;
         case MENU_LFO4 :
             if (switch_keyboard > 0 ){
-                if (switch_keyboard < 9) curent_config.c_LFO4_WF = switch_keyboard;
+                if (switch_keyboard < 9) curent_config.c_LFO4_WF = switch_keyboard + 9 * change_time;
                 else {
                     switch_keyboard -= 9;
                     curent_config.c_LFO4_RANGE = switch_keyboard;
@@ -724,7 +723,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
             break;
         case MENU_LFO5 :
             if (switch_keyboard > 0 ){
-                if (switch_keyboard < 9) curent_config.c_LFO5_WF = switch_keyboard;
+                if (switch_keyboard < 9) curent_config.c_LFO5_WF = switch_keyboard + 9 * change_time;
                 else {
                     switch_keyboard -= 9;
                     curent_config.c_LFO5_RANGE = switch_keyboard;
@@ -733,7 +732,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
             break;
         case MENU_LFO6 :
             if (switch_keyboard > 0 ){
-                if (switch_keyboard < 9) curent_config.c_LFO6_WF = switch_keyboard;
+                if (switch_keyboard < 9) curent_config.c_LFO6_WF = switch_keyboard + 9 * change_time;
                 else {
                     switch_keyboard -= 9;
                     curent_config.c_LFO6_RANGE = switch_keyboard;
