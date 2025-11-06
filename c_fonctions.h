@@ -856,18 +856,4 @@ int load_config(uint32_t slot)
 	}
 	if (slot == 14) { g_CV2KB = tmp_config.c_CV2KB != 0;} // on ne lit cette fct que pour la config sauvegardé lors de l'extinction
 	return(1); //id valid
-
-}
-
-// --------------- VCO -------------------
-// on le met ici pour pouvoir avoir des fonctions diferentes pour chaques VCO (le reste du code est un copié-collé a la compilation)
-inline void VCO1_pitch(voice &myvoice, float &pitch) {
-    pitch += g_MIDI_pitchWHEEL;
-    myvoice.v_VCO1_pitch = pitch;
-}
-inline void VCO2_pitch(voice &myvoice, float &pitch) {
-    if(curent_config.c_VCO2_LINK) pitch += myvoice.v_VCO1_pitch -(60.f + myvoice.v_pitch); else pitch +=  g_MIDI_pitchWHEEL;
-}
-inline void VCO3_pitch(voice &myvoice, float &pitch) {
-    if(curent_config.c_VCO3_LINK) pitch += myvoice.v_VCO1_pitch -(60.f + myvoice.v_pitch); else pitch +=  g_MIDI_pitchWHEEL;
 }
