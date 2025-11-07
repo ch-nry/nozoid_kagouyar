@@ -757,19 +757,19 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
             break;
         case MENU_EFFECTS :
             if(switch_keyboard < 7) {
-				if 	(curent_config.c_EFFECT1_TYPE != (uint32_t)switch_keyboard) {
-					curent_config.c_EFFECT1_TYPE = 7;
+				if (curent_config.c_EFFECT1_TYPE != (uint32_t)switch_keyboard + 7 * change_time) {
+					curent_config.c_EFFECT1_TYPE = 14;
 					delay1_clear();
-					curent_config.c_EFFECT1_TYPE = switch_keyboard;
+					curent_config.c_EFFECT1_TYPE = switch_keyboard + 7 * change_time;
 					}
-				else curent_config.c_EFFECT1_TYPE = 7;
+				else curent_config.c_EFFECT1_TYPE = 14;
 			}
             else {
                 switch_keyboard -= 7;
-				if 	(curent_config.c_EFFECT2_TYPE != (uint32_t)switch_keyboard) {
-					curent_config.c_EFFECT2_TYPE = switch_keyboard;
+				if (curent_config.c_EFFECT2_TYPE != (uint32_t)switch_keyboard + 6 * change_time) {
+					curent_config.c_EFFECT2_TYPE = switch_keyboard + 6 * change_time;
 					}
-				else curent_config.c_EFFECT2_TYPE = 6;
+				else curent_config.c_EFFECT2_TYPE = 12;
             }
             break;
         case MENU_LOAD :

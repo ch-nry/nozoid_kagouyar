@@ -181,7 +181,13 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		}
 		g_old_sound_out = sound_out;
 		return sound_out;
-	case 7 : //rien, utilisé lors du changement d'effet
+	case 8:
+	case 9:
+	case 10:
+	case 11:
+	case 12:
+	case 13:
+	case 14 : //rien, utilisé lors du changement d'effet
 		g_effect1_phase = 0.;
 		g_effect1_last_out = 0.f;
 		g_effect1_param_filter = 0.f;
@@ -266,7 +272,13 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         sound_out *= _fclamp(1.f - param1 * (1.f-g_Modulation[curent_config.c_Modulation_Source[EFFECT2_MOD]]), 0.f, 1.f); // attenuation
 
         return sound_out;
-	case 6 : //rien, utilisé lors du changement d'effet
+	case 6:
+	case 7:
+	case 8:
+	case 9:
+	case 10:
+	case 11:
+	case 12 : //rien, utilisé lors du changement d'effet
 		g_effect2_sound_env = 0.;
 		g_Effect2_filtre = 0.f;
 		g_effect2_phase = 0.33f;

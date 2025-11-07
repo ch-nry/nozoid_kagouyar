@@ -346,7 +346,9 @@ void leds_key_configuration(uint32_t my_menu_switch) { // led lorsque on appuie 
     case MENU_EFFECTS :
         led_keyboard |= 1 << BIT_LED_MENU_EFFECTS;
         if(curent_config.c_EFFECT1_TYPE<7) led_keyboard |= 1 << table_led_key[curent_config.c_EFFECT1_TYPE];
+        else if ( (curent_config.c_EFFECT1_TYPE<14) && (g_led_blink>0) ) led_keyboard |= 1 << table_led_key[curent_config.c_EFFECT1_TYPE - 7];
         if(curent_config.c_EFFECT2_TYPE<6) led_keyboard |= 1 << table_led_key[7 + curent_config.c_EFFECT2_TYPE];
+        else if ( (curent_config.c_EFFECT2_TYPE<12) && (g_led_blink>0) )led_keyboard |= 1 << table_led_key[7 + curent_config.c_EFFECT2_TYPE-6];
     break;
     case MENU_MIDI:
         if (curent_config.c_MIDI_channel >= 0) {

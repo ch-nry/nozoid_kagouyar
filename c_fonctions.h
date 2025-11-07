@@ -645,10 +645,10 @@ void random_config() {
     curent_config.c_LFO6_RANGE = _rnd_ui()%3;
     curent_config.c_LFO7_RANGE = _rnd_ui()%3;
 
-	curent_config.c_EFFECT1_TYPE = 7;
+	curent_config.c_EFFECT1_TYPE = 14;
 	delay1_clear();
-    curent_config.c_EFFECT1_TYPE = _rnd_ui()%7;
-    curent_config.c_EFFECT2_TYPE = _rnd_ui()%6;
+    curent_config.c_EFFECT1_TYPE = _rnd_ui()%14;
+    curent_config.c_EFFECT2_TYPE = _rnd_ui()%12;
 
     for (uint32_t i=0; i<VCF1_MOD1; i++) { // pour tout les VCO
         curent_config.c_Modulation_Source[i] = _rnd_ui()%MIDI_modulation;
@@ -712,8 +712,8 @@ void empty_config() {
     // LFO7
     curent_config.c_LFO7_RANGE = 1;
 
-    curent_config.c_EFFECT1_TYPE = 7;
-    curent_config.c_EFFECT2_TYPE = 6;
+    curent_config.c_EFFECT1_TYPE = 14;
+    curent_config.c_EFFECT2_TYPE = 12;
     curent_config.c_VCF2_TYPE = 0;
 
     for (uint32_t i=0; i<modulation_destination_last; i++) { // pour tout les VCO
@@ -781,7 +781,7 @@ void standard_config() {
     curent_config.c_LFO7_RANGE = 2;
 
     //
-    curent_config.c_EFFECT1_TYPE = 7;
+    curent_config.c_EFFECT1_TYPE = 14;
 	delay1_clear();
     curent_config.c_EFFECT1_TYPE = 0;
     curent_config.c_EFFECT2_TYPE = 0;
@@ -882,10 +882,10 @@ int load_config(uint32_t slot)
     curent_config.c_LFO4_WF = ((tmp_config.c_LFO4_WF-1)%17)+1;
     curent_config.c_LFO5_WF = ((tmp_config.c_LFO5_WF-1)%17)+1;
     curent_config.c_LFO6_WF = ((tmp_config.c_LFO6_WF-1)%17)+1;
-    curent_config.c_EFFECT1_TYPE = 7;
+    curent_config.c_EFFECT1_TYPE = 14;
 	delay1_clear();
-    curent_config.c_EFFECT1_TYPE = tmp_config.c_EFFECT1_TYPE%8;
-    curent_config.c_EFFECT2_TYPE = tmp_config.c_EFFECT2_TYPE%7;
+    curent_config.c_EFFECT1_TYPE = tmp_config.c_EFFECT1_TYPE%15;
+    curent_config.c_EFFECT2_TYPE = tmp_config.c_EFFECT2_TYPE%13;
     curent_config.c_VCF2_TYPE = tmp_config.c_VCF2_TYPE%4;
 	for(i=0; i<modulation_destination_last; i++) curent_config.c_Modulation_Source[i] = tmp_config.c_Modulation_Source[i]%(2*modulation_source_last);
 	for(i=0; i<10; i++) curent_config.c_Modulation_Type[i] = tmp_config.c_Modulation_Type[i]%(modulation_type_last);
