@@ -350,6 +350,17 @@ void UsbCallback(uint8_t* buf, uint32_t* len)
         break;
 */
 
+		/*sin(mix(phase, sin(phase), param);
+        out = _sin_loop(mix(VCO_phase, _sin(VCO_phase),PWM_local));*/
+
+    /*
+    sin(clip(phase*gain));
+		out = _sin_loop(_fclamp(VCO_phase * (1.f + 3.f * PWM_local), 0.f, 1.f));*/
+        /*
+    case 17 : //  9 bis : : fb  y = sin(phase + feedback * prevY); prevY = y;
+        out = _sin_loop(VCO_phase + 0.6 * PWM_local * v_VCO_last[0]);
+        v_VCO_last[0] = out;
+        break;*/
 //////////////////////////////
 //fonction exponentiel
 /*
