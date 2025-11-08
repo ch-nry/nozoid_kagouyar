@@ -302,11 +302,9 @@ inline float effect2(float sound_in) { //, float param, float param1) {
 		tmp *= _tanh(3.f*param); // NL sur le wet, car interessant seulement a haut nvx de wet
 		g_delay_effect2.Write(tmp);
 		return sound_in + tmp;
-	case 8: // BITCRUSH 2 : enhancer :
-		_fonepole(g_Effect2_filtre, sound_in, 0.05f);
-		tmp = sound_in - g_Effect2_filtre;
-		tmp = tmp - 0.5 * tmp * tmp *tmp;
-    return sound_in + wet * tmp;
+	case 8: // BITCRUSH 2 : downsampler
+		sound_out = sound_in;
+		return sound_out;
 	case 9: // doepler 2: ok
         g_delay_effect2.Write(sound_in);
         tmp = wet * 5000.f;
@@ -319,9 +317,11 @@ inline float effect2(float sound_in) { //, float param, float param1) {
 	     _fonepole(g_Effect2_filtre, sound_in, 100.f/48000.f);
         tmp = _tanh_clip(g_Effect2_filtre* wet*15.f);
         return sound_in + (tmp-g_Effect2_filtre) * wet;
-	case 11: // compress 2:
-		sound_out = sound_in;
-		return sound_out;
+	case 11: // compress 2: enhancer :
+		_fonepole(g_Effect2_filtre, sound_in, 0.05f);
+		tmp = sound_in - g_Effect2_filtre;
+		tmp = tmp - 0.5 * tmp * tmp *tmp;
+		return sound_in + wet * tmp;
 	case 12 : //rien, utilisé lors du changement d'effet
 		g_effect2_sound_env = 0.;
 		g_Effect2_filtre = 0.f;
@@ -401,5 +401,11 @@ g_delay_effect2.SetDelay(1000.f + param * 2000.f);
 tmp = g_delay_effect2.Read();
 g_delay_effect2.Write(sound_in);
 sound_out = sound_in + tmp * wet;
+
+Lo-Fi Resonator
+Comme un petit formant fixe.
+float freq = 0.01f + 0.1f * param;
+g_Effect2_filtre += freq * (sound_in - g_Effect2_filtre);
+sound_out = g_Effect2_filtre * 1.5f - sound_in * 0.5f;
 
 */
