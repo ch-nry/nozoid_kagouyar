@@ -53,7 +53,7 @@ inline void delay1_write_f(float in){
 	g_delay1_pos = l_delay1_pos;
 }
 
-inline float delay1_read_f(float delay){
+inline float delay1_read_f(float delay){ // en sample
 	int32_t delay_integral   = static_cast<int32_t>(delay);
 	float const  delay_fractional = delay - static_cast<float>(delay_integral);
 	delay_integral += g_delay1_pos;
@@ -78,6 +78,8 @@ inline float delay1_read_i(float delay){
 	const float b = s162f(g_delay1.delay1_int[(delay_integral + 1) % delay1_sizei]);
 	return 3.f*(a + (b - a) * delay_fractional);
 }
+
+// TODO : verifier le clip sur tout les delwrite
 
 inline float effect1(float sound_in) { //, float wet, float param1, float param2) {
 	float const wet = g_pot_audio[k_EFFECT1_wet] += g_pot_increment[k_EFFECT1_wet];
@@ -181,12 +183,32 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		}
 		g_old_sound_out = sound_out;
 		return sound_out;
-	case 8:
-	case 9:
-	case 10:
-	case 11:
-	case 12:
-	case 13:
+	case 7: // WS2
+		sound_out = sound_in;
+		return sound_out;
+	case 8: // ECHO 2 : ok
+		tmp = delay1_read_f(10.f + 5000.f * param1M* param1M);
+		sound_out = sound_in + tmp * wet;
+		delay1_write_f( _fclamp(sound_out, -2.f, 2.f));
+		return sound_out;
+	case 9: // FREEZE 2
+		sound_out = sound_in;
+		return sound_out;
+	case 10: // STRING 2
+		sound_out = sound_in;
+		return sound_out;
+	case 11: // CHORUS 2 		// all passe + feedback
+		sound_out = delay1_read_f(5.f + 5000.f * param1M);
+		tmp =  -0.9f*wet  * sound_out + sound_in;
+		delay1_write_f(tmp);
+		sound_out += tmp * wet;
+		return sound_out;
+	case 12: // RING 2
+		sound_out = sound_in;
+		return sound_out;
+	case 13: // FRICTION 2
+		sound_out = sound_in;
+		return sound_out;
 	case 14 : //rien, utilisé lors du changement d'effet
 		g_effect1_phase = 0.;
 		g_effect1_last_out = 0.f;
@@ -256,7 +278,6 @@ inline float effect2(float sound_in) { //, float param, float param1) {
 
         return mix(sound_in, sound_out*0.5, wet);
     case 5: // compresseur- attenuateur :
-    //  qd pas de modulation, que faire avec param???
         tmp = fabsf(sound_in);
         tmp = fminf(tmp, 3.f); // on ne devrait pas avoir de son plus fort que ca.
         if (tmp > g_effect2_sound_env) {
@@ -268,16 +289,39 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         tmp2 = tmp*param*param*param*20.f;
         tmp2 = (tmp + tmp2) / (1.f + fabsf(tmp2));             // new volume
         sound_out = sound_in * tmp2/tmp;        // compress
-
         sound_out *= _fclamp(1.f - param1 * (1.f-g_Modulation[curent_config.c_Modulation_Source[EFFECT2_MOD]]), 0.f, 1.f); // attenuation
-
         return sound_out;
-	case 6:
-	case 7:
-	case 8:
-	case 9:
-	case 10:
-	case 11:
+	case 6: // DIST 2 : ok : plus soupe que la disto 1
+		sound_out = _tanh_clip( (15.f*wet*wet+1) * sound_in);
+		sound_out = mix(sound_in, sound_out, fminf(1.f, wet*10.f) );
+		return sound_out;
+	case 7: // WS 2 : delay : OK : delay infini, mais qui peux s'effacer pour laisser la place au nvx sond in
+		g_delay_effect2.SetDelay(5.f + 10000.f * param1);
+		tmp = sound_in - g_delay_effect2.Read();
+		tmp = _tanh_clip( tmp);
+		tmp *= _tanh(3.f*param); // NL sur le wet, car interessant seulement a haut nvx de wet
+		g_delay_effect2.Write(tmp);
+		return sound_in + tmp;
+	case 8: // BITCRUSH 2 : enhancer :
+		_fonepole(g_Effect2_filtre, sound_in, 0.05f);
+		tmp = sound_in - g_Effect2_filtre;
+		tmp = tmp - 0.5 * tmp * tmp *tmp;
+    return sound_in + wet * tmp;
+	case 9: // doepler 2: ok
+        g_delay_effect2.Write(sound_in);
+        tmp = wet * 5000.f;
+        tmp *=  2.f - _tanh(1.f+sound_in);
+        _fonepole(g_Effect2_filtre, tmp, 0.005f); // smooth le paramettre de temps et filtre le audio in
+        g_delay_effect2.SetDelay(fmaxf(1.f,g_Effect2_filtre));
+        sound_out = g_delay_effect2.Read();
+        return sound_out;
+	case 10: // sub2
+	     _fonepole(g_Effect2_filtre, sound_in, 100.f/48000.f);
+        tmp = _tanh_clip(g_Effect2_filtre* wet*15.f);
+        return sound_in + (tmp-g_Effect2_filtre) * wet;
+	case 11: // compress 2:
+		sound_out = sound_in;
+		return sound_out;
 	case 12 : //rien, utilisé lors du changement d'effet
 		g_effect2_sound_env = 0.;
 		g_Effect2_filtre = 0.f;
@@ -286,3 +330,76 @@ inline float effect2(float sound_in) { //, float param, float param1) {
     }
     return 0; //useless
 }
+// TODO : gerer l'affichage de la modulation la ou c'est necessaire
+
+/*
+  a = delayA.read(delayA_time); b = delayB.read(delayB_time); junction = tanh(drive * (a - b)) + 0.05 * (a + b); delayA.write(sample + junction * decay); delayB.write(sample - junction * decay); out = a + b; return out
+
+		//comb automodulé = doepler saturé :     delayed = delayBuf.read(delayTime);     modFb = baseFb + modAmt * tanh(delayed);     fb = sample + delayed * modFb; delayBuf.write(fb); return fb
+
+		// x = sample + fb; y = -g * x + z1; z1 = x + g * y; fb = tanh(drive * y); return y
+
+
+    params:
+    g = 0.6
+    drive = 2.0
+process(sample):
+    x = sample + fb
+    y = -g * x + z1
+    z1 = x + g * y
+    fb = tanh(drive * y)
+    return y
+
+    params:
+    drive = 1.2
+    decay = 0.98
+    delayTime = 30ms
+process(sample):
+    a = delayA.read(delayTime)
+    b = delayB.read(delayTime+1)
+    junction = tanh(drive * (a - b))
+    delayA.write(sample + junction * decay)
+    delayB.write(sample - junction * decay)
+    out = a + b
+    return out
+
+
+3. Comb Filter à Résonance Variable
+Idée : Un filtre en peigne dont la résonance est modulée par l’enveloppe, pour un son métallique ou “robotique” qui réagit à l’amplitude.
+Code :
+param = g_effect2_sound_env * 10.f; // Résonance modulée par enveloppe
+g_delay_effect2.SetDelay(1000.f + param);
+tmp = g_delay_effect2.Read();
+g_delay_effect2.Write(sound_in + tmp * 0.7f); // Feedback
+sound_out = sound_in + tmp * wet;
+g_effect2_sound_env = fabs(sound_in) * 0.1f + g_effect2_sound_env * 0.99f;
+
+
+13. Delay à Granulation de Feedback
+Idée : Le feedback est “granulé” en ne gardant qu’un échantillon sur N, pour un effet de “bitcrush” ou de “glitch” subtil.
+Code :
+static int grain_counter = 0;
+tmp = g_delay_effect2.Read();
+if (++grain_counter >= 10) { // 1 échantillon sur 10
+    grain_counter = 0;
+    g_delay_effect2.Write(sound_in + tmp * 0.7f);
+} else {
+    g_delay_effect2.Write(0.f);
+}
+sound_out = sound_in + tmp * wet;
+
+
+25. Delay à Modulation de Phase Chaotique
+Idée : La phase du LFO est perturbée aléatoirement, pour un effet de “chaos” ou de “random modulation”.
+Code :
+static int random_seed = 67890;
+random_seed = (random_seed * 1664525 + 1013904223) & 0x7FFFFFFF;
+g_effect2_phase += 0.001f + (float)(random_seed & 0xF) * 0.0001f; // Perturbation aléatoire
+if (g_effect2_phase > 1.f) g_effect2_phase -= 1.f;
+param = sin(g_effect2_phase * 6.28f) * 0.5f + 0.5f;
+g_delay_effect2.SetDelay(1000.f + param * 2000.f);
+tmp = g_delay_effect2.Read();
+g_delay_effect2.Write(sound_in);
+sound_out = sound_in + tmp * wet;
+
+*/
