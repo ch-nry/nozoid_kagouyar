@@ -15,7 +15,7 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
-#define delay1_sizef 72000
+#define delay1_sizef 72000 // attention : la reverb doit faire au moins 38k
 #define delay1_sizei 144000
 
 float g_effect1_phase;
@@ -36,13 +36,39 @@ float g_vitesse = 0.f, g_old_sound_out = 0.f, g_last_sound_in = 0.;
 union delay_line {
 	float delay1_float[delay1_sizef];
 	int16_t delay1_int[delay1_sizei];
+	struct {
+		float reverb1[4][8192];
+		float reverb2[6][1024];
+	};
 } g_delay1;
 
 uint32_t g_delay1_pos; // position ds le buffer
+uint32_t g_delay2_pos;
 
 inline void delay1_clear(){
 	for (int i=0; i<delay1_sizef; i++) g_delay1.delay1_float[i] = 0.f;
 	g_delay1_pos = 0;
+}
+
+inline float reverb1_read(uint32_t a, uint32_t i){
+	return g_delay1.reverb1[a][(g_delay1_pos+i)%8192];
+}
+
+inline void reverb1_write(float a0, float a1, float a2, float a3){
+	g_delay1_pos = (g_delay1_pos + 1)%8192;
+	g_delay1.reverb1[0][g_delay1_pos] = a0;
+	g_delay1.reverb1[1][g_delay1_pos] = a1;
+	g_delay1.reverb1[2][g_delay1_pos] = a2;
+	g_delay1.reverb1[3][g_delay1_pos] = a3;
+}
+
+inline float reverb2_read(uint32_t a, uint32_t i){
+	return g_delay1.reverb2[a][(g_delay2_pos+i)%1024];
+}
+
+inline void reverb2_write(int i, float a0){
+	g_delay2_pos = (g_delay2_pos + 1)%1024;
+	g_delay1.reverb2[i][g_delay2_pos] = a0;
 }
 
 inline void delay1_write_f(float in){
@@ -60,6 +86,11 @@ inline float delay1_read_f(float delay){ // en sample
 	const float a = g_delay1.delay1_float[(delay_integral) % delay1_sizef];
 	const float b = g_delay1.delay1_float[(delay_integral + 1) % delay1_sizef];
 	return a + (b - a) * delay_fractional;
+}
+
+inline float delay1_read_f_fixe(uint32_t delay){ // en sample
+	const float a = g_delay1.delay1_float[(delay + g_delay1_pos) % delay1_sizef];
+	return a;
 }
 
 inline void delay1_write_i(float  in){
@@ -80,11 +111,14 @@ inline float delay1_read_i(float delay){
 }
 
 // TODO : verifier le clip sur tout les delwrite
+// TODO : voir si on peux mettre des read non interpolé
+// TODO : metre un delay_read interpolé hermine si possible
 
 inline float effect1(float sound_in) { //, float wet, float param1, float param2) {
 	float const wet = g_pot_audio[k_EFFECT1_wet] += g_pot_increment[k_EFFECT1_wet];
 	float param1 = _fclamp(g_pot_audio[k_EFFECT1_p1] += g_pot_increment[k_EFFECT1_p1], 0.f, 1.f);
 	float const param2 = _fclamp(g_pot_audio[k_EFFECT1_p2] += g_pot_increment[k_EFFECT1_p2], 0.f, 1.f);
+	float a1, a2, a3, a4, b1, b2, b3, b4;
 
     float sound_out = 0.f;
     float tmp = 0.f;
@@ -150,7 +184,6 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
         sound_out  -= delay1_read_f((fast_cos_loop(0.71f + effect1_phase*7.f)+6.73f) * param1);
         sound_out *= 0.5;
         sound_out = sound_in + _tanh_clip(wetM*sound_out);
-
         delay1_write_f(sound_out);
         return sound_out;
     case 5 : // ring delay : WET : amplitude du feedback; param1 : temps de delay ; param2 : frequence du ring
@@ -166,7 +199,6 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		//g_delay_effect1.Write(sound_out);
 		delay1_write_f(sound_out);
         return sound_out;
-        //break;
 	case 6 : //frottement : WET; param1 : taille du seuil pour declancher un mouvement; param1 : inertie de la corde
 		// le son reste bloqué tant que la diference avec l'entrée n'est pas sufisante.
 		// Lorsque le seuil est atteins, le son se reinitialise a la position de l'entre,
@@ -184,6 +216,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		g_old_sound_out = sound_out;
 		return sound_out;
 	case 7: // WS2
+	////////////////////////////////////////////////////////////////////////////////////TODO
 		sound_out = sound_in;
 		return sound_out;
 	case 8: // ECHO 2 : ok
@@ -192,11 +225,45 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		delay1_write_f( _fclamp(sound_out, -2.f, 2.f));
 		return sound_out;
 	case 9: // FREEZE 2
+	////////////////////////////////////////////////////////////////////////////////////TODO
 		sound_out = sound_in;
 		return sound_out;
-	case 10: // STRING 2
-		sound_out = sound_in;
+	case 10: // STRING 2 : reverb?
+		a1 = sound_in;
+		a2 = 0.f;
+		b1 = a1 + a2;
+		b2 = a1 - a2;
+		reverb2_write(0, b2);
+		b2 = reverb2_read(0, 261);
+
+		a1 = b1;
+		a2 = b2;
+		b1 = a1 + a2;
+		b2 = a1 - a2;
+		reverb2_write(1, b2);
+		b2 = reverb2_read(1, 406);
+
+		a1 = b1;
+		a2 = b2;
+		b1 = a1 + a2;
+		b2 = a1 - a2;
+		reverb2_write(2, b2);
+		b2 = reverb2_read(2, 645);
+
+	/////////////
+		a1 = b1 + reverb1_read(0, 2880);
+		a2 = b2 + reverb1_read(1, 3453);
+		a3 = reverb1_read(2, 4164);
+		a4 = reverb1_read(3, 4605);
+		sound_out = a1;
+		b1 = a1 + a2; b2 = a1 - a2; b3 = a3 + a4; b4 = a3 - a4;
+		a1 = b1 + b3; a2 = b2 + b4; a3 = b1 - b3; a4= b2 - b4;
+		tmp = 0.5 * param1M;
+		a1 *= tmp; a2 *= tmp; a3 *= tmp; a4 *= tmp;
+		reverb1_write(a1, a2, a3, a4);
+		sound_out = mix(sound_in, sound_out, wet);
 		return sound_out;
+		///////////////////////////////////////
 	case 11: // CHORUS 2 		// all passe + feedback
 		sound_out = delay1_read_f(5.f + 5000.f * param1M);
 		tmp =  -0.9f*wet  * sound_out + sound_in;
@@ -204,9 +271,13 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		sound_out += tmp * wet;
 		return sound_out;
 	case 12: // RING 2
+		////////////////////////////////////////////////////////////////////////////////////TODO
+
 		sound_out = sound_in;
 		return sound_out;
 	case 13: // FRICTION 2
+		////////////////////////////////////////////////////////////////////////////////////TODO
+
 		sound_out = sound_in;
 		return sound_out;
 	case 14 : //rien, utilisé lors du changement d'effet
@@ -302,7 +373,7 @@ inline float effect2(float sound_in) { //, float param, float param1) {
 		tmp *= _tanh(3.f*param); // NL sur le wet, car interessant seulement a haut nvx de wet
 		g_delay_effect2.Write(tmp);
 		return sound_in + tmp;
-	case 8: // BITCRUSH 2 : downsampler
+	case 8: // BITCRUSH 2 : downsampler TODO
 		sound_out = sound_in;
 		return sound_out;
 	case 9: // doepler 2: ok
@@ -313,11 +384,11 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         g_delay_effect2.SetDelay(fmaxf(1.f,g_Effect2_filtre));
         sound_out = g_delay_effect2.Read();
         return sound_out;
-	case 10: // sub2
+	case 10: // sub2 TODO???
 	     _fonepole(g_Effect2_filtre, sound_in, 100.f/48000.f);
         tmp = _tanh_clip(g_Effect2_filtre* wet*15.f);
         return sound_in + (tmp-g_Effect2_filtre) * wet;
-	case 11: // compress 2: enhancer :
+	case 11: // compress 2: enhancer : TODO???
 		_fonepole(g_Effect2_filtre, sound_in, 0.05f);
 		tmp = sound_in - g_Effect2_filtre;
 		tmp = tmp - 0.5 * tmp * tmp *tmp;
