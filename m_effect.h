@@ -147,9 +147,6 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		return tmp;
     case 1 : // ECHO : long delay (wet /  param1 : time / param2 : feedback) : OK
         tmp = ((delay1_sizei - 101.f) * param1) + 100.f;
-        //delayline.g_delay_effect1.SetDelay(tmp);
-        //sound_out = g_delay_effect1.Read();
-        //delayline.g_delay_effect1.Write(_fclamp(sound_in + sound_out*param2, -3.f, 3.f));
         sound_out = delay1_read_i(tmp);
         delay1_write_i(_fclamp(sound_in + sound_out*param2, -3.f, 3.f));
         sound_out = mix(sound_in, sound_out, wet);
@@ -157,9 +154,6 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
         //break;
     case 2 : // FREEZE : small delay (wet : feedback / param1 : time / param2 : time modulation) : flanger / chorus / doubler : OK
         tmp = param1M * 50000.f + 6.f;
-        //delayline.g_delay_effect1.SetDelay(tmp);
-        //sound_out = mix(sound_in , g_delay_effect1.Read(), wet);
-        //delayline.g_delay_effect1.Write(_fclamp(sound_out, -3.f, 3.f));
         sound_out = mix(sound_in , delay1_read_f(tmp), wet);
 		delay1_write_f(_fclamp(sound_out, -3.f, 3.f));
         return sound_out;
@@ -167,16 +161,11 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
     case 3 : // KS (wet :  attenuation (gain/filtre) , param1 : frequence, param2 : mod frequence) : OK
         tmp = 48000.f/CV2freq(param1M*127.f);
         tmp += 5.f;
-        //g_delay_effect1.SetDelay(tmp);
-        //tmp = g_delay_effect1.Read();
         tmp = delay1_read_f(tmp);
         _fonepole(g_effect1_last_out, tmp,fminf(1.,CV2freq(wet*127.f)*(1.f/12000.f)));
         sound_out = sound_in - g_effect1_last_out;
-
         if(sound_out >  1.f) sound_out =  1.f + _tanh_clip(sound_out - 1.f); // soft clip with ID between -1 and 1;
         if(sound_out < -1.f) sound_out = -1.f + _tanh_clip(sound_out + 1.f); // between -2 and 2;
-
-        //g_delay_effect1.Write(_fclamp(sound_out, -3.f, 3.f));
         delay1_write_f(_fclamp(sound_out, -3.f, 3.f));
         return sound_out;
         //break;
@@ -195,8 +184,6 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
         delay1_write_f(sound_out);
         return sound_out;
     case 5 : // ring delay : WET : amplitude du feedback; param1 : temps de delay ; param2 : frequence du ring
-        //g_delay_effect1.SetDelay((24000.f * param1 * (param1+1.f)) + 50.f);
-		//sound_out = g_delay_effect1.Read();
 		sound_out = delay1_read_f((24000.f * param1 * (param1+1.f)) + 50.f);
         g_effect1_phase += OneOverSR + param2 * param2 * 400.f * OneOverSR;
         tmp = wrap(g_effect1_phase);
@@ -204,7 +191,6 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		sound_out *= _cos(tmp);
 		sound_out *= wet*wet;
 		sound_out += sound_in;
-		//g_delay_effect1.Write(sound_out);
 		delay1_write_f(sound_out);
         return sound_out;
 	case 6 : //frottement : WET; param1 : taille du seuil pour declancher un mouvement; param1 : inertie de la corde
@@ -239,7 +225,6 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 	case 10: // STRING 2 : reverb
 		// algorythm from miller puckette, in "Pure Data" example G28.
 		_fonepole(g_effect1_param_filter, sound_in, 0.0003f); // low pass
-
 		a1 = sound_in- g_effect1_param_filter; a2 = 0.f; b1 = a1 + a2; b2 = a1 - a2;
 		reverb2_write(0, b2); b2 = reverb2_read(0, 261);
 		a1 = b1; a2 = b2; b1 = a1 + a2; b2 = a1 - a2;
@@ -252,7 +237,6 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		reverb3_write(1, b2); b2 = reverb3_read(1, 1651);
 		a1 = b1; a2 = b2; b1 = a1 + a2; b2 = a1 - a2;
 		reverb3_write(2, b2); b2 = reverb3_read(2, 2666);
-
 		a1 = b1 + reverb1_read(0, 2880);
 		a2 = b2 + reverb1_read(1, 3453);
 		a3 = reverb1_read(2, 4164);
@@ -267,7 +251,6 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		reverb1_write(a1, a2, a3, a4);
 		sound_out = mix(sound_in, sound_out, wet);
 		return sound_out;
-		///////////////////////////////////////
 	case 11: // CHORUS 2 		// all passe + feedback
 		sound_out = delay1_read_f(5.f + 5000.f * param1M);
 		tmp =  -0.9f*wet  * sound_out + sound_in;
@@ -275,6 +258,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		sound_out += tmp * wet;
 		return sound_out;
 	case 12: // RING 2
+	// un vrai riung modulator TODO
 		////////////////////////////////////////////////////////////////////////////////////TODO
 
 		sound_out = sound_in;
@@ -328,9 +312,7 @@ inline float effect2(float sound_in) { //, float param, float param1) {
      case 2 : // BITCRUSH : OK
         wet = 0.01f + wet*0.99f;
         sound_out = sound_in;
-        //sound_out = sign(sound_out) * (1.5f - 1.5f/(2.f*fabsf(sound_out) + 1.f));
         sound_out = _floor(sound_out/wet)*wet;
-        //sound_out = sign(sound_out) * (-0.5f - 0.75f/(fabsf(sound_out)-1.5f)); // Pq ca ne marche pas???
         return mix(sound_in, sound_out, fminf(1.f,10.f*wet));
     case 3: // auto doppler : on utilise le son comme temps de delay : OK
         g_delay_effect2.Write(sound_in);
@@ -346,23 +328,18 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         g_effect2_phase = effect2_phase;
         g_delay_effect2.SetDelay(2400.f * effect2_phase);
         sound_out  = g_delay_effect2.Read() * (1.f-_cos(effect2_phase));
-
         effect2_phase = (effect2_phase > 0.5f)? effect2_phase-0.5f : effect2_phase+0.5f;
         g_delay_effect2.SetDelay(2400.f * effect2_phase);
         sound_out  += g_delay_effect2.Read() *  (1.f-_cos(effect2_phase));
-
         return mix(sound_in, sound_out*0.5, wet);
     case 5: // compresseur- attenuateur :
         tmp = fabsf(sound_in);
         tmp = fminf(tmp, 3.f); // on ne devrait pas avoir de son plus fort que ca.
-        if (tmp > g_effect2_sound_env) {
-            g_effect2_sound_env = mix(g_effect2_sound_env, tmp, 0.01f); // temps de monté rapide
-        } else {
-            g_effect2_sound_env = mix(g_effect2_sound_env, tmp, 0.001f); // temps de descente lent
-        }
-        tmp = fmaxf(g_effect2_sound_env, 0.1f);                        // volume actuel
+        if (tmp > g_effect2_sound_env) { g_effect2_sound_env = mix(g_effect2_sound_env, tmp, 0.01f); } // temps de monté rapide
+        else { g_effect2_sound_env = mix(g_effect2_sound_env, tmp, 0.001f); } // temps de descente lent
+        tmp = fmaxf(g_effect2_sound_env, 0.1f); // volume actuel
         tmp2 = tmp*param*param*param*20.f;
-        tmp2 = (tmp + tmp2) / (1.f + fabsf(tmp2));             // new volume
+        tmp2 = (tmp + tmp2) / (1.f + fabsf(tmp2)); // new volume
         sound_out = sound_in * tmp2/tmp;        // compress
         sound_out *= _fclamp(1.f - param1 * (1.f-g_Modulation[curent_config.c_Modulation_Source[EFFECT2_MOD]]), 0.f, 1.f); // attenuation
         return sound_out;
@@ -378,6 +355,7 @@ inline float effect2(float sound_in) { //, float param, float param1) {
 		g_delay_effect2.Write(tmp);
 		return sound_in + tmp;
 	case 8: // BITCRUSH 2 : downsampler TODO
+	/////////////////////////////////////////////////////////////////////
 		sound_out = sound_in;
 		return sound_out;
 	case 9: // doepler 2: ok
