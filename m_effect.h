@@ -15,7 +15,7 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
-#define delay1_sizef 72000 // attention : la reverb doit faire au moins 38k
+#define delay1_sizef 72000 // attention : la reverb fait env 51k
 #define delay1_sizei 144000
 
 float g_effect1_phase;
@@ -39,21 +39,17 @@ union delay_line {
 	struct {
 		float reverb1[4][8192];
 		float reverb2[6][1024];
+		float reverb3[3][4096];
 	};
 } g_delay1;
 
 uint32_t g_delay1_pos; // position ds le buffer
 uint32_t g_delay2_pos;
-
-inline void delay1_clear(){
-	for (int i=0; i<delay1_sizef; i++) g_delay1.delay1_float[i] = 0.f;
-	g_delay1_pos = 0;
-}
+uint32_t g_delay3_pos;
 
 inline float reverb1_read(uint32_t a, uint32_t i){
 	return g_delay1.reverb1[a][(g_delay1_pos+i)%8192];
 }
-
 inline void reverb1_write(float a0, float a1, float a2, float a3){
 	g_delay1_pos = (g_delay1_pos + 1)%8192;
 	g_delay1.reverb1[0][g_delay1_pos] = a0;
@@ -65,10 +61,22 @@ inline void reverb1_write(float a0, float a1, float a2, float a3){
 inline float reverb2_read(uint32_t a, uint32_t i){
 	return g_delay1.reverb2[a][(g_delay2_pos+i)%1024];
 }
-
 inline void reverb2_write(int i, float a0){
 	g_delay2_pos = (g_delay2_pos + 1)%1024;
 	g_delay1.reverb2[i][g_delay2_pos] = a0;
+}
+
+inline float reverb3_read(uint32_t a, uint32_t i){
+	return g_delay1.reverb3[a][(g_delay3_pos+i)%4096];
+}
+inline void reverb3_write(int i, float a0){
+	g_delay3_pos = (g_delay3_pos + 1)%4096;
+	g_delay1.reverb3[i][g_delay3_pos] = a0;
+}
+
+inline void delay1_clear(){
+	for (int i=0; i<delay1_sizef; i++) g_delay1.delay1_float[i] = 0.f;
+	g_delay1_pos = 0;
 }
 
 inline void delay1_write_f(float in){
@@ -228,29 +236,23 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 	////////////////////////////////////////////////////////////////////////////////////TODO
 		sound_out = sound_in;
 		return sound_out;
-	case 10: // STRING 2 : reverb?
-		a1 = sound_in;
-		a2 = 0.f;
-		b1 = a1 + a2;
-		b2 = a1 - a2;
-		reverb2_write(0, b2);
-		b2 = reverb2_read(0, 261);
+	case 10: // STRING 2 : reverb
+		// algorythm from miller puckette, in "Pure Data" example G28.
+		_fonepole(g_effect1_param_filter, sound_in, 0.0003f); // low pass
 
-		a1 = b1;
-		a2 = b2;
-		b1 = a1 + a2;
-		b2 = a1 - a2;
-		reverb2_write(1, b2);
-		b2 = reverb2_read(1, 406);
+		a1 = sound_in- g_effect1_param_filter; a2 = 0.f; b1 = a1 + a2; b2 = a1 - a2;
+		reverb2_write(0, b2); b2 = reverb2_read(0, 261);
+		a1 = b1; a2 = b2; b1 = a1 + a2; b2 = a1 - a2;
+		reverb2_write(1, b2); b2 = reverb2_read(1, 406);
+		a1 = b1; a2 = b2; b1 = a1 + a2; b2 = a1 - a2;
+		reverb2_write(2, b2); b2 = reverb2_read(2, 645);
+		a1 = b1; a2 = b2; b1 = a1 + a2; b2 = a1 - a2;
+		reverb3_write(0, b2); b2 = reverb3_read(0, 1034);
+		a1 = b1; a2 = b2; b1 = a1 + a2; b2 = a1 - a2;
+		reverb3_write(1, b2); b2 = reverb3_read(1, 1651);
+		a1 = b1; a2 = b2; b1 = a1 + a2; b2 = a1 - a2;
+		reverb3_write(2, b2); b2 = reverb3_read(2, 2666);
 
-		a1 = b1;
-		a2 = b2;
-		b1 = a1 + a2;
-		b2 = a1 - a2;
-		reverb2_write(2, b2);
-		b2 = reverb2_read(2, 645);
-
-	/////////////
 		a1 = b1 + reverb1_read(0, 2880);
 		a2 = b2 + reverb1_read(1, 3453);
 		a3 = reverb1_read(2, 4164);
@@ -258,8 +260,10 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		sound_out = a1;
 		b1 = a1 + a2; b2 = a1 - a2; b3 = a3 + a4; b4 = a3 - a4;
 		a1 = b1 + b3; a2 = b2 + b4; a3 = b1 - b3; a4= b2 - b4;
-		tmp = 0.5 * param1M;
-		a1 *= tmp; a2 *= tmp; a3 *= tmp; a4 *= tmp;
+		tmp = 2*param1M - param1M * param1M;// courbe plus punchi au debut
+		tmp *= 0.5f;
+		a1 *= tmp; a2 *= tmp; a3 *= tmp; a4 *= tmp; // gain de la reverb
+		a1 = _fclamp(a1, -30.f, 30.f); a2 = _fclamp(a2, -30.f, 30.f);  a3 = _fclamp(a3, -30.f, 30.f); a4 = _fclamp(a4, -30., 30.f);
 		reverb1_write(a1, a2, a3, a4);
 		sound_out = mix(sound_in, sound_out, wet);
 		return sound_out;
