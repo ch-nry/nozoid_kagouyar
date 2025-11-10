@@ -57,7 +57,6 @@ inline void reverb1_write(float a0, float a1, float a2, float a3){
 	g_delay1.reverb1[2][g_delay1_pos] = a2;
 	g_delay1.reverb1[3][g_delay1_pos] = a3;
 }
-
 inline float reverb2_read(uint32_t a, uint32_t i){
 	return g_delay1.reverb2[a][(g_delay2_pos+i)%1024];
 }
@@ -65,7 +64,6 @@ inline void reverb2_write(int i, float a0){
 	g_delay2_pos = (g_delay2_pos + 1)%1024;
 	g_delay1.reverb2[i][g_delay2_pos] = a0;
 }
-
 inline float reverb3_read(uint32_t a, uint32_t i){
 	return g_delay1.reverb3[a][(g_delay3_pos+i)%4096];
 }
@@ -78,7 +76,6 @@ inline void delay1_clear(){
 	for (int i=0; i<delay1_sizef; i++) g_delay1.delay1_float[i] = 0.f;
 	g_delay1_pos = 0;
 }
-
 inline void delay1_write_f(float in){
 	int32_t l_delay1_pos = g_delay1_pos % delay1_sizef;
 	g_delay1.delay1_float[l_delay1_pos] = in;
@@ -86,7 +83,6 @@ inline void delay1_write_f(float in){
 	l_delay1_pos %= delay1_sizef;
 	g_delay1_pos = l_delay1_pos;
 }
-
 inline float delay1_read_f(float delay){ // en sample
 	int32_t delay_integral   = static_cast<int32_t>(delay);
 	float const  delay_fractional = delay - static_cast<float>(delay_integral);
@@ -95,12 +91,10 @@ inline float delay1_read_f(float delay){ // en sample
 	const float b = g_delay1.delay1_float[(delay_integral + 1) % delay1_sizef];
 	return a + (b - a) * delay_fractional;
 }
-
 inline float delay1_read_f_fixe(uint32_t delay){ // en sample
 	const float a = g_delay1.delay1_float[(delay + g_delay1_pos) % delay1_sizef];
 	return a;
 }
-
 inline void delay1_write_i(float  in){
 	int32_t l_delay1_pos = g_delay1_pos; // % delay1_sizei// inutil car sizei > sizef
 	g_delay1.delay1_int[l_delay1_pos] = f2s16(in/3.f);
@@ -108,7 +102,6 @@ inline void delay1_write_i(float  in){
 	l_delay1_pos %= delay1_sizei;
 	g_delay1_pos = l_delay1_pos;
 }
-
 inline float delay1_read_i(float delay){
 	int32_t delay_integral   = static_cast<int32_t>(delay);
 	float const  delay_fractional = delay - static_cast<float>(delay_integral);
@@ -175,10 +168,10 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
         g_effect1_phase = wrap(g_effect1_phase + (0.005f/48000.f)); // LFO : vitesse de variation du temps du chorus
         effect1_phase = g_effect1_phase;
         sound_out = 0.f; //sound_in;
-        sound_out += delay1_read_f((fast_cos_loop(             effect1_phase*3.f)+1.11f) * param1);
-        sound_out  -= delay1_read_f((fast_cos_loop(0.23f +  effect1_phase*4.f)+2.31f) * param1);
-		sound_out += delay1_read_f((fast_cos_loop(0.57f + effect1_phase*5.f)+4.52f) * param1);
-        sound_out  -= delay1_read_f((fast_cos_loop(0.71f + effect1_phase*7.f)+6.73f) * param1);
+        sound_out += delay1_read_f((tri_positif_loop(             effect1_phase*3.f)+1.11f) * param1);
+        sound_out  -= delay1_read_f((tri_positif_loop(0.23f + effect1_phase*4.f)+2.31f) * param1);
+		sound_out += delay1_read_f((tri_positif_loop(0.57f + effect1_phase*5.f)+3.52f) * param1);
+        sound_out  -= delay1_read_f((tri_positif_loop(0.71f + effect1_phase*7.f)+5.73f) * param1);
         sound_out *= 0.5;
         sound_out = sound_in + _tanh_clip(wetM*sound_out);
         delay1_write_f(sound_out);
@@ -220,6 +213,8 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		return sound_out;
 	case 9: // FREEZE 2
 	////////////////////////////////////////////////////////////////////////////////////TODO
+		// pd G07 : 3 ou 4 delread, sans feedback a des temps diferent (30, 17, 11), et des amplitudes variable (random)
+
 		sound_out = sound_in;
 		return sound_out;
 	case 10: // STRING 2 : reverb
@@ -263,11 +258,13 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 
 		sound_out = sound_in;
 		return sound_out;
-	case 13: // FRICTION 2
-		////////////////////////////////////////////////////////////////////////////////////TODO
-
-		sound_out = sound_in;
-		return sound_out;
+	case 13: // FRICTION 2 : disto avec hysteresys: OK
+		tmp = param2 *param2 * 500.f *(sound_in - g_last_sound_in) * g_effect1_last_out; // Calcul de l'offset d'hystérésis basé sur la sortie précédente
+		_fonepole(g_effect1_param_filter, tmp, 0.99f); // Lissage de l'hystérésis (filtre passe-bas simple)
+		sound_out = _tanh_clip((param1 * param1 * 30.f + 1.f) * (sound_in + g_effect1_param_filter)); // Application de la distorsion tanh
+		g_last_sound_in = sound_in; // savegarde
+		g_effect1_last_out = sound_out;
+		return mix(sound_in, sound_out, wet);
 	case 14 : //rien, utilisé lors du changement d'effet
 		g_effect1_phase = 0.;
 		g_effect1_last_out = 0.f;
@@ -289,7 +286,7 @@ float g_Effect2_filtre = 0.f;
 float g_effect2_sound_env = 0.f;
 float g_effect2_phase = 0.33f;
 
-daisysp::DelayLine<float, 48000> g_delay_effect2;
+daisysp::DelayLine<float, 48000> g_delay_effect2; // TODO : passer a 32768
 
 inline float effect2(float sound_in) { //, float param, float param1) {
 	float const param = g_pot_audio[k_EFFECT2_wet] += g_pot_increment[k_EFFECT2_wet];
@@ -366,11 +363,11 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         g_delay_effect2.SetDelay(fmaxf(1.f,g_Effect2_filtre));
         sound_out = g_delay_effect2.Read();
         return sound_out;
-	case 10: // sub2 TODO???
+	case 10: // sub2 TODO??? //////////////////////////////////////////////////////
 	     _fonepole(g_Effect2_filtre, sound_in, 100.f/48000.f);
         tmp = _tanh_clip(g_Effect2_filtre* wet*15.f);
         return sound_in + (tmp-g_Effect2_filtre) * wet;
-	case 11: // compress 2: enhancer : TODO???
+	case 11: // compress 2: enhancer : TODO??? //////////////////////////////////
 		_fonepole(g_Effect2_filtre, sound_in, 0.05f);
 		tmp = sound_in - g_Effect2_filtre;
 		tmp = tmp - 0.5 * tmp * tmp *tmp;
@@ -388,10 +385,7 @@ inline float effect2(float sound_in) { //, float param, float param1) {
 /*
   a = delayA.read(delayA_time); b = delayB.read(delayB_time); junction = tanh(drive * (a - b)) + 0.05 * (a + b); delayA.write(sample + junction * decay); delayB.write(sample - junction * decay); out = a + b; return out
 
-		//comb automodulé = doepler saturé :     delayed = delayBuf.read(delayTime);     modFb = baseFb + modAmt * tanh(delayed);     fb = sample + delayed * modFb; delayBuf.write(fb); return fb
-
 		// x = sample + fb; y = -g * x + z1; z1 = x + g * y; fb = tanh(drive * y); return y
-
 
     params:
     g = 0.6
@@ -427,38 +421,133 @@ g_delay_effect2.Write(sound_in + tmp * 0.7f); // Feedback
 sound_out = sound_in + tmp * wet;
 g_effect2_sound_env = fabs(sound_in) * 0.1f + g_effect2_sound_env * 0.99f;
 
-
-13. Delay à Granulation de Feedback
-Idée : Le feedback est “granulé” en ne gardant qu’un échantillon sur N, pour un effet de “bitcrush” ou de “glitch” subtil.
-Code :
-static int grain_counter = 0;
-tmp = g_delay_effect2.Read();
-if (++grain_counter >= 10) { // 1 échantillon sur 10
-    grain_counter = 0;
-    g_delay_effect2.Write(sound_in + tmp * 0.7f);
-} else {
-    g_delay_effect2.Write(0.f);
+4. Soft clip à hystérésis simplifiée
+Ajoute une mémoire (hystérésis) pour imiter un comportement “ferromagnétique / lampes” :
+h[n]=(1−α)⋅h[n−1]+α⋅x[n]
+y[n]=tanh⁡(g⋅(x[n]+β⋅h[n]))
+α (0.05–0.2) : vitesse de la mémoire
+β (0.2–0.5) : quantité d’hystérésis
+→ Introduit une petite dépendance temporelle qui arrondit les attaques et rend le son plus “organique”.
+float fx_tanh_hyst(float sound_in, float wet, float param1, float param2)
+{
+    float alpha = 0.05f + 0.3f * param1; // vitesse
+    float beta  = 0.2f + 0.5f * param2;  // hystérésis
+    g_effect2_filtre = (1.0f - alpha) * g_effect2_filtre + alpha * sound_in;
+    float x = sound_in + beta * g_effect2_filtre;
+    float x2 = x * x;
+    float fx = x * (27.0f + x2) / (27.0f + 9.0f * x2);
+    float sound_out = (1.0f - wet) * sound_in + wet * fx;
+    return sound_out;
 }
-sound_out = sound_in + tmp * wet;
 
+5. Hystérésis non linéaire simple (modèle ferro doux)
+y[n]=tanh⁡(g⋅(x[n]+λ⋅y[n−1]))
+λ : feedback (0.1–0.3)
+Ajoute de la complexité subtile sans instabilité si λ < 0.5.
+float fx_feedback(float sound_in, float wet, float param1, float param2)
+{
+    float g = 1.0f + 8.0f * param1;
+    float lambda = 0.1f + 0.4f * param2;
+    float x = sound_in + lambda * g_effect2_filtre;
+    float fx = tanhf(g * x);
+    g_effect2_filtre = fx;
+    float sound_out = (1.0f - wet) * sound_in + wet * fx;
+    return sound_out;
+}
 
-25. Delay à Modulation de Phase Chaotique
-Idée : La phase du LFO est perturbée aléatoirement, pour un effet de “chaos” ou de “random modulation”.
-Code :
-static int random_seed = 67890;
-random_seed = (random_seed * 1664525 + 1013904223) & 0x7FFFFFFF;
-g_effect2_phase += 0.001f + (float)(random_seed & 0xF) * 0.0001f; // Perturbation aléatoire
-if (g_effect2_phase > 1.f) g_effect2_phase -= 1.f;
-param = sin(g_effect2_phase * 6.28f) * 0.5f + 0.5f;
-g_delay_effect2.SetDelay(1000.f + param * 2000.f);
-tmp = g_delay_effect2.Read();
-g_delay_effect2.Write(sound_in);
-sound_out = sound_in + tmp * wet;
+feedback doux
+float fx_fold(float sound_in, float wet, float param1, float param2)
+{
+    float t = 0.3f + 0.5f * param1;
+    float m = M_PI + M_PI * param2;
+    float a = fabsf(sound_in);
+    float fx = (a < t) ? sound_in : copysignf(t + sinf((a - t) * m) / m, sound_in);
+    float sound_out = (1.0f - wet) * sound_in + wet * fx;
+    return sound_out;
+}
 
-Lo-Fi Resonator
-Comme un petit formant fixe.
-float freq = 0.01f + 0.1f * param;
-g_Effect2_filtre += freq * (sound_in - g_Effect2_filtre);
-sound_out = g_Effect2_filtre * 1.5f - sound_in * 0.5f;
+saturation tape + memoire : hysteresys
+float fx_tape(float sound_in, float wet, float param1, float param2)
+{
+    float alpha = 0.90f + 0.09f * (1.0f - param1);
+    float beta  = 0.2f + 0.6f * param2;
+    float gamma = 2.0f + 4.0f * param1;
 
+    g_effect2_filtre = alpha * g_effect2_filtre + (1.0f - alpha) * sound_in;
+    float fx = sound_in + beta * tanhf(gamma * (sound_in - g_effect2_filtre));
+
+    float sound_out = (1.0f - wet) * sound_in + wet * fx;
+    return sound_out;
+}
+
+saturation dynamic
+float fx_dyn(float sound_in, float wet, float param1, float param2)
+{
+    float alpha = 0.01f + 0.2f * param2;
+    float beta  = 0.5f * param1;
+    g_effect2_sound_env = (1.0f - alpha) * g_effect2_sound_env + alpha * sound_in * sound_in;
+
+    float g = 1.0f + 4.0f * beta * g_effect2_sound_env;
+    float fx = tanhf(g * sound_in);
+
+    float sound_out = (1.0f - wet) * sound_in + wet * fx;
+    return sound_out;
+}
+
+saturation triode like
+float fx_triode(float sound_in, float wet, float param1, float param2)
+{
+    float k = 2.0f + 6.0f * param1;
+    float b = 0.1f + 0.4f * param2;
+    float e1 = 1.0f / (1.0f + expf(-k * (sound_in + b)));
+    float e2 = 1.0f / (1.0f + expf(-k * (sound_in - b)));
+    float fx = (sound_in * (e1 - e2));
+    float sound_out = (1.0f - wet) * sound_in + wet * fx;
+    return sound_out;
+}
+
+def fx_tanh_hyst(x, p1, p2, state): // hysteresys
+    # Hystérésis réelle (avec mémoire entre samples)
+    alpha = 0.05 + 0.3 * p1  # vitesse
+    beta = 0.2 + 0.5 * p2    # quantité d’hystérésis
+    h = state["h"]
+    h = (1.0 - alpha) * h + alpha * x
+    y = np.tanh(x + beta * h)
+    state["h"] = h
+    return y, state
+
+    def fx_feedback(x, p1, p2, state): // hysteresys
+    g = 1.0 + 8.0 * p1
+    lambd = 0.1 + 0.4 * p2
+    y_prev = state["y"]
+    y = np.tanh(g * (x + lambd * y_prev))
+    state["y"] = y
+    return y, state
+
+// TODO
+float tanh_hysteresis_process(float input,
+                               float drive,
+                               float hysteresis_amount,
+                               float smoothing) {
+    float delta, hysteresis_target, driven, output;
+
+    //Calcul de la variation (dérivée)
+    delta = input - prev_input;
+
+    // Calcul de l'offset d'hystérésis basé sur la sortie précédente
+    hysteresis_target = hysteresis_amount * delta * prev_output;
+
+    // Lissage de l'hystérésis (filtre passe-bas simple)
+    hysteresis_state = smoothing * hysteresis_state + (1.0f - smoothing) * hysteresis_target;
+
+    // Application de la distorsion tanh
+    driven = drive * (input + hysteresis_state);
+    output = tanhf(driven);
+
+    // Sauvegarde de l'état
+    prev_input = input;
+    prev_output = output;
+
+    return output;
+}
 */
