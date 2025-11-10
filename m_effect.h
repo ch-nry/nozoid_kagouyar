@@ -285,7 +285,7 @@ float g_Effect2_filtre = 0.f;
 float g_effect2_sound_env = 0.f;
 float g_effect2_phase = 0.33f;
 
-daisysp::DelayLine<float, 48000> g_delay_effect2; // TODO : passer a 32768
+daisysp::DelayLine<float, 32768> g_delay_effect2;
 
 inline float effect2(float sound_in) { //, float param, float param1) {
 	float const param = g_pot_audio[k_EFFECT2_wet] += g_pot_increment[k_EFFECT2_wet];
@@ -351,7 +351,7 @@ inline float effect2(float sound_in) { //, float param, float param1) {
 		g_delay_effect2.Write(tmp);
 		return sound_in + tmp;
 	case 8: // BITCRUSH 2 : downsampler : ok
-	    g_effect2_phase +=  CV2freq(125.f - param1*100.f) * OneOverSR; // OneOverSR + param1 * param1 * 400.f * OneOverSR;
+	    g_effect2_phase +=  CV2freq(125.f - param1*100.f) * OneOverSR;
         tmp = wrap(g_effect2_phase);
 		if ( tmp < g_effect2_phase ) { // reset de phase
 			g_Effect2_filtre = sound_in;
