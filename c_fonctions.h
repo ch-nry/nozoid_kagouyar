@@ -106,11 +106,9 @@ inline uint32_t _rnd_ui() {
 
     return (v << 16) + (u & 65535);
 }
-
 inline int32_t _rnd_i() {
         return (int32_t)_rnd_ui();
 }
-
 inline float _rnd_f() { // from 0 to 1
         return _rnd_ui() * 2.3283064e-010f;
 }
@@ -119,11 +117,9 @@ static inline int _floor(float x) {
 	return (int) x - (x < (int) x);
 	//return (floorf(x));
 }
-
 static inline float wrap(float x) { // only for positive number, inversé pour les nombres negatifs
   return x - (int)x;
 }
-
 static inline float wrap2(float x) {
     x = x - floorf(x);
     return x;
@@ -133,30 +129,18 @@ inline float _tanh(float x) {
   float const x2 = x*x;
   return x * ( 27.f + x2 ) / ( 27.f + 9.f * x2 );
 }
-
 inline float _tanh_clip(float index){
     return _tanh(  _fclamp(index,-3.f, 3.f) );
-}
-
-inline float fast_cos(float index) { // index from 0 to 1 only
-  const float x = fabsf(4.f*index-2.f)-1.f;
-  return 2.f*x-x*fabsf(x);
 }
 
 inline float tri(float index) { // index from 0 to 1 only
   return fabsf(4.f*index-2.f)-1.f;
 }
-
 inline float tri_positif(float index) { // index from 0 to 1 only
   return fabsf(2.f*index-1.f);
 }
-
 inline float tri_positif_loop(float index) { // index from 0 to 1 only
   return fabsf(2.f*wrap(index)-1.f); // only for positive index
-}
-
-inline float fast_cos_loop(float index) { //
-    return fast_cos(wrap2(index) );
 }
 
 inline float _cos(float index) { // index from 0 to 1 only
@@ -165,6 +149,15 @@ inline float _cos(float index) { // index from 0 to 1 only
   float const x2=x*x;
   return -0.99999944f + x2 * (19.73903275f + x2 * (-64.93054874f + x2 * (85.29509341f + x2 * (-58.90779707f + x2 * 21.27414825f))));
 }
+inline float _cos_loop(float index) { //
+    return _cos(wrap2(index) );
+}inline float fast_cos(float index) { // index from 0 to 1 only
+  const float x = fabsf(4.f*index-2.f)-1.f;
+  return 2.f*x-x*fabsf(x);
+}
+inline float fast_cos_loop(float index) { //
+    return fast_cos(wrap2(index) );
+}
 
 /*
  ameliorer :
@@ -172,24 +165,19 @@ float const x2 = -fabsf(x-0.5)+0.25
 return -2*pi*x2 + 1.33 * pi³*x2³ - 2.24612*pi⁵*x2⁵
  */
 
-inline float _cos_loop(float index) { //
-    return _cos(wrap2(index) );
-}
-
 inline float _sin(float index) { // index from 0 to 1 only
 // 6 multiplication
   float const x=index-0.5f;
   float const x2=x*x;
   return x * (-6.28308759f +x2*(41.33318714f + x2*(-81.39900318f + x2*(74.66885164f - x2*33.1532588f))));
 }
-
 inline float _sin_positiv_loop(float index) { // positive index only
     return _sin(wrap(index));
 }
-
 inline float _sin_loop(float index) { //
     return _sin(wrap2(index) );
 }
+
 inline float sign(float in) {
 	return ((in<0.f)?-1.f : 1.f);
 }
