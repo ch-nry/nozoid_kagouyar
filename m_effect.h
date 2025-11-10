@@ -22,7 +22,9 @@ float g_effect1_phase;
 float g_effect1_last_out = 0.f;
 float g_effect1_param_filter = 0.f;
 float g_effect1_param_filter2 = 0.f;
-float g_vitesse = 0.f, g_old_sound_out = 0.f, g_last_sound_in = 0.;
+float g_vitesse = 0.f, g_old_sound_out = 0.f, g_last_sound_in = 0.f;
+float g_effect1_f1 = 0.f, g_effect1_f2 = 0.f, g_effect1_f3 = 0.f, g_effect1_f4 = 0.f;
+float g_effect1_f1old = 0.f, g_effect1_f2old = 0.f, g_effect1_f3old = 0.f, g_effect1_f4old = 0.f;
 
 //daisysp::DelayLine<float, 48000*4> DSY_SDRAM_BSS g_delay_effect1; // SDRAM
 
@@ -206,11 +208,28 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		delay1_write_f( _fclamp(sound_out, -2.f, 2.f));
 		return sound_out;
 	case 9: // FREEZE 2
-	////////////////////////////////////////////////////////////////////////////////////TODO
-		// pd G07 : 3 ou 4 delread, sans feedback a des temps diferent (30, 17, 11), et des amplitudes variable (random)
-
-		sound_out = sound_in;
-		return sound_out;
+		// algo from pd G07 :  4 delread, sans feedback a des temps diferent (30, 17, 11), et des amplitudes variable (random)
+		delay1_write_f(sound_in);
+		a1 = sound_in;
+		a2 = delay1_read_f_fixe(1441);
+		a3 = delay1_read_f_fixe(817);
+		a4 = delay1_read_f_fixe(527);
+		tmp = CV2increment_lfo(1, param1M)*0.5f;
+		g_effect1_phase = wrap(g_effect1_phase + tmp);
+		effect1_phase = g_effect1_phase;
+		if(effect1_phase<tmp) { g_effect1_f1old = g_effect1_f1; g_effect1_f1 = _rnd_f()*2.f - 0.7f; }
+		a1 *= mix(g_effect1_f1old, g_effect1_f1, effect1_phase);
+		effect1_phase = wrap( effect1_phase + 0.25);
+		if(effect1_phase<tmp) { g_effect1_f2old = g_effect1_f2; g_effect1_f2 = _rnd_f()*2.f - 0.7f; }
+		a2 *= mix(g_effect1_f2old, g_effect1_f2, effect1_phase);
+		effect1_phase = wrap( effect1_phase + 0.25);
+		if(effect1_phase<tmp) { g_effect1_f3old = g_effect1_f3; g_effect1_f3 = _rnd_f()*2.f - 0.7f; }
+		a3 *= mix(g_effect1_f3old, g_effect1_f3, effect1_phase);
+		effect1_phase = wrap( effect1_phase + 0.25);
+		if(effect1_phase<tmp) { g_effect1_f4old = g_effect1_f4; g_effect1_f4 = _rnd_f()*2.f - 0.7f; }
+		a4 *= mix(g_effect1_f4old, g_effect1_f4, effect1_phase);
+		sound_out = a1 + a2 + a3 + a4;
+		return mix(sound_in, sound_out, wet);
 	case 10: // STRING 2 : reverb OK
 		// algorythm from miller puckette, in "Pure Data" example G28.
 		_fonepole(g_effect1_param_filter, sound_in, 0.0003f); // low pass
