@@ -310,21 +310,22 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         return mix(sound_in, sound_out, fminf(1.f,10.f*wet));
     case 3: // auto doppler : on utilise le son comme temps de delay : OK
         g_delay_effect2.Write(sound_in);
-        tmp = wet * 10000.f;
-        tmp *=  (1.f+sound_in);
+        tmp = wet * 10000.f * (1.f+sound_in);
         _fonepole(g_Effect2_filtre, tmp, 0.001f); // smooth le paramettre de temps et filtre le audio in
-        g_delay_effect2.SetDelay(fmaxf(1.f,g_Effect2_filtre));
-        sound_out = g_delay_effect2.Read(); // TODO : hermine?
+        //g_delay_effect2.SetDelay(fmaxf(1.f,g_Effect2_filtre));
+        //sound_out = g_delay_effect2.Read();
+        //sound_out = g_delay_effect2.Read(fmaxf(1.f,g_Effect2_filtre));
+        sound_out = g_delay_effect2.ReadHermite(fmaxf(1.f,g_Effect2_filtre));
         return sound_out;
     case 4 : // granular sub frequency generator : OK
         g_delay_effect2.Write(sound_in);
         effect2_phase = wrap(g_effect2_phase + 0.00020833333f); // 100ms pour 1 grain
         g_effect2_phase = effect2_phase;
         g_delay_effect2.SetDelay(2400.f * effect2_phase);
-        sound_out  = g_delay_effect2.Read() * (1.f-_cos(effect2_phase)); // TODO : hermine?
+        sound_out  = g_delay_effect2.Read() * (1.f-_cos(effect2_phase));
         effect2_phase = (effect2_phase > 0.5f)? effect2_phase-0.5f : effect2_phase+0.5f;
         g_delay_effect2.SetDelay(2400.f * effect2_phase);
-        sound_out  += g_delay_effect2.Read() *  (1.f-_cos(effect2_phase)); //TODO : hermine?
+        sound_out  += g_delay_effect2.Read() *  (1.f-_cos(effect2_phase));
         return mix(sound_in, sound_out*0.5, wet);
     case 5: // compresseur- attenuateur : ok
         tmp = fabsf(sound_in);
@@ -362,8 +363,9 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         tmp = wet * 5000.f;
         tmp *=  2.f - _tanh(1.f+sound_in);
         _fonepole(g_Effect2_filtre, tmp, 0.005f); // smooth le paramettre de temps et filtre le audio in
-        g_delay_effect2.SetDelay(fmaxf(1.f,g_Effect2_filtre));
-        sound_out = g_delay_effect2.Read();//TODO : hermine?
+        //g_delay_effect2.SetDelay(fmaxf(1.f,g_Effect2_filtre));
+        //sound_out = g_delay_effect2.Read();
+        sound_out = g_delay_effect2.ReadHermite(fmaxf(1.f,g_Effect2_filtre));
         return sound_out;
 	case 10: // sub2 TODO??? //////////////////////////////////////////////////////
 	     _fonepole(g_Effect2_filtre, sound_in, 100.f/48000.f);
