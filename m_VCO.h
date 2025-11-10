@@ -96,11 +96,16 @@ float VCO_WF(uint32_t VCO_WF, float VCO_phase, float increment, float PWM_local,
     	out = wrap2(VCO_phase + PWM_local * _sin_loop(VCO_phase * 1.5f));
 		out = _tanh_clip(_sin_loop(out)*(1.f+3.f*PWM_local));
         break;
-    case 11 : // 2 bis : TODO : tenter pd example E06 / F3
-		fa = VCO_phase * (0.5f + PWM_local * 3.0f);
+    case 11 : // 2 bis : pulse train
+		/*fa = VCO_phase * (0.5f + PWM_local * 3.0f);
 		fa = fa - floorf(fa);
 		fa = fabsf(2.0f * fa - 1.0f);
 		out = _sin_loop(fa);
+		*/
+		fa = (VCO_phase* 2.f)-1.f; // passage entre -1 et 1
+		fa = _tanh_clip((PWM_local*PWM_local+0.04f)* 50.f*fa);
+		fa = fa*0.5f + 0.5f; // on remet de 0 a 1
+		out=mix(_sin(VCO_phase), _sin(fa), fminf(PWM_local * 10.f, 1.f));
         break;
     case 12 :  // 3 bis : squarenoise
         fa = wrap(2.f * VCO_phase);
