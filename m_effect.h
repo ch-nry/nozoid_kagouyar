@@ -242,12 +242,13 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		delay1_write_f(tmp);
 		sound_out += tmp * wet;
 		return sound_out;
-	case 12: // RING 2
-	// un vrai ring modulator TODO
-		////////////////////////////////////////////////////////////////////////////////////TODO
-
-		sound_out = sound_in;
-		return sound_out;
+	case 12: // RING 2 //WET : amplitude du ring; param1 : frequence du ring; param2 : modulation du wet
+        g_effect1_phase +=  CV2freq(param1*127.f) * OneOverSR; // OneOverSR + param1 * param1 * 400.f * OneOverSR;
+        tmp = wrap(g_effect1_phase);
+		g_effect1_phase = tmp;
+		sound_out = sound_in * _cos(tmp);
+		sound_out = mix(sound_in, sound_out, wetM);
+        return sound_out;
 	case 13: // FRICTION 2 : disto avec hysteresys: OK
 		tmp = param2 *param2 * 500.f *(sound_in - g_last_sound_in) * g_effect1_last_out; // Calcul de l'offset d'hystérésis basé sur la sortie précédente
 		_fonepole(g_effect1_param_filter, tmp, 0.99f); // Lissage de l'hystérésis (filtre passe-bas simple)
