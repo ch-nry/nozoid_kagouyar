@@ -142,33 +142,18 @@ inline float fast_cos(float index) { // index from 0 to 1 only
   const float x = fabsf(4.f*index-2.f)-1.f;
   return 2.f*x-x*fabsf(x);
 }
-/*
-static const float cos_table[16] = {
-  1.0f, 0.9239f, 0.7071f, 0.3827f, 0.0f, -0.3827f, -0.7071f, -0.9239f,
-  -1.0f, -0.9239f, -0.7071f, -0.3827f, 0.0f, 0.3827f, 0.7071f, 0.9239f
-};
 
-inline float fast_cos3(float x) {
-    x *= 15.0f;               // scale to table
-    int i = (int)x;
-    float t = x - i;
-    float a = cos_table[i & 15];
-    float b = cos_table[(i+1) & 15];
-    return a + t * (b - a);
+inline float tri(float index) { // index from 0 to 1 only
+  return fabsf(4.f*index-2.f)-1.f;
 }
 
-// Approximation rapide
-static inline float fast_cos4(float x) {
-    // x doit être dans [0,1)
-    x -= (int)x; // wrap rapide
-    float fx = x * 128.f;
-    int i = (int)fx;
-    float t = fx - (float)i;
-    float a = cos_table2[i];
-    float b = cos_table2[i + 1];
-    return a + t * (b - a);
+inline float tri_positif(float index) { // index from 0 to 1 only
+  return fabsf(2.f*index-1.f);
 }
-*/
+
+inline float tri_positif_loop(float index) { // index from 0 to 1 only
+  return fabsf(2.f*wrap(index)-1.f); // only for positive index
+}
 
 inline float fast_cos_loop(float index) { //
     return fast_cos(wrap2(index) );
@@ -180,6 +165,12 @@ inline float _cos(float index) { // index from 0 to 1 only
   float const x2=x*x;
   return -0.99999944f + x2 * (19.73903275f + x2 * (-64.93054874f + x2 * (85.29509341f + x2 * (-58.90779707f + x2 * 21.27414825f))));
 }
+
+/*
+ ameliorer :
+float const x2 = -fabsf(x-0.5)+0.25
+return -2*pi*x2 + 1.33 * pi³*x2³ - 2.24612*pi⁵*x2⁵
+ */
 
 inline float _cos_loop(float index) { //
     return _cos(wrap2(index) );
