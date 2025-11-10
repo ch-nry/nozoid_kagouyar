@@ -174,7 +174,9 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
         g_Modulation[LFO2_OUT+modulation_source_last] = -g_LFO2_AR[nb_voice];
         g_Modulation[LFO3_OUT] = g_LFO3_AR[nb_voice];
         g_Modulation[LFO3_OUT+modulation_source_last] = -g_LFO3_AR[nb_voice];
-		// TODO : que faire des modulations par les VCO?
+		// les modulations par les VCO ne sont pas serapé par voice, puisque la suite se fait sur toutes les voie simultanement
+		// doit on interdire les modulation VCO?
+		// on accepte juste comme ca...
 
         sig = effect1(sig);
         sig = effect2(sig);
