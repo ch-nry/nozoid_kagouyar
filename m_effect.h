@@ -25,13 +25,6 @@ float g_effect1_param_filter2 = 0.f;
 float g_vitesse = 0.f, g_old_sound_out = 0.f, g_last_sound_in = 0.;
 
 //daisysp::DelayLine<float, 48000*4> DSY_SDRAM_BSS g_delay_effect1; // SDRAM
-//daisysp::DelayLine<float, 10000>  g_delay_effect3;
-
-/*union Delay_line {
-	daisysp::DelayLine<int16_t, 72000*2>  g_delay_effect1;
-	daisysp::DelayLine<float, 72000>  g_delay_effect3;
-} delayline ;
-*/
 
 union delay_line {
 	float delay1_float[delay1_sizef];
@@ -111,8 +104,6 @@ inline float delay1_read_i(float delay){
 	return 3.f*(a + (b - a) * delay_fractional);
 }
 
-// TODO : verifier le clip sur tout les delwrite
-// TODO : voir si on peux mettre des read non interpolé
 // TODO : metre un delay_read interpolé hermine si possible
 
 inline float effect1(float sound_in) { //, float wet, float param1, float param2) {
@@ -202,10 +193,9 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		}
 		g_old_sound_out = sound_out;
 		return sound_out;
-	case 7: // WS2
-	////////////////////////////////////////////////////////////////////////////////////TODO
-		sound_out = sound_in;
-		return sound_out;
+	case 7: // WS2 : waveshaper simple
+		sound_out = _tanh(sound_in + param1M * fast_cos_loop(0.75 + param1M  * 2.f * sound_in));
+		return mix(sound_in, sound_out, wet);
 	case 8: // ECHO 2 : ok
 		tmp = delay1_read_f(10.f + 5000.f * param1M* param1M);
 		sound_out = sound_in + tmp * wet;
@@ -253,7 +243,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		sound_out += tmp * wet;
 		return sound_out;
 	case 12: // RING 2
-	// un vrai riung modulator TODO
+	// un vrai ring modulator TODO
 		////////////////////////////////////////////////////////////////////////////////////TODO
 
 		sound_out = sound_in;
