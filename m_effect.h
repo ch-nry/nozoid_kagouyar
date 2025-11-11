@@ -408,4 +408,3 @@ inline float effect2(float sound_in) { //, float param, float param1) {
     }
     return 0; //useless
 }
-// TODO : gerer l'affichage de la modulation la ou c'est necessaire
