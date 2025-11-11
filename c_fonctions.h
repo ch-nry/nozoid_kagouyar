@@ -72,13 +72,6 @@ static inline float signf_fast(float x)
 {
     return (x > 0.0f) - (x < 0.0f);
 }
-
-static inline float wrap01f_bits(float x)
-{
-    // Pas totalement exacte mais rapide pour |x| < 2^23
-    return x - (float)((int)x);
-}
-
 */
 ///////////////////////
 
@@ -159,11 +152,15 @@ inline float fast_cos_loop(float index) { //
     return fast_cos(wrap2(index) );
 }
 
-/*
- ameliorer :
-float const x2 = -fabsf(x-0.5)+0.25
-return -2*pi*x2 + 1.33 * pi³*x2³ - 2.24612*pi⁵*x2⁵
- */
+
+//a tester : TODO
+inline float fast_cos2(float x){
+	// coefs : -2pi; 64(pi-2.5); -512(pi-3)
+	float const y = -fabsf(x-0.5)+0.25;
+	float const y2 = y*y;
+	float const y3 = y2*y;
+	return -6.28318530718f*y + 41.0619298297f*y3 - 72.4954386381f * y3*y2;
+ }
 
 inline float _sin(float index) { // index from 0 to 1 only
 // 6 multiplication
