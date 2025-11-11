@@ -136,12 +136,19 @@ inline float tri_positif_loop(float index) { // index from 0 to 1 only
   return fabsf(2.f*wrap(index)-1.f); // only for positive index
 }
 
-inline float _cos(float index) { // index from 0 to 1 only
+inline float _cos(float x){
+	// coefs : 2pi X - 64(pi-2.5) X³ +512(pi-3)x⁵
+	float const y = fabsf(x-0.5)-0.25;
+	float const y2 = y*y;
+	float const y3 = y2*y;
+	return 6.28318530718f*y - 41.0619298297f*y3 + 72.4954386381f * y3*y2;
+ }
+/*inline float _cos2(float index) { // index from 0 to 1 only
 // 6 multiplications
   float const x=index-0.5f;
   float const x2=x*x;
   return -0.99999944f + x2 * (19.73903275f + x2 * (-64.93054874f + x2 * (85.29509341f + x2 * (-58.90779707f + x2 * 21.27414825f))));
-}
+}*/
 inline float _cos_loop(float index) { //
     return _cos(wrap2(index) );
 }inline float fast_cos(float index) { // index from 0 to 1 only
@@ -151,16 +158,6 @@ inline float _cos_loop(float index) { //
 inline float fast_cos_loop(float index) { //
     return fast_cos(wrap2(index) );
 }
-
-
-//a tester : TODO
-inline float fast_cos2(float x){
-	// coefs : -2pi; 64(pi-2.5); -512(pi-3)
-	float const y = -fabsf(x-0.5)+0.25;
-	float const y2 = y*y;
-	float const y3 = y2*y;
-	return -6.28318530718f*y + 41.0619298297f*y3 - 72.4954386381f * y3*y2;
- }
 
 inline float _sin(float index) { // index from 0 to 1 only
 // 6 multiplication
