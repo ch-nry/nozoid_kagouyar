@@ -32,7 +32,7 @@
 
 #define block_size 24
 #define block_per_ms 2.f // (48/block_size) // combien de bock audio par ms, pour calcul du temps
-#define filter_order 4 // pour les pot et CV in
+#define filter_order 6 // pour les pot et CV in
 
 #define nb_voice 4
 
