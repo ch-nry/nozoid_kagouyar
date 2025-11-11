@@ -138,7 +138,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
         return sound_out;
         //break;
     case 2 : // FREEZE : OK
-		// small delay (wet : feedback / param1 : time / param2 : time modulation) : flanger / chorus / doubler
+		// small delay (wet : feedback / param1M : time) : flanger / chorus / doubler
         tmp = param1M * 50000.f + 6.f;
         sound_out = mix(sound_in , delay1_read_f(tmp), wet);
 		delay1_write_f(_fclamp(sound_out, -3.f, 3.f));
@@ -207,7 +207,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		sound_out = sound_in + tmp * wet;
 		delay1_write_f( _fclamp(sound_out, -2.f, 2.f));
 		return sound_out;
-	case 9: // FREEZE 2
+	case 9: // FREEZE 2 : filtre en peigne variable OK
 		// algo from pd G07 :  4 delread, sans feedback a des temps diferent (30, 17, 11), et des amplitudes variable (random)
 		delay1_write_f(sound_in);
 		a1 = sound_in;
@@ -303,6 +303,8 @@ float g_effect2_sound_env = 0.f;
 float g_effect2_phase = 0.33f;
 
 daisysp::DelayLine<float, 32768> g_delay_effect2;
+daisysp::DelayLine<float, 16384> g_delay_effect2b;
+
 
 inline float effect2(float sound_in) { //, float param, float param1) {
 	float const param = g_pot_audio[k_EFFECT2_wet] += g_pot_increment[k_EFFECT2_wet];
@@ -382,19 +384,22 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         tmp = wet * 5000.f;
         tmp *=  2.f - _tanh(1.f+sound_in);
         _fonepole(g_Effect2_filtre, tmp, 0.005f); // smooth le paramettre de temps et filtre le audio in
-        //g_delay_effect2.SetDelay(fmaxf(1.f,g_Effect2_filtre));
-        //sound_out = g_delay_effect2.Read();
         sound_out = g_delay_effect2.ReadHermite(fmaxf(1.f,g_Effect2_filtre));
         return sound_out;
-	case 10: // sub2 TODO??? //////////////////////////////////////////////////////
-	     _fonepole(g_Effect2_filtre, sound_in, 100.f/48000.f);
-        tmp = _tanh_clip(g_Effect2_filtre* wet*15.f);
-        return sound_in + (tmp-g_Effect2_filtre) * wet;
-	case 11: // compress 2: enhancer : TODO??? //////////////////////////////////
-		_fonepole(g_Effect2_filtre, sound_in, 0.05f);
-		tmp = sound_in - g_Effect2_filtre;
-		tmp = tmp - 0.5 * tmp * tmp *tmp;
-		return sound_in + wet * tmp;
+	case 10: // sub2 : delay a resonnance metalique, non lineaire bizare
+		tmp2 = param1 * param1;
+		tmp = g_delay_effect2.Read(tmp2 * 5500.f);
+		tmp2 = g_delay_effect2b.Read(tmp2 * 5550.f + 50.f);
+		sound_out = _tanh(param * (tmp - tmp2)) ;
+		g_delay_effect2.Write(sound_in + sound_out * param);
+		g_delay_effect2b.Write(sound_in - sound_out * param);
+		sound_out = tmp + tmp2;
+		return sound_out;
+	case 11: // compress 2: binarizator : sign * envelope
+	tmp = fabsf(sound_in);
+		if ( tmp > g_effect2_phase ) _fonepole(g_effect2_phase, tmp, 0.3);
+		else  _fonepole(g_effect2_phase, tmp, 0.01);
+		return mix(sound_in, g_effect2_phase * sign(sound_in), wet);
 	case 12 : //rien, utilisé lors du changement d'effet
 		g_effect2_sound_env = 0.;
 		g_Effect2_filtre = 0.f;
@@ -404,90 +409,3 @@ inline float effect2(float sound_in) { //, float param, float param1) {
     return 0; //useless
 }
 // TODO : gerer l'affichage de la modulation la ou c'est necessaire
-
-/*
-  a = delayA.read(delayA_time); b = delayB.read(delayB_time); junction = tanh(drive * (a - b)) + 0.05 * (a + b); delayA.write(sample + junction * decay); delayB.write(sample - junction * decay); out = a + b; return out
-
-		// x = sample + fb; y = -g * x + z1; z1 = x + g * y; fb = tanh(drive * y); return y
-
-    params:
-    g = 0.6
-    drive = 2.0
-process(sample):
-    x = sample + fb
-    y = -g * x + z1
-    z1 = x + g * y
-    fb = tanh(drive * y)
-    return y
-
-    params:
-    drive = 1.2
-    decay = 0.98
-    delayTime = 30ms
-process(sample):
-    a = delayA.read(delayTime)
-    b = delayB.read(delayTime+1)
-    junction = tanh(drive * (a - b))
-    delayA.write(sample + junction * decay)
-    delayB.write(sample - junction * decay)
-    out = a + b
-    return out
-
-
-3. Comb Filter à Résonance Variable
-Idée : Un filtre en peigne dont la résonance est modulée par l’enveloppe, pour un son métallique ou “robotique” qui réagit à l’amplitude.
-Code :
-param = g_effect2_sound_env * 10.f; // Résonance modulée par enveloppe
-g_delay_effect2.SetDelay(1000.f + param);
-tmp = g_delay_effect2.Read();
-g_delay_effect2.Write(sound_in + tmp * 0.7f); // Feedback
-sound_out = sound_in + tmp * wet;
-g_effect2_sound_env = fabs(sound_in) * 0.1f + g_effect2_sound_env * 0.99f;
-
-4. Soft clip à hystérésis simplifiée
-Ajoute une mémoire (hystérésis) pour imiter un comportement “ferromagnétique / lampes” :
-h[n]=(1−α)⋅h[n−1]+α⋅x[n]
-y[n]=tanh⁡(g⋅(x[n]+β⋅h[n]))
-α (0.05–0.2) : vitesse de la mémoire
-β (0.2–0.5) : quantité d’hystérésis
-→ Introduit une petite dépendance temporelle qui arrondit les attaques et rend le son plus “organique”.
-float fx_tanh_hyst(float sound_in, float wet, float param1, float param2)
-{
-    float alpha = 0.05f + 0.3f * param1; // vitesse
-    float beta  = 0.2f + 0.5f * param2;  // hystérésis
-    g_effect2_filtre = (1.0f - alpha) * g_effect2_filtre + alpha * sound_in;
-    float x = sound_in + beta * g_effect2_filtre;
-    float x2 = x * x;
-    float fx = x * (27.0f + x2) / (27.0f + 9.0f * x2);
-    float sound_out = (1.0f - wet) * sound_in + wet * fx;
-    return sound_out;
-}
-
-5. Hystérésis non linéaire simple (modèle ferro doux)
-y[n]=tanh⁡(g⋅(x[n]+λ⋅y[n−1]))
-λ : feedback (0.1–0.3)
-Ajoute de la complexité subtile sans instabilité si λ < 0.5.
-float fx_feedback(float sound_in, float wet, float param1, float param2)
-{
-    float g = 1.0f + 8.0f * param1;
-    float lambda = 0.1f + 0.4f * param2;
-    float x = sound_in + lambda * g_effect2_filtre;
-    float fx = tanhf(g * x);
-    g_effect2_filtre = fx;
-    float sound_out = (1.0f - wet) * sound_in + wet * fx;
-    return sound_out;
-}
-
-feedback doux
-float fx_fold(float sound_in, float wet, float param1, float param2)
-{
-    float t = 0.3f + 0.5f * param1;
-    float m = M_PI + M_PI * param2;
-    float a = fabsf(sound_in);
-    float fx = (a < t) ? sound_in : copysignf(t + sinf((a - t) * m) / m, sound_in);
-    float sound_out = (1.0f - wet) * sound_in + wet * fx;
-    return sound_out;
-}
-
-
-*/
