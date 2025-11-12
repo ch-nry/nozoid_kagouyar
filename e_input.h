@@ -717,7 +717,8 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
                 if (switch_keyboard < 9) curent_config.c_LFO4_WF = switch_keyboard + 9 * change_time;
                 else {
                     switch_keyboard -= 9;
-                    curent_config.c_LFO4_RANGE = switch_keyboard;
+                    if(change_time && (switch_keyboard==0)) curent_config.c_LFO4_RANGE = 4;
+                    else curent_config.c_LFO4_RANGE = switch_keyboard;
                 }
             }
             break;
@@ -726,8 +727,9 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
                 if (switch_keyboard < 9) curent_config.c_LFO5_WF = switch_keyboard + 9 * change_time;
                 else {
                     switch_keyboard -= 9;
-                    curent_config.c_LFO5_RANGE = switch_keyboard;
-                }
+                    if(change_time && (switch_keyboard==0)) curent_config.c_LFO5_RANGE = 4;
+                    else curent_config.c_LFO5_RANGE = switch_keyboard;
+                 }
             }
             break;
         case MENU_LFO6 :
@@ -735,8 +737,9 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
                 if (switch_keyboard < 9) curent_config.c_LFO6_WF = switch_keyboard + 9 * change_time;
                 else {
                     switch_keyboard -= 9;
-                    curent_config.c_LFO6_RANGE = switch_keyboard;
-                }
+                    if(change_time && (switch_keyboard==0)) curent_config.c_LFO6_RANGE = 4;
+                    else curent_config.c_LFO6_RANGE = switch_keyboard;
+                 }
             }
             break;
         case MENU_LFO7 :

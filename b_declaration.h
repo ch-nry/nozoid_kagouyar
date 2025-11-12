@@ -279,6 +279,7 @@ volatile CONFIGURATION curent_config; // configuration actuel
 volatile float g_Modulation[2*modulation_source_last]; // valeur des diferentes g_Modulation
 volatile uint32_t g_Modulation_Reset[modulation_source_last]; // bool pour marquer un reset de phase, utilisé pour les lfo 1 2 3 ds certain cas.
 volatile float g_Modulation_Phase[modulation_source_last]; // valeur des phases des diferentes g_Modulation
+volatile double g_Modulation_Phase_double[modulation_source_last]; // valeur des phases des diferentes g_Modulation
 
 enum GATE_source {gate_KB_int, gate_MIDI, gate_5V};
 

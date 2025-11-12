@@ -221,6 +221,8 @@ inline float CV2increment_lfo(uint32_t range, float cv) {
         return  CV2freq((104.f * cv) -24.f)*4.f*OneOverSR; // 104x -24 (2 to 800)
     case 3: // sync midi
         return table_MIDI_fq[(int)(cv*10.999f)] * g_MIDI_LFO_increment;
+    case 4: // very low
+        return CV2freq((116.f * cv) -115.f)*4.f/100.f*OneOverSR;   // 0.0001 a 0.08
     }
     return  0; // never used
 }

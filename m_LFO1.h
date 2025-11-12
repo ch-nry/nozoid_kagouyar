@@ -433,13 +433,13 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
 float g_LFO4_noise[4]; // pour le noise avec interpolation cubic
 
 inline void LFO4(float increment) {
-    float phase, overflow_phase, tmp;
-
-    phase = g_Modulation_Phase[LFO4_OUT] + increment;                               // calcul de la phase
+    float overflow_phase, tmp;
+	double phase;
+    phase = g_Modulation_Phase_double[LFO4_OUT] + increment;                               // calcul de la phase
     overflow_phase = (int)phase;
     phase -= overflow_phase;
     g_Modulation_Reset[LFO4_OUT] = overflow_phase;
-    g_Modulation_Phase[LFO4_OUT] = phase;
+    g_Modulation_Phase_double[LFO4_OUT] = phase;
 
     tmp = LFO_compute_WF(phase, curent_config.c_LFO4_WF, g_LFO4_noise, g_Modulation_Reset[LFO4_OUT]);
     g_Modulation[LFO4_OUT] = tmp;
