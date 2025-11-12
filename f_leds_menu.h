@@ -157,8 +157,8 @@ void leds_key_modulation(uint32_t my_modulation) { // switch de choix de la sour
 
 	uint32_t tmp = curent_config.c_Modulation_Source[my_modulation];
 	uint32_t test = 1;
-	if ( (my_modulation == EFFECT1_MOD) && (1<<curent_config.c_EFFECT1_TYPE & ((1<<1)+(1<<5)+(1<<13)+(1<<14)) ) ) test = 0;
-	if ( (my_modulation == EFFECT2_MOD) && (1<<curent_config.c_EFFECT2_TYPE & ((1<<7)+(1<<10)+(1<<12)) ) ) test = 0;
+	if ( (my_modulation == EFFECT1_MOD) && (1<<curent_config.c_EFFECT1_TYPE & ((1<<1)+(1<<5)+(1<<14)) ) ) test = 0;
+	if ( (my_modulation == EFFECT2_MOD) && (1<<curent_config.c_EFFECT2_TYPE & ((1<<7)+(1<<8)+(1<<10)+(1<<12)) ) ) test = 0;
 	if  ( test ) { // on ne l'affiche pas pour les effet qui n'utilisent pas la modulation
 		if ( (tmp <modulation_source_last) || (g_led_blink>0)  ) // soit on as une modulation positive, soit on affiche une fois sur deux a cause du blink
 			hw.led_driver_.SetLed_ch(table_led_modulation[tmp % modulation_source_last], 1.f );

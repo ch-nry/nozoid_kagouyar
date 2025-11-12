@@ -200,7 +200,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		g_old_sound_out = sound_out;
 		return sound_out;
 	case 7: // WS2 : waveshaper simple : OK
-		sound_out = _tanh(sound_in + param1M * fast_cos_loop(0.75 + param1M  * 2.f * sound_in));
+		sound_out = _tanh(5.f * sound_in + param1M * fast_cos_loop(0.75 + param1M  * 4.f * sound_in));
 		return mix(sound_in, sound_out, wet);
 	case 8: // ECHO 2 : ok
 		tmp = delay1_read_f(10.f + 5000.f * param1M* param1M);
@@ -274,13 +274,11 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		sound_out = sound_in * _cos(tmp);
 		sound_out = mix(sound_in, sound_out, wetM);
         return sound_out;
-	case 13: // FRICTION 2 : disto avec hysteresys: OK
-		tmp = param2 *param2 * 500.f *(sound_in - g_last_sound_in) * g_effect1_last_out; // Calcul de l'offset d'hystérésis basé sur la sortie précédente
-		_fonepole(g_effect1_param_filter, tmp, 0.99f); // Lissage de l'hystérésis (filtre passe-bas simple)
-		sound_out = _tanh_clip((param1 * param1 * 30.f + 1.f) * (sound_in + g_effect1_param_filter)); // Application de la distorsion tanh
-		g_last_sound_in = sound_in; // savegarde
-		g_effect1_last_out = sound_out;
-		return mix(sound_in, sound_out, wet);
+	case 13: // FRICTION 2 : disto avec hysteresys:
+		_fonepole(g_effect1_param_filter, sound_in, 0.01f);
+		sound_out = sound_in + 8.f * param1 * param1 * (sound_in - g_effect1_param_filter);
+		sound_out = _tanh_clip( (1.f + 15.f*wetM*wetM) * sound_out);
+		return mix(sound_in, sound_out, fminf(1.f,10.f*wetM));
 	case 14 : //rien, utilisé lors du changement d'effet
 		g_effect1_phase = 0.;
 		g_effect1_last_out = 0.f;
@@ -333,9 +331,6 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         g_delay_effect2.Write(sound_in);
         tmp = wet * 10000.f * (1.f+sound_in);
         _fonepole(g_Effect2_filtre, tmp, 0.001f); // smooth le paramettre de temps et filtre le audio in
-        //g_delay_effect2.SetDelay(fmaxf(1.f,g_Effect2_filtre));
-        //sound_out = g_delay_effect2.Read();
-        //sound_out = g_delay_effect2.Read(fmaxf(1.f,g_Effect2_filtre));
         sound_out = g_delay_effect2.ReadHermite(fmaxf(1.f,g_Effect2_filtre));
         return sound_out;
     case 4 : // granular sub frequency generator : OK
@@ -377,13 +372,12 @@ inline float effect2(float sound_in) { //, float param, float param1) {
 			g_Effect2_filtre = sound_in;
 		}
 		g_effect2_phase = tmp;
-		sound_out = mix(sound_in, g_Effect2_filtre, wet);
+		sound_out = mix(sound_in, g_Effect2_filtre, param);
 		return sound_out;
 	case 9: // doepler 2: ok
         g_delay_effect2.Write(sound_in);
-        tmp = wet * 5000.f;
-        tmp *=  2.f - _tanh(1.f+sound_in);
-        _fonepole(g_Effect2_filtre, tmp, 0.005f); // smooth le paramettre de temps et filtre le audio in
+        tmp = (wet * 5000.f) * (2.f - _tanh_clip(3.f*sound_in));
+        _fonepole(g_Effect2_filtre, tmp, 0.0003f); // smooth le paramettre de temps et filtre le audio in
         sound_out = g_delay_effect2.ReadHermite(fmaxf(1.f,g_Effect2_filtre));
         return sound_out;
 	case 10: // sub2 : delay a resonnance metalique, non lineaire bizare
