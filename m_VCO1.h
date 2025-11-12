@@ -103,12 +103,12 @@ inline float VCO1(uint32_t j, float frequency) {
 		allvoice[j].v_VCO_last[VCO1_Id][6] = 0.f;
 		allvoice[j].v_VCO_last[VCO1_Id][7] = 0.f;
 	    allvoice[j].v_VCO_phase[VCO1_Id] = 0.;
-	    g_Modulation[VCO1_OUT] = 0.0f;
-	    g_Modulation[VCO1_SIN] = 0.;
-		g_Modulation[VCO1_SQUARE] = 0.;
-		g_Modulation[VCO1_TRI] = 0.;
-		g_Modulation[VCO1_RAMP] = 0.;
-		g_Modulation[VCO1_SAW] = 0.;
+	    g_Modulation[VCO1_OUT] = 0.f;
+	    g_Modulation[VCO1_SIN] = 0.f;
+		g_Modulation[VCO1_SQUARE] = 0.f;
+		g_Modulation[VCO1_TRI] = 0.f;
+		g_Modulation[VCO1_RAMP] = 0.f;
+		g_Modulation[VCO1_SAW] = 0.f;
 	}
 
     out *= VCO1_AM;
