@@ -844,9 +844,9 @@ int load_config(uint32_t slot)
     curent_config.c_LFO1_RANGE = tmp_config.c_LFO1_RANGE%4;
     curent_config.c_LFO2_RANGE = tmp_config.c_LFO2_RANGE%4;
     curent_config.c_LFO3_RANGE = tmp_config.c_LFO3_RANGE%4;
-    curent_config.c_LFO4_RANGE = tmp_config.c_LFO4_RANGE%4;
-    curent_config.c_LFO5_RANGE = tmp_config.c_LFO5_RANGE%4;
-    curent_config.c_LFO6_RANGE = tmp_config.c_LFO6_RANGE%4;
+    curent_config.c_LFO4_RANGE = tmp_config.c_LFO4_RANGE%5;
+    curent_config.c_LFO5_RANGE = tmp_config.c_LFO5_RANGE%5;
+    curent_config.c_LFO6_RANGE = tmp_config.c_LFO6_RANGE%5;
     curent_config.c_LFO7_RANGE = tmp_config.c_LFO7_RANGE%4;
     curent_config.c_LFO1_WF = tmp_config.c_LFO1_WF%18;
     curent_config.c_LFO2_WF = tmp_config.c_LFO2_WF%18;
