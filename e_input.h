@@ -487,6 +487,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
     uint32_t switch_keyboard_bit = g_switch_keyboard_bit;
     int32_t switch_keyboard = g_switch_keyboard;
     uint32_t l_last_switch_keyboard_bit;
+    uint32_t j;
 
     change_keyboard = (g_last_switch_keyboard_bit != switch_keyboard_bit);
     change_modulation = (g_last_switch_modulation != switch_modulation);
@@ -561,17 +562,19 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
     if (pressed_configuration && pressed_keyboard) { // changement de paramettre de configuration
         switch(switch_configuration){
         case MENU_VCO1 :
-            if (switch_keyboard <= 8)
+            if (switch_keyboard <= 8) {
             	curent_config.c_VCO1_WF = 18;
-				allvoice[j].v_VCO_last[VCO1_Id][0] = 0.f;
-				allvoice[j].v_VCO_last[VCO1_Id][1] = 0.f;
-				allvoice[j].v_VCO_last[VCO1_Id][2] = 0.f;
-				allvoice[j].v_VCO_last[VCO1_Id][3] = 0.f;
-				allvoice[j].v_VCO_last[VCO1_Id][4] = 0.f;
-				allvoice[j].v_VCO_last[VCO1_Id][5] = 0.f;
-				allvoice[j].v_VCO_last[VCO1_Id][6] = 0.f;
-				allvoice[j].v_VCO_last[VCO1_Id][7] = 0.f;
-				allvoice[j].v_VCO_phase[VCO1_Id] = 0.f;
+            	for (j=0;j<nb_voice;j++) {
+					allvoice[j].v_VCO_last[VCO1_Id][0] = 0.f;
+					allvoice[j].v_VCO_last[VCO1_Id][1] = 0.f;
+					allvoice[j].v_VCO_last[VCO1_Id][2] = 0.f;
+					allvoice[j].v_VCO_last[VCO1_Id][3] = 0.f;
+					allvoice[j].v_VCO_last[VCO1_Id][4] = 0.f;
+					allvoice[j].v_VCO_last[VCO1_Id][5] = 0.f;
+					allvoice[j].v_VCO_last[VCO1_Id][6] = 0.f;
+					allvoice[j].v_VCO_last[VCO1_Id][7] = 0.f;
+					allvoice[j].v_VCO_phase[VCO1_Id] = 0.f;
+				}
 				g_Modulation[VCO1_OUT] = 0.0f;
 				g_Modulation[VCO1_SIN] = 0.f;
 				g_Modulation[VCO1_SQUARE] = 0.f;
@@ -580,6 +583,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 				g_Modulation[VCO1_SAW] = 0.f;
 				if(curent_config.c_VCO1_WF == (uint32_t)switch_keyboard + 9 * change_time) curent_config.c_VCO1_WF=18;
                 else curent_config.c_VCO1_WF = switch_keyboard + 9 * change_time;
+			}
             else {
                 switch (switch_keyboard-9) {
                 case 0 :
@@ -600,17 +604,19 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
             }
         break;
         case MENU_VCO2 :
-            if (switch_keyboard <= 8)
+            if (switch_keyboard <= 8) {
 				curent_config.c_VCO2_WF = 18;
-				allvoice[j].v_VCO_last[VCO2_Id][0] = 0.f;
-				allvoice[j].v_VCO_last[VCO2_Id][1] = 0.f;
-				allvoice[j].v_VCO_last[VCO2_Id][2] = 0.f;
-				allvoice[j].v_VCO_last[VCO2_Id][3] = 0.f;
-				allvoice[j].v_VCO_last[VCO2_Id][4] = 0.f;
-				allvoice[j].v_VCO_last[VCO2_Id][5] = 0.f;
-				allvoice[j].v_VCO_last[VCO2_Id][6] = 0.f;
-				allvoice[j].v_VCO_last[VCO2_Id][7] = 0.f;
-				allvoice[j].v_VCO_phase[VCO2_Id] = 0.f;
+            	for (j=0;j<nb_voice;j++) {
+					allvoice[j].v_VCO_last[VCO2_Id][0] = 0.f;
+					allvoice[j].v_VCO_last[VCO2_Id][1] = 0.f;
+					allvoice[j].v_VCO_last[VCO2_Id][2] = 0.f;
+					allvoice[j].v_VCO_last[VCO2_Id][3] = 0.f;
+					allvoice[j].v_VCO_last[VCO2_Id][4] = 0.f;
+					allvoice[j].v_VCO_last[VCO2_Id][5] = 0.f;
+					allvoice[j].v_VCO_last[VCO2_Id][6] = 0.f;
+					allvoice[j].v_VCO_last[VCO2_Id][7] = 0.f;
+					allvoice[j].v_VCO_phase[VCO2_Id] = 0.f;
+				}
 				g_Modulation[VCO2_OUT] = 0.0f;
 				g_Modulation[VCO2_SIN] = 0.f;
 				g_Modulation[VCO2_SQUARE] = 0.f;
@@ -619,6 +625,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 				g_Modulation[VCO2_SAW] = 0.f;
 				if(curent_config.c_VCO2_WF == (uint32_t)switch_keyboard+ 9 * change_time) curent_config.c_VCO2_WF=18;
                 else curent_config.c_VCO2_WF = switch_keyboard+ 9 * change_time;
+			}
             else {
                 switch (switch_keyboard-9) {
                 case 0 :
@@ -639,17 +646,19 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
             }
         break;
         case MENU_VCO3 :
-            if (switch_keyboard <= 8)
+            if (switch_keyboard <= 8) {
             	curent_config.c_VCO3_WF = 18;
-				allvoice[j].v_VCO_last[VCO3_Id][0] = 0.f;
-				allvoice[j].v_VCO_last[VCO3_Id][1] = 0.f;
-				allvoice[j].v_VCO_last[VCO3_Id][2] = 0.f;
-				allvoice[j].v_VCO_last[VCO3_Id][3] = 0.f;
-				allvoice[j].v_VCO_last[VCO3_Id][4] = 0.f;
-				allvoice[j].v_VCO_last[VCO3_Id][5] = 0.f;
-				allvoice[j].v_VCO_last[VCO3_Id][6] = 0.f;
-				allvoice[j].v_VCO_last[VCO3_Id][7] = 0.f;
-				allvoice[j].v_VCO_phase[VCO3_Id] = 0.f;
+            	for (j=0;j<nb_voice;j++) {
+					allvoice[j].v_VCO_last[VCO3_Id][0] = 0.f;
+					allvoice[j].v_VCO_last[VCO3_Id][1] = 0.f;
+					allvoice[j].v_VCO_last[VCO3_Id][2] = 0.f;
+					allvoice[j].v_VCO_last[VCO3_Id][3] = 0.f;
+					allvoice[j].v_VCO_last[VCO3_Id][4] = 0.f;
+					allvoice[j].v_VCO_last[VCO3_Id][5] = 0.f;
+					allvoice[j].v_VCO_last[VCO3_Id][6] = 0.f;
+					allvoice[j].v_VCO_last[VCO3_Id][7] = 0.f;
+					allvoice[j].v_VCO_phase[VCO3_Id] = 0.f;
+				}
 				g_Modulation[VCO3_OUT] = 0.0f;
 				g_Modulation[VCO3_SIN] = 0.f;
 				g_Modulation[VCO3_SQUARE] = 0.f;
@@ -658,6 +667,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 				g_Modulation[VCO3_SAW] = 0.f;
  				if(curent_config.c_VCO3_WF == (uint32_t)switch_keyboard+ 9 * change_time) curent_config.c_VCO3_WF=18;
                 else curent_config.c_VCO3_WF = switch_keyboard+ 9 * change_time;
+			}
             else {
                 switch (switch_keyboard-9) {
                 case 0 :
@@ -837,8 +847,8 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 					g_Effect2_filtre = 0.f;
 					g_effect2_sound_env = 0.f;
 					g_effect2_phase = 0.33f;
-					//g_delay_effect2.Clear(); TODO
-					//g_delay_effect2b.Clear();
+					g_delay_effect2.Reset();
+					g_delay_effect2b.Reset();
 					curent_config.c_EFFECT2_TYPE = switch_keyboard + 6 * change_time;
 					}
 				else curent_config.c_EFFECT2_TYPE = 12;
