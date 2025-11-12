@@ -104,13 +104,13 @@ float VCO_WF(uint32_t VCO_WF, float VCO_phase, float increment, float PWM_local,
         break;
     case 12 :  // 3 bis : squarenoise
         fa = wrap(2.f * VCO_phase);
-		if ( fa < 2.f * increment) { v_VCO_last[0] = -1 * sign(v_VCO_last[0]) * mix(fabsf(v_VCO_last[0]), _rnd_f(), PWM_local); }
+		if ( fa < 2.f * increment) { v_VCO_last[0] = -1 * sign(v_VCO_last[0]) * mix(fabsf(v_VCO_last[0]), _rnd_f(), PWM_local*PWM_local); }
 		out = v_VCO_last[0];
         break;
     case 13 : // 4 bis : sawnoise
 		if ( VCO_phase < increment) {
-			v_VCO_last[0] = mix(v_VCO_last[0], _rnd_f() * -1, PWM_local);
-			v_VCO_last[1] =  mix(v_VCO_last[1], _rnd_f(), PWM_local);
+			v_VCO_last[0] = mix(v_VCO_last[0], _rnd_f() * -1, PWM_local*PWM_local);
+			v_VCO_last[1] =  mix(v_VCO_last[1], _rnd_f(), PWM_local*PWM_local);
 		}
 		out = v_VCO_last[0] + VCO_phase * ( v_VCO_last[1] - v_VCO_last[0]);
         break;
@@ -135,7 +135,7 @@ float VCO_WF(uint32_t VCO_WF, float VCO_phase, float increment, float PWM_local,
     case 16 : // 7 bis :  table rnd et boucler dessus :
 		fa = 8.f * VCO_phase;
 		ua = (int)fa;
-		if( wrap(fa) < increment*8.f) { v_VCO_last[ua] = mix(v_VCO_last[ua], 2.f * _rnd_f() -1.f, PWM_local); }
+		if( wrap(fa) < increment*8.f) { v_VCO_last[ua] = mix(v_VCO_last[ua], 2.f * _rnd_f() -1.f, PWM_local*PWM_local); }
 		out = interpol4(wrap(fa), v_VCO_last[ua], v_VCO_last[(ua+1)%8], v_VCO_last[(ua+2)%8], v_VCO_last[(ua+3)%8]);
         break;
     case 17 : // 8 bis
