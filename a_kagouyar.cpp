@@ -21,6 +21,11 @@
 // verifier les double promotion
 //-fno-strict-aliasing
 //-Wall -Wextra
+//__attribute__((section(".ram_d1")))
+//__attribute__((section(".dtcmram"))) float v_VCO_last[8];
+//__attribute__((section(".itcmram"))) float VCO_WF(...);
+//__attribute__((section("ITCMRAM")))
+//register float tmp
 
 #include <stdio.h>
 #include <string.h>
@@ -29,6 +34,7 @@
 #include "b_hardware.cpp"
 #include "c_fonctions.h"
 #include "d_voice.h"
+#include "m_effect.h"
 #include "e_input.h"
 #include "f_leds_menu.h"
 #include "m_VCO.h"
@@ -41,7 +47,6 @@
 #include "m_LFO2.h"
 #include "m_LFO3.h"
 #include "m_LFO7.h"
-#include "m_effect.h"
 #include "x_test.h"
 
 //14th slot to save curent preset on shutdown
@@ -70,7 +75,7 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
     VCO3_fq = VCO_CV_range(curent_config.c_VCO3_RANGE, g_pot_audio[k_VCO3_fq]);
 
 	g_pot_audio[k_VCF1_fq] += coef_audio_to_block * g_pot_increment[k_VCF1_fq];
-    VCF1_fq = 112.f * g_pot_audio[k_VCF1_fq];
+    VCF1_fq = 132.f * g_pot_audio[k_VCF1_fq];
     g_pot_audio[k_VCF1_q] += coef_audio_to_block * g_pot_increment[k_VCF1_q];
     g_pot_audio[k_VCF1_mod1] += coef_audio_to_block * g_pot_increment[k_VCF1_mod1];
     g_pot_audio[k_VCF1_mod2] += coef_audio_to_block * g_pot_increment[k_VCF1_mod2];
