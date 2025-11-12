@@ -94,7 +94,14 @@ inline float VCO1(uint32_t j, float frequency) {
 	out = VCO_WF(curent_config.c_VCO1_WF, VCO1_phase_local, increment, PWM_local, allvoice[j].v_VCO_last[VCO1_Id]);
 
 	if (curent_config.c_VCO1_WF >= 18) {
-		memset(allvoice[j].v_VCO_last[VCO1_Id], 0, sizeof(allvoice[j].v_VCO_last[VCO1_Id]));
+		allvoice[j].v_VCO_last[VCO1_Id][0] = 0.f;
+		allvoice[j].v_VCO_last[VCO1_Id][1] = 0.f;
+		allvoice[j].v_VCO_last[VCO1_Id][2] = 0.f;
+		allvoice[j].v_VCO_last[VCO1_Id][3] = 0.f;
+		allvoice[j].v_VCO_last[VCO1_Id][4] = 0.f;
+		allvoice[j].v_VCO_last[VCO1_Id][5] = 0.f;
+		allvoice[j].v_VCO_last[VCO1_Id][6] = 0.f;
+		allvoice[j].v_VCO_last[VCO1_Id][7] = 0.f;
 	    allvoice[j].v_VCO_phase[VCO1_Id] = 0.;
 	    g_Modulation[VCO1_OUT] = 0.0f;
 	    g_Modulation[VCO1_SIN] = 0.;
