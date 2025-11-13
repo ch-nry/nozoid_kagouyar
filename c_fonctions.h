@@ -68,7 +68,7 @@ floorf : arondi vers le haut
 truncf : arondi vers zero
 modf() = x-floor(x)
 
-static inline float signf_fast(float x)
+static inline float sign(float x)
 {
     return (x > 0.0f) - (x < 0.0f);
 }
@@ -227,7 +227,7 @@ inline float CV2increment_lfo(uint32_t range, float cv) {
     case 3: // sync midi
         return table_MIDI_fq[(int)(cv*10.999f)] * g_MIDI_LFO_increment;
     case 4: // very low
-        return CV2freq((116.f * cv) -115.f)*4.f/100.f*OneOverSR;   // 0.0001 a 0.08
+        return CV2freq((116.f * cv) -115.f)*4.f/100.f*OneOverSR;   // 0.0001 a 0.08Hz
     }
     return  0; // never used
 }
