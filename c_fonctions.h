@@ -159,6 +159,22 @@ inline float fast_cos_loop(float index) { //
     return fast_cos(wrap2(index) );
 }
 
+//TODO : a tester et integrer
+inline float very_fast_sin(const float x) {
+	const float hx = 0.5f-x;
+	const float gx = 0.25f - fabsf(hx);
+	return sign(hx)*(-16*gx*gx+1.f);
+}
+
+inline float fast_sin(const float x) {
+	// coef : 256-64pi; 32-4pi
+	const float hx = 0.5f-x;
+	const float gx = 0.25f - fabsf(hx);
+	const float gx2 = gx*gx;
+	return sign(hx)*(54.93807017*gx2*gx2 - 19.4336293856*gx2+1.f);
+}
+
+
 inline float _sin(float index) { // index from 0 to 1 only
 // 6 multiplication
   float const x=index-0.5f;
