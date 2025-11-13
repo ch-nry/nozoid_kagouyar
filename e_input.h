@@ -565,7 +565,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
             if (switch_keyboard <= 8) {
             	curent_config.c_VCO1_WF = 18;
             	for (j=0;j<nb_voice;j++) {
-					allvoice[j].v_VCO_last[VCO1_Id][0] = 0.f;
+					allvoice[j].v_VCO_last[VCO1_Id][0] = _rnd_f();
 					allvoice[j].v_VCO_last[VCO1_Id][1] = 0.f;
 					allvoice[j].v_VCO_last[VCO1_Id][2] = 0.f;
 					allvoice[j].v_VCO_last[VCO1_Id][3] = 0.f;
@@ -607,7 +607,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
             if (switch_keyboard <= 8) {
 				curent_config.c_VCO2_WF = 18;
             	for (j=0;j<nb_voice;j++) {
-					allvoice[j].v_VCO_last[VCO2_Id][0] = 0.f;
+					allvoice[j].v_VCO_last[VCO2_Id][0] = _rnd_f();
 					allvoice[j].v_VCO_last[VCO2_Id][1] = 0.f;
 					allvoice[j].v_VCO_last[VCO2_Id][2] = 0.f;
 					allvoice[j].v_VCO_last[VCO2_Id][3] = 0.f;
@@ -649,7 +649,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
             if (switch_keyboard <= 8) {
             	curent_config.c_VCO3_WF = 18;
             	for (j=0;j<nb_voice;j++) {
-					allvoice[j].v_VCO_last[VCO3_Id][0] = 0.f;
+					allvoice[j].v_VCO_last[VCO3_Id][0] = _rnd_f();
 					allvoice[j].v_VCO_last[VCO3_Id][1] = 0.f;
 					allvoice[j].v_VCO_last[VCO3_Id][2] = 0.f;
 					allvoice[j].v_VCO_last[VCO3_Id][3] = 0.f;

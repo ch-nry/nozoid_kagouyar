@@ -94,7 +94,7 @@ inline float VCO1(uint32_t j, float frequency) {
 	out = VCO_WF(curent_config.c_VCO1_WF, VCO1_phase_local, increment, PWM_local, allvoice[j].v_VCO_last[VCO1_Id]);
 
 	if (curent_config.c_VCO1_WF >= 18) {
-		allvoice[j].v_VCO_last[VCO1_Id][0] = 0.f;
+		allvoice[j].v_VCO_last[VCO1_Id][0] = _rnd_f();
 		allvoice[j].v_VCO_last[VCO1_Id][1] = 0.f;
 		allvoice[j].v_VCO_last[VCO1_Id][2] = 0.f;
 		allvoice[j].v_VCO_last[VCO1_Id][3] = 0.f;
