@@ -205,8 +205,8 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		return sound_out;
 	case 7: // WS2 : waveshaper simple : OK
 		sound_out = _tanh(5.f * sound_in + param1M * fast_cos_loop(0.75 + param1M  * 4.f * sound_in));
-		return mix(sound_in, sound_out, wet);
-	case 8: // ECHO 2 : ok
+		return mix(sound_in, sound_out*0.3f, wet);
+	case 8: // ECHO 2 : disto ok
 		tmp = delay1_read_f(10.f + 5000.f * param1M* param1M);
 		sound_out = sound_in + tmp * wet;
 		delay1_write_f( _fclamp(sound_out, -2.f, 2.f));
@@ -282,7 +282,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		_fonepole(g_effect1_param_filter, sound_in, 0.01f);
 		sound_out = sound_in + 8.f * param1 * param1 * (sound_in - g_effect1_param_filter);
 		sound_out = _tanh_clip( (1.f + 15.f*wetM*wetM) * sound_out);
-		return mix(sound_in, sound_out, fminf(1.f,10.f*wetM));
+		return mix(sound_in, sound_out*0.5f, fminf(1.f,10.f*wetM));
 	case 14 : //rien, utilisé lors du changement d'effet
 		g_effect1_phase = 0.;
 		g_effect1_last_out = 0.f;
@@ -312,7 +312,7 @@ inline float effect2(float sound_in) { //, float param, float param1) {
 	float const param = g_pot_audio[k_EFFECT2_wet] += g_pot_increment[k_EFFECT2_wet];
 	float const param1 = g_pot_audio[k_EFFECT2_p1] += g_pot_increment[k_EFFECT2_p1];
     float sound_out;
-    float tmp, tmp2;
+    float tmp, tmp2, tmp3;
 	float effect2_phase;
     float wet = _fclamp(param + param1 * g_Modulation[curent_config.c_Modulation_Source[EFFECT2_MOD]], 0.f, 1.f);
 
@@ -321,7 +321,7 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         tmp = wet*(wet+1.f);
         tmp = wet*wet;
         tmp = wet*wet*sound_in*150.f;
-        sound_out = (sound_in + tmp)/(1.f+fabsf(tmp));
+        sound_out = (sound_in + tmp)/(1.f+2.f*fabsf(tmp));
         return sound_out;
      case 1: // WS : OK
         tmp = wet*15.f;
@@ -360,7 +360,7 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         return sound_out;
 	case 6: // DIST 2 : ok : plus soupe que la disto 1
 		sound_out = _tanh_clip( (15.f*wet*wet+1) * sound_in);
-		sound_out = mix(sound_in, sound_out, fminf(1.f, wet*10.f) );
+		sound_out = mix(sound_in, sound_out*0.5f, fminf(1.f, wet*10.f) );
 		return sound_out;
 	case 7: // WS 2 : delay : OK : delay infini, mais qui peux s'effacer pour laisser la place au nvx sond in
 		g_delay_effect2.SetDelay(5.f + 10000.f * param1);
@@ -389,8 +389,10 @@ inline float effect2(float sound_in) { //, float param, float param1) {
 		tmp = g_delay_effect2.Read(tmp2 * 5500.f);
 		tmp2 = g_delay_effect2b.Read(tmp2 * 5550.f + 50.f);
 		sound_out = _tanh(param * (tmp - tmp2)) ;
-		g_delay_effect2.Write(sound_in + sound_out * param);
-		g_delay_effect2b.Write(sound_in - sound_out * param);
+		_fonepole(g_Effect2_filtre, sound_out, 0.0001f); // low pass pour virer le CC
+		tmp3 = _tanh(3.f * param); // petite courbe
+		g_delay_effect2.Write(sound_in + (sound_out-g_Effect2_filtre) * tmp3);
+		g_delay_effect2b.Write(sound_in - (sound_out-g_Effect2_filtre) * tmp3);
 		sound_out = tmp + tmp2;
 		return sound_out;
 	case 11: // compress 2: binarizator : sign * envelope
