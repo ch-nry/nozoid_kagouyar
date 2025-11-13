@@ -10,10 +10,11 @@ new in version 2 :
 - increase max cutoff of the main VCF
 - add a A/D mode in to the A/R
 - add a DJ mode to tha VCF2 filter (low/high on the same potentiometer)
-- The triangle VCO WF is more expressive
 - add a very slow mode for les lfo4,5 and 6 (up to more than 2.5h periode)
 - when "LOAD" switch is press, the potentiometters are no more updated in order to allow cut transitions
 - add an option to use CV switch to control keyboard octave
+- The triangle VCO WF is more expressive
+- lots of "fine tuning"
 - fix a "no sound" bug
 
 
