@@ -84,7 +84,7 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
                 float const l_increment = increment * CV2freq( -36.3763 + WF1 * mix_factor * 50.f);
 
                 phase = g_Modulation_Phase[LFO1_OUT] + l_increment;                               // calcul de la phase
-                overflow_phase = _floor(phase);
+                overflow_phase = floorf(phase);
                 phase -= overflow_phase;
                 g_Modulation_Phase[LFO1_OUT] = phase;
                 g_Modulation_Reset[LFO1_OUT] = overflow_phase != 0.f;

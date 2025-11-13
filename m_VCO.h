@@ -129,8 +129,8 @@ float VCO_WF(uint32_t VCO_WF, float VCO_phase, float increment, float PWM_local,
 		out = interpol4(fa, v_VCO_last[0], v_VCO_last[1], v_VCO_last[2], v_VCO_last[3]);
         break;
     case 15 : // 6 bis : quantizer la phase : floorf(phase * steps) / steps;
-		phase2 = _floor(1./(0.3*PWM_local+0.001f));
-        out = _sin_loop( _floor(VCO_phase * phase2)/phase2);
+		phase2 = floorf(1./(0.3*PWM_local+0.001f));
+        out = _sin_loop( floorf(VCO_phase * phase2)/phase2);
         break;
     case 16 : // 7 bis :  table rnd et boucler dessus :
 		fa = 8.f * VCO_phase;

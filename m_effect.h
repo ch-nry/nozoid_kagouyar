@@ -15,8 +15,12 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
+
+//TODO : ajuster le nvx des effets
+
 #define delay1_sizef 72000 // attention : la reverb fait env 51k
 #define delay1_sizei 144000
+// mettre un multiple de 2 sur la taille des buffer
 
 float g_effect1_phase;
 float g_effect1_last_out = 0.f;
@@ -325,7 +329,7 @@ inline float effect2(float sound_in) { //, float param, float param1) {
      case 2 : // BITCRUSH : OK
         wet = 0.01f + wet*0.99f;
         sound_out = sound_in;
-        sound_out = _floor(sound_out/wet)*wet;
+        sound_out = floorf(sound_out/wet)*wet;
         return mix(sound_in, sound_out, fminf(1.f,10.f*wet));
     case 3: // auto doppler : on utilise le son comme temps de delay : OK
         g_delay_effect2.Write(sound_in);

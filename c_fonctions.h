@@ -87,6 +87,15 @@ inline float mix(float in1, float in2, float mix){ // mix from 0 to 1
   return(in1 + (in2-in1) * mix); // return in1 when mix=0, and in2 when mix= 1
 }
 
+inline float sign(float in) {
+	return ((in<0.f)?-1.f : 1.f);
+}
+/*
+inline float sign(float x) {
+	return copysignf(1.0f, x);
+}*/
+
+
 inline uint32_t _rnd_ui() {
     uint32_t v = g_randomSeed_v;
     uint32_t u = g_randomSeed_u;
@@ -105,11 +114,11 @@ inline int32_t _rnd_i() {
 inline float _rnd_f() { // from 0 to 1
         return _rnd_ui() * 2.3283064e-010f;
 }
-
+/*
 static inline int _floor(float x) {
 	return (int) x - (x < (int) x);
 	//return (floorf(x));
-}
+}*/
 static inline float wrap(float x) { // only for positive number, inversé pour les nombres negatifs
   return x - (int)x;
 }
@@ -159,22 +168,6 @@ inline float fast_cos_loop(float index) { //
     return fast_cos(wrap2(index) );
 }
 
-//TODO : a tester et integrer
-inline float very_fast_sin(const float x) {
-	const float hx = 0.5f-x;
-	const float gx = 0.25f - fabsf(hx);
-	return sign(hx)*(-16*gx*gx+1.f);
-}
-
-inline float fast_sin(const float x) {
-	// coef : 256-64pi; 32-4pi
-	const float hx = 0.5f-x;
-	const float gx = 0.25f - fabsf(hx);
-	const float gx2 = gx*gx;
-	return sign(hx)*(54.93807017*gx2*gx2 - 19.4336293856*gx2+1.f);
-}
-
-
 inline float _sin(float index) { // index from 0 to 1 only
 // 6 multiplication
   float const x=index-0.5f;
@@ -186,10 +179,6 @@ inline float _sin_positiv_loop(float index) { // positive index only
 }
 inline float _sin_loop(float index) { //
     return _sin(wrap2(index) );
-}
-
-inline float sign(float in) {
-	return ((in<0.f)?-1.f : 1.f);
 }
 
 void drunk_lfo(uint32_t i, float dt) { // numero de l'attracteur a calculer

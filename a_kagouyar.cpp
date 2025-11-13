@@ -17,7 +17,6 @@
 
 #define proto2 // commenter pour la version final
 
-// TODO :
 // verifier les double promotion
 //-fno-strict-aliasing
 //-Wall -Wextra
