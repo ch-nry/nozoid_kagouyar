@@ -22,6 +22,33 @@ void UsbCallback(uint8_t* buf, uint32_t* len)
     }
 }
 
+/*inline float fast_sin(const float x) {
+	const float hx = 0.5f-x;
+	const float gx = 0.25f - fabsf(hx);
+	return sign(hx)*(-16*gx*gx+1.f);
+}
+inline float bof_sin(const float x) {
+	// coef : 256-64pi; 32-4pi
+	const float hx = 0.5f-x;
+	const float gx = 0.25f - fabsf(hx);
+	const float gx2 = gx*gx;
+	return sign(hx)*(54.93807017*gx2*gx2 - 19.4336293856*gx2+1.f);
+}
+
+static inline float _sin(float x)
+{
+    float hx = 0.5f - x;                     // hx ∈ [-0.5, +0.5]
+    union { float f; uint32_t u; } s = { hx };
+    uint32_t signbit = s.u & 0x80000000u;   // 0x80000000 = bit de signe
+    s.u &= 0x7FFFFFFFu;                      // |hx|
+    float gx = 0.25f - s.f;                 // gx = 0.25 - |hx|
+    float gx2 = gx * gx;                    // 1 mul
+    float res = 1.0f - (19.4336293856f - 54.93807017f * gx2) * gx2;
+    union { float f; uint32_t u; } r = { res };
+    r.u ^= signbit;                         // flip le bit de signe
+    return r.f;
+}
+*/
 
     // USB
     //hw.seed.usb_handle.Init(UsbHandle::FS_INTERNAL);
