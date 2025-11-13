@@ -51,7 +51,6 @@ inline float VCF1(uint32_t j, float fq, float input1) { //, float res, float mod
 
     float Q = 4.5f * _fclamp(res + mod_q, 0., 1.);
     Q *= 1.0029f + omega*(0.0526f + omega * (-0.0926f  + omega*0.0218f)); // resonance frequency compensation
-	Q *= 1.01f; // ??? c'est plus lent si je vire cette ligne!!!
 
 	_fonepole(allvoice[j].v_VCF1_filter, input1, 12000.f*OneOverSR); // on baisse les hautes frequences pour reduire le repliement ds la non linéarité
 	input1 = allvoice[j].v_VCF1_filter;
