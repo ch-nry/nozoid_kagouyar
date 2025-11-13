@@ -117,16 +117,16 @@ float VCO_WF(uint32_t VCO_WF, float VCO_phase, float increment, float PWM_local,
     case 14 : // 5 bis :
 		fa = wrap(3.f * VCO_phase);
 		if( fa < increment * 3.f) {
-			v_VCO_last[0] = v_VCO_last[1];
-			v_VCO_last[1] = v_VCO_last[2];
-			v_VCO_last[2] = v_VCO_last[3];
-			fb = (v_VCO_last[0]+1.f)*0.5f + PWM_local * PWM_local * 2.f *(_rnd_f()-0.5);
+			v_VCO_last[3] = v_VCO_last[2];
+			v_VCO_last[2] = v_VCO_last[1];
+			v_VCO_last[1] = v_VCO_last[0];
+			fb = (v_VCO_last[3]+1.f)*0.5f + PWM_local * PWM_local * 2.f *(_rnd_f()-0.5);
 			fb = fabs(fb);
 			fb = 1. - fabsf(fb-1.f);
 			fb = fb * 2.f - 1.f;
-			v_VCO_last[3]  = fb;
+			v_VCO_last[0]  = fb;
 		}
-		out = interpol4(fa, v_VCO_last[0], v_VCO_last[1], v_VCO_last[2], v_VCO_last[3]);
+		out = interpol4(fa, v_VCO_last[3], v_VCO_last[2], v_VCO_last[1], v_VCO_last[0]);
         break;
     case 15 : // 6 bis : quantizer la phase : floorf(phase * steps) / steps;
 		phase2 = floorf(1./(0.3*PWM_local+0.001f));
