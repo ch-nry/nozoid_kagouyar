@@ -115,8 +115,6 @@
 
 // prototype
 inline float _fclamp(float, float, float);
-//inline float _fmin(float, float);
-//inline float _fmax(float, float);
 
 using namespace daisy;
 
