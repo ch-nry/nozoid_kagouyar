@@ -37,9 +37,9 @@ float VCO_WF(uint32_t VCO_WF, float VCO_phase, float increment, float PWM_local,
         break;
     case 2 : // tri
     	float tmpf;
-        tmpf = tri_bl(VCO_phase, increment, v_VCO_last[0]);
-        out = tmpf + fast_cos(VCO_phase);
-        out = tmpf + 7.f * PWM_local * out;
+        out = tri_bl(VCO_phase, increment, v_VCO_last[0]);
+        tmpf = out + fast_cos(VCO_phase);
+        out += 7.f * PWM_local * tmpf;
         break;
     case 3 :  // rectangle
         phase2 = wrap(VCO_phase + (1.f-PWM_local)*0.5f);
