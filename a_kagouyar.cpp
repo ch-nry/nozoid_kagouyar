@@ -26,6 +26,8 @@
 //__attribute__((section(".itcmram"))) float VCO_WF(...);
 //__attribute__((section("ITCMRAM")))
 //register float tmp
+//__attribute__((section(".dtcmram")))
+//__attribute__((section(".dtcmram_bss")))
 
 #include <stdio.h>
 #include <string.h>
