@@ -369,10 +369,24 @@ void leds_key_configuration(uint32_t my_menu_switch) { // led lorsque on appuie 
         led_keyboard |= 1<<table_led_key[19 - ((led_time++>>5)%7)];
     break;
     case MENU_LOAD_SAVE: // reset curent config
-        if (animation1_time > 0)	animation1_time--; else led_keyboard |= 1 << BIT_LED_MENU_KEY0;
-        if (animation2_time > 0)	animation2_time--; else led_keyboard |= 1 << BIT_LED_MENU_KEY1;
-        if (animation3_time > 0)	animation3_time--; else led_keyboard |= 1 << BIT_LED_MENU_KEY2;
-        if (g_CV2KB) led_keyboard |= 1 << BIT_LED_MENU_KEY12;
+        if(g_affiche_version) {
+				if(software_led_version & 1) led_keyboard += 1 << BIT_LED_MENU_KEY12;
+				if(software_led_version & 2) led_keyboard += 1 << BIT_LED_MENU_KEY11;
+				if(software_led_version & 4) led_keyboard += 1 << BIT_LED_MENU_KEY10;
+				if(software_led_version & 8) led_keyboard += 1 << BIT_LED_MENU_KEY9;
+				if(software_led_version & 16) led_keyboard += 1 << BIT_LED_MENU_KEY8;
+				if(software_led_version & 32) led_keyboard += 1 << BIT_LED_MENU_KEY7;
+				if(software_led_version & 64) led_keyboard += 1 << BIT_LED_MENU_KEY6;
+				if(software_led_version & 128) led_keyboard += 1 << BIT_LED_MENU_KEY5;
+				if(software_led_version & 256) led_keyboard += 1 << BIT_LED_MENU_KEY4;
+				if(software_led_version & 512) led_keyboard += 1 << BIT_LED_MENU_KEY3;
+		}
+		else {
+		        if (animation1_time > 0)	animation1_time--; else led_keyboard |= 1 << BIT_LED_MENU_KEY0;
+			if (animation2_time > 0)	animation2_time--; else led_keyboard |= 1 << BIT_LED_MENU_KEY1;
+			if (animation3_time > 0)	animation3_time--; else led_keyboard |= 1 << BIT_LED_MENU_KEY2;
+			if (g_CV2KB) led_keyboard |= 1 << BIT_LED_MENU_KEY12;
+		}
     break;
     }
     write_binary_led(led_keyboard);

@@ -188,7 +188,7 @@ uint32_t g_last_led_state = 0; // mode de fonctionement des leds
 uint32_t animation1_time = 0;
 uint32_t animation2_time = 0;
 uint32_t animation3_time = 0;
-
+uint32_t g_affiche_version = 0;
 
 ///////////////////////////////////////////////////////
 // analogue in
@@ -507,6 +507,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
     pressed_configuration = (switch_configuration>=0);
 
     if (!change_keyboard && !change_modulation && !change_configuration && !change_time)  return 3; // si rien n'a changé, on ne fait rien de neuf
+    g_affiche_version = 0;
 
    if (pressed_modulation && pressed_configuration ) { // changement de source de modulation
         switch (switch_configuration) {
@@ -877,6 +878,7 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 					animation3_time = 30;
 				break;
 				case 3:
+					g_affiche_version = 1;
 				break;
 				case 4:
 				break;
