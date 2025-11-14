@@ -67,7 +67,6 @@ void set_all_led(float L1, float L2, float L3, float L4, float L5) {
 
 
 void test() {
-    uint32_t tmp;
     float tmpf;
     uint32_t led_keyboard = 0;
 
@@ -260,26 +259,16 @@ void test() {
 			  write_binary_led(led_keyboard);
 		   break;
 		   case 18: // LOAD+SAVE : numero de version
-				tmp = software_led_version;
-				if(tmp & 1) led_keyboard += 1 << BIT_LED_MENU_KEY12;
-				tmp >>= 1;
-				if(tmp & 1) led_keyboard += 1 << BIT_LED_MENU_KEY11;
-				tmp >>= 1;
-				if(tmp & 1) led_keyboard += 1 << BIT_LED_MENU_KEY10;
-				tmp >>= 1;
-				if(tmp & 1) led_keyboard += 1 << BIT_LED_MENU_KEY9;
-				tmp >>= 1;
-				if(tmp & 1) led_keyboard += 1 << BIT_LED_MENU_KEY8;
-				tmp >>= 1;
-				if(tmp & 1) led_keyboard += 1 << BIT_LED_MENU_KEY7;
-				tmp >>= 1;
-				if(tmp & 1) led_keyboard += 1 << BIT_LED_MENU_KEY6;
-				tmp >>= 1;
-				if(tmp & 1) led_keyboard += 1 << BIT_LED_MENU_KEY5;
-				tmp >>= 1;
-				if(tmp & 1) led_keyboard += 1 << BIT_LED_MENU_KEY4;
-				tmp >>= 1;
-				if(tmp & 1) led_keyboard += 1 << BIT_LED_MENU_KEY3;
+				if(software_led_version & 1) led_keyboard += 1 << BIT_LED_MENU_KEY12;
+				if(software_led_version & 2) led_keyboard += 1 << BIT_LED_MENU_KEY11;
+				if(software_led_version & 4) led_keyboard += 1 << BIT_LED_MENU_KEY10;
+				if(software_led_version & 8) led_keyboard += 1 << BIT_LED_MENU_KEY9;
+				if(software_led_version & 16) led_keyboard += 1 << BIT_LED_MENU_KEY8;
+				if(software_led_version & 32) led_keyboard += 1 << BIT_LED_MENU_KEY7;
+				if(software_led_version & 64) led_keyboard += 1 << BIT_LED_MENU_KEY6;
+				if(software_led_version & 128) led_keyboard += 1 << BIT_LED_MENU_KEY5;
+				if(software_led_version & 256) led_keyboard += 1 << BIT_LED_MENU_KEY4;
+				if(software_led_version & 512) led_keyboard += 1 << BIT_LED_MENU_KEY3;
 
 				if(g_CV1_offset != 0.f) led_keyboard += 1 << BIT_LED_MENU_KEY0;
 				if(g_CV1_gain != 1.f)   led_keyboard += 1 << BIT_LED_MENU_KEY1;
