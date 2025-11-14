@@ -24,7 +24,7 @@
 
 #define major_version 1
 #define minor_version  8
-#define software_led_version (major_version << 8) + minor_version // pour l'affichage de version en mode debug
+#define software_led_version ((major_version << 8) + minor_version) // pour l'affichage de version en mode debug
 
 // Les 3 led MSB servent a indiquer la présence d'une calibration des CVs
 // les 2 suivant sont la version majeur
