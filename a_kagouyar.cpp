@@ -15,18 +15,15 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
-//#define proto2 // commenter pour la version final
+#define proto2 // commenter pour la version final
 
 // verifier les double promotion
 //-fno-strict-aliasing
 //-Wall -Wextra
-//__attribute__((section(".ram_d1")))
-//__attribute__((section(".dtcmram"))) float v_VCO_last[8];
-//__attribute__((section(".itcmram"))) float VCO_WF(...);
-//__attribute__((section("ITCMRAM")))
+//__attribute__((section("ITCMRAM"))) : ok, mais il faut copier le code au demarage
 //register float tmp
-//__attribute__((section(".dtcmram")))
-//__attribute__((section(".dtcmram_bss")))
+//__attribute__((section(".dtcmram_bss"))) : ok
+//__attribute__((aligned(32))) : ok
 
 #include <stdio.h>
 #include <string.h>
