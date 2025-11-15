@@ -188,7 +188,7 @@ void drunk_lfo(uint32_t i, float dt) { // numero de l'attracteur a calculer
     g_drunk_lfo[i] = tmp;
     }
 
-float interpol4(float mu, float y0, float y1, float y2, float y3) {
+inline float interpol4(float mu, float y0, float y1, float y2, float y3) {
     float a1, a2, a3;
     // 4-point, 3rd-order Hermite (x-form)
     a1 = 0.5f * (y2 - y0);
