@@ -114,12 +114,12 @@ const uint32_t table_midi_order[] = {k_VCO1_fq,  k_VCO1_wfm, k_VCO1_mod1, k_VCO1
 	 k_LFO7_sym, k_EFFECT1_wet, k_EFFECT1_p1, k_EFFECT1_p2, k_EFFECT2_wet, k_EFFECT2_p1, k_VCF2_fq, k_VCF2_mod, k_GAIN};
 
 // potentiomettres:
-volatile float g_pot_increment[nb_CV] __attribute__((aligned(4))) = {0.0f}; // utilisé pour le filtre IIR en audio
-volatile float g_pot_audio[nb_CV] __attribute__((aligned(4))) = {0.0f}; // valeur des pots mais filtré en audio
-volatile int32_t g_pot16[nb_CV] __attribute__((aligned(4))) = {0}; // filtre en 16 bit
-volatile uint32_t g_filter_index[nb_CV] __attribute__((aligned(4))) = {0};
-int32_t g_filter_moins[nb_CV][filter_order] = {0};
-int32_t g_filter_plus[nb_CV][filter_order] = {0};
+__attribute__((section(".dtcmram_bss"))) volatile float g_pot_increment[nb_CV] __attribute__((aligned(32))) = {0.0f}; // utilisé pour le filtre IIR en audio
+__attribute__((section(".dtcmram_bss"))) volatile float g_pot_audio[nb_CV] __attribute__((aligned(32))) = {0.0f}; // valeur des pots mais filtré en audio
+__attribute__((section(".dtcmram_bss"))) volatile int32_t g_pot16[nb_CV] __attribute__((aligned(32))) = {0}; // filtre en 16 bit
+__attribute__((section(".dtcmram_bss"))) volatile uint32_t g_filter_index[nb_CV] __attribute__((aligned(32))) = {0};
+__attribute__((section(".dtcmram_bss"))) int32_t g_filter_moins[nb_CV][filter_order]  __attribute__((aligned(32))) = {0};
+__attribute__((section(".dtcmram_bss"))) int32_t g_filter_plus[nb_CV][filter_order]  __attribute__((aligned(32))) = {0};
 
 // MIDI
 volatile float g_midi_parameter[nb_CV] = {0.0f};
@@ -273,13 +273,14 @@ struct CONFIGURATION
 };
 
 // configuration actuel
+__attribute__((section(".dtcmram_bss")))
 volatile CONFIGURATION curent_config; // configuration actuel
 
 // modulations, LFO
-volatile float g_Modulation[2*modulation_source_last]; // valeur des diferentes g_Modulation
-volatile uint32_t g_Modulation_Reset[modulation_source_last]; // bool pour marquer un reset de phase, utilisé pour les lfo 1 2 3 ds certain cas.
-volatile float g_Modulation_Phase[modulation_source_last]; // valeur des phases des diferentes g_Modulation
-volatile double g_Modulation_Phase_double[modulation_source_last]; // valeur des phases des diferentes g_Modulation
+__attribute__((section(".dtcmram_bss"))) volatile float g_Modulation[2*modulation_source_last]; // valeur des diferentes g_Modulation
+__attribute__((section(".dtcmram_bss"))) volatile uint32_t g_Modulation_Reset[modulation_source_last]; // bool pour marquer un reset de phase, utilisé pour les lfo 1 2 3 ds certain cas.
+__attribute__((section(".dtcmram_bss"))) volatile float g_Modulation_Phase[modulation_source_last]; // valeur des phases des diferentes g_Modulation
+__attribute__((section(".dtcmram_bss"))) volatile double g_Modulation_Phase_double[modulation_source_last]; // valeur des phases des diferentes g_Modulation
 
 enum GATE_source {gate_KB_int, gate_MIDI, gate_5V};
 
@@ -298,8 +299,8 @@ struct voice
     //float  v_velocity;
 
     // VCO*
-    volatile float v_VCO_phase[3] = {0};
-    float v_VCO_last[3][8] = {0};
+	float v_VCO_phase[3] = {0};
+	float v_VCO_last[3][8] = {0};
     volatile float v_VCO1_pitch = 0.f;
 
 // MIX
@@ -307,17 +308,18 @@ struct voice
     float v_LPG_last = 0.f;
 // VCF1
 	float v_VCF1_filter = 0.f;
-    volatile float v_VCF1_last_input1  = 0.f;
-    volatile float v_VCF1_last_input2  = 0.f;
-    volatile float v_VCF1_last_input3  = 0.f;
-    volatile float v_VCF1_last_input4  = 0.f;
-    volatile float v_VCF1_last_output1 = 0.f;
-    volatile float v_VCF1_last_output2 = 0.f;
-    volatile float v_VCF1_last_output3 = 0.f;
-    volatile float v_VCF1_last_output4 = 0.f;
+    float v_VCF1_last_input1  = 0.f;
+    float v_VCF1_last_input2  = 0.f;
+    float v_VCF1_last_input3  = 0.f;
+    float v_VCF1_last_input4  = 0.f;
+    float v_VCF1_last_output1 = 0.f;
+    float v_VCF1_last_output2 = 0.f;
+    float v_VCF1_last_output3 = 0.f;
+    float v_VCF1_last_output4 = 0.f;
 // ADSR
-    volatile uint32_t v_ADSR_mode = Release;
+    uint32_t v_ADSR_mode = Release;
     float v_ADSR_out = 0.f;
 };
 
+__attribute__((section(".dtcmram_bss")))
 voice allvoice[4]; // declaration des memoires des voies de polyphonie
