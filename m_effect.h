@@ -39,36 +39,38 @@ union delay_line {
 		float reverb1[4][8192];
 		float reverb2[6][1024];
 		float reverb3[3][4096];
-	};
-} g_delay1;
+	} reverb;
+};
+//delay_line __attribute__((section(".dtcmram_bss"))) g_delay1;
+delay_line g_delay1;
 
 uint32_t g_delay1_pos; // position ds le buffer
 uint32_t g_delay2_pos;
 uint32_t g_delay3_pos;
 
 inline float reverb1_read(uint32_t a, uint32_t i){
-	return g_delay1.reverb1[a][(g_delay1_pos+i)%8192];
+	return g_delay1.reverb.reverb1[a][(g_delay1_pos+i)%8192];
 }
 inline void reverb1_write(float a0, float a1, float a2, float a3){
 	g_delay1_pos = (g_delay1_pos + 1)%8192;
-	g_delay1.reverb1[0][g_delay1_pos] = a0;
-	g_delay1.reverb1[1][g_delay1_pos] = a1;
-	g_delay1.reverb1[2][g_delay1_pos] = a2;
-	g_delay1.reverb1[3][g_delay1_pos] = a3;
+	g_delay1.reverb.reverb1[0][g_delay1_pos] = a0;
+	g_delay1.reverb.reverb1[1][g_delay1_pos] = a1;
+	g_delay1.reverb.reverb1[2][g_delay1_pos] = a2;
+	g_delay1.reverb.reverb1[3][g_delay1_pos] = a3;
 }
 inline float reverb2_read(uint32_t a, uint32_t i){
-	return g_delay1.reverb2[a][(g_delay2_pos+i)%1024];
+	return g_delay1.reverb.reverb2[a][(g_delay2_pos+i)%1024];
 }
 inline void reverb2_write(int i, float a0){
 	g_delay2_pos = (g_delay2_pos + 1)%1024;
-	g_delay1.reverb2[i][g_delay2_pos] = a0;
+	g_delay1.reverb.reverb2[i][g_delay2_pos] = a0;
 }
 inline float reverb3_read(uint32_t a, uint32_t i){
-	return g_delay1.reverb3[a][(g_delay3_pos+i)%4096];
+	return g_delay1.reverb.reverb3[a][(g_delay3_pos+i)%4096];
 }
 inline void reverb3_write(int i, float a0){
 	g_delay3_pos = (g_delay3_pos + 1)%4096;
-	g_delay1.reverb3[i][g_delay3_pos] = a0;
+	g_delay1.reverb.reverb3[i][g_delay3_pos] = a0;
 }
 
 inline void delay1_clear(){
@@ -305,8 +307,7 @@ float g_effect2_sound_env = 0.f;
 float g_effect2_phase = 0.33f;
 
 daisysp::DelayLine<float, 32768> g_delay_effect2;
-daisysp::DelayLine<float, 16384> g_delay_effect2b;
-
+daisysp::DelayLine<float, 16384>  __attribute__((section(".dtcmram_bss"))) g_delay_effect2b; //TODO : tester
 
 inline float effect2(float sound_in) { //, float param, float param1) {
 	float const param = g_pot_audio[k_EFFECT2_wet] += g_pot_increment[k_EFFECT2_wet];
