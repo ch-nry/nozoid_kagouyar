@@ -100,8 +100,8 @@ float VCO_WF(uint32_t VCO_WF, float VCO_phase, float increment, float PWM_local,
         out = _tanh_clip ( PWM_local + phase2 * (1.f + 12.f*PWM_local*PWM_local));
         break;
     case 10 : // 1 bis : sin wrap phase
-    	out = wrap2(VCO_phase + PWM_local * _sin_loop(VCO_phase * 1.5f)); // todo cos / fast cos
-		out = _tanh_clip(_sin_loop(out)*(1.f+3.f*PWM_local));
+    	out = wrap2(VCO_phase + PWM_local * fast_cos_loop(VCO_phase * 1.5f));
+		out = _tanh_clip(fast_cos_loop(out)*(1.f+3.f*PWM_local));
         break;
     case 11 : // 2 bis : pulse train
 		fa = (VCO_phase* 2.f)-1.f; // passage entre -1 et 1
