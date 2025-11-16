@@ -161,6 +161,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
         //break;
     case 4 : // chorus : OK
 		// ( WET + feedback, TIME, WET modulation)
+		/*
 		param1 *= 2000.f; // param1 = 1/8 du temps max du chorus, en echantillons
 		param1 += 100.f; // I.E : (6.73+1) * 2200 echantillons max
         g_effect1_phase = wrap(g_effect1_phase + (0.005f/48000.f)); // LFO : vitesse de variation du temps du chorus
@@ -173,7 +174,42 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
         sound_out *= 0.5;
         sound_out = sound_in + _tanh_clip(wetM*sound_out);
         delay1_write_f(sound_out);
-        return sound_out;
+        return sound_out;*/
+        {
+			// 1. Précalculer les constantes
+			float param_scaled = param1 * 2000.f + 100.f;
+			float wet_scaled = wetM * 0.5f;
+
+			// 2. Update phase
+			g_effect1_phase = wrap(g_effect1_phase + (0.005f/48000.f));
+			float phase = g_effect1_phase;
+
+			// 3. Calculer phases modulées
+			float p3 = phase * 3.f;
+			float p4 = phase * 4.f;
+			float p5 = phase * 5.f;
+			float p7 = phase * 7.f;
+
+			// 4. Calculer offsets
+			float o1 = (tri_positif_loop(p3) + 1.11f) * param_scaled;
+			float o2 = (tri_positif_loop(0.23f + p4) + 2.31f) * param_scaled;
+			float o3 = (tri_positif_loop(0.57f + p5) + 3.52f) * param_scaled;
+			float o4 = (tri_positif_loop(0.71f + p7) + 5.73f) * param_scaled;
+
+			// 5. Lectures delay
+			float s1 = delay1_read_f(o1);
+			float s2 = delay1_read_f(o2);
+			float s3 = delay1_read_f(o3);
+			float s4 = delay1_read_f(o4);
+
+			// 6. Combinaison
+			float chorus = s1 - s2 + s3 - s4;
+
+			// 7. Output
+			sound_out = sound_in + _tanh_clip(wet_scaled * chorus);
+			delay1_write_f(sound_out);
+			return sound_out;
+		}
     case 5 : // ring delay : OK
 		// WET : amplitude du feedback; param1 : temps de delay ; param2 : frequence du ring
 		sound_out = delay1_read_f((24000.f * param1 * (param1+1.f)) + 50.f);
