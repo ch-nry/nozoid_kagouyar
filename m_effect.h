@@ -15,9 +15,6 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
-
-//TODO : ajuster le nvx des effets
-
 #define delay1_sizef 72000 // attention : la reverb fait env 51k
 #define delay1_sizei 144000
 // mettre un multiple de 2 sur la taille des buffer
@@ -41,7 +38,7 @@ union delay_line {
 		float reverb3[3][4096];
 	} reverb;
 };
-//delay_line __attribute__((section(".dtcmram_bss"))) g_delay1;
+
 delay_line g_delay1;
 
 uint32_t g_delay1_pos; // position ds le buffer
@@ -307,7 +304,7 @@ float g_effect2_sound_env = 0.f;
 float g_effect2_phase = 0.33f;
 
 daisysp::DelayLine<float, 32768> g_delay_effect2;
-daisysp::DelayLine<float, 16384>  __attribute__((section(".dtcmram_bss"))) g_delay_effect2b; //TODO : tester
+daisysp::DelayLine<float, 16384>  __attribute__((section(".dtcmram_bss"))) g_delay_effect2b;
 
 inline float effect2(float sound_in) { //, float param, float param1) {
 	float const param = g_pot_audio[k_EFFECT2_wet] += g_pot_increment[k_EFFECT2_wet];
