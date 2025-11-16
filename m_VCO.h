@@ -15,7 +15,6 @@ inline void VCO3_pitch(voice &myvoice, float &pitch) {
 
 // --------------- VCO -------------------
 // forme d'onde
-
 float VCO_WF(uint32_t VCO_WF, float VCO_phase, float increment, float PWM_local, float* v_VCO_last)
 {
 	float out = 0;
@@ -37,9 +36,17 @@ float VCO_WF(uint32_t VCO_WF, float VCO_phase, float increment, float PWM_local,
         break;
     case 2 : // tri
     	float tmpf;
-        out = tri_bl(VCO_phase, increment, v_VCO_last[0]);
+    	tmp =  v_VCO_last[0];
+        //out = tri_bl(VCO_phase, increment, v_VCO_last[0]);
+        out = VCO_phase < 0.5 ? 1.0f : -1.0f;
+		out += Polyblep2(increment, VCO_phase);
+		out -= Polyblep2(increment, wrap(VCO_phase + 0.5f));
+		// Leaky Integrator: y[n] = A + x[n] + (1 - A) * y[n-1]
+		tmp       = increment * out + (1.0f - increment) * tmp;
+		out = 4.*tmp;
         tmpf = out + fast_cos(VCO_phase);
         out += 7.f * PWM_local * tmpf;
+		v_VCO_last[0] = tmp;
         break;
     case 3 :  // rectangle
         phase2 = wrap(VCO_phase + (1.f-PWM_local)*0.5f);
@@ -93,7 +100,7 @@ float VCO_WF(uint32_t VCO_WF, float VCO_phase, float increment, float PWM_local,
         out = _tanh_clip ( PWM_local + phase2 * (1.f + 12.f*PWM_local*PWM_local));
         break;
     case 10 : // 1 bis : sin wrap phase
-    	out = wrap2(VCO_phase + PWM_local * _sin_loop(VCO_phase * 1.5f));
+    	out = wrap2(VCO_phase + PWM_local * _sin_loop(VCO_phase * 1.5f)); // todo cos / fast cos
 		out = _tanh_clip(_sin_loop(out)*(1.f+3.f*PWM_local));
         break;
     case 11 : // 2 bis : pulse train
@@ -130,7 +137,7 @@ float VCO_WF(uint32_t VCO_WF, float VCO_phase, float increment, float PWM_local,
         break;
     case 15 : // 6 bis : quantizer la phase : floorf(phase * steps) / steps;
 		phase2 = floorf(1./(0.3*PWM_local+0.001f));
-        out = _sin_loop( floorf(VCO_phase * phase2)/phase2);
+        out = _sin_loop( floorf(VCO_phase * phase2)/phase2); // todo passage en cos
         break;
     case 16 : // 7 bis :  table rnd et boucler dessus :
 		fa = 8.f * VCO_phase;
