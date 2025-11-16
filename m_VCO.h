@@ -137,7 +137,7 @@ float VCO_WF(uint32_t VCO_WF, float VCO_phase, float increment, float PWM_local,
         break;
     case 15 : // 6 bis : quantizer la phase : floorf(phase * steps) / steps;
 		phase2 = floorf(1./(0.3*PWM_local+0.001f));
-        out = _sin_loop( floorf(VCO_phase * phase2)/phase2); // todo passage en cos
+        out = fast_cos_loop( floorf(VCO_phase * phase2)/phase2);
         break;
     case 16 : // 7 bis :  table rnd et boucler dessus :
 		fa = 8.f * VCO_phase;
