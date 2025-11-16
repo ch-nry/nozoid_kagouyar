@@ -122,8 +122,8 @@ __attribute__((section(".dtcmram_bss"))) int32_t g_filter_moins[nb_CV][filter_or
 __attribute__((section(".dtcmram_bss"))) int32_t g_filter_plus[nb_CV][filter_order]  __attribute__((aligned(32))) = {0};
 
 // MIDI
-volatile float g_midi_parameter[nb_CV] = {0.0f};
-volatile float g_knob[nb_CV] = {0.0f};
+__attribute__((section(".dtcmram_bss"))) volatile float g_midi_parameter[nb_CV] = {0.0f};
+__attribute__((section(".dtcmram_bss"))) volatile float g_knob[nb_CV] = {0.0f};
 volatile float g_MIDI_LFO_increment = 0.0f;
 volatile float g_MIDI_led_time = 0.0f;
 
@@ -273,14 +273,13 @@ struct CONFIGURATION
 };
 
 // configuration actuel
-__attribute__((section(".dtcmram_bss")))
-volatile CONFIGURATION curent_config; // configuration actuel
+__attribute__((section(".dtcmram_bss"))) volatile CONFIGURATION  __attribute__((aligned(32))) curent_config; // configuration actuel
 
 // modulations, LFO
-__attribute__((section(".dtcmram_bss"))) volatile float g_Modulation[2*modulation_source_last]; // valeur des diferentes g_Modulation
-__attribute__((section(".dtcmram_bss"))) volatile uint32_t g_Modulation_Reset[modulation_source_last]; // bool pour marquer un reset de phase, utilisé pour les lfo 1 2 3 ds certain cas.
-__attribute__((section(".dtcmram_bss"))) volatile float g_Modulation_Phase[modulation_source_last]; // valeur des phases des diferentes g_Modulation
-__attribute__((section(".dtcmram_bss"))) volatile double g_Modulation_Phase_double[modulation_source_last]; // valeur des phases des diferentes g_Modulation
+__attribute__((section(".dtcmram_bss"))) volatile float  __attribute__((aligned(32))) g_Modulation[2*modulation_source_last]; // valeur des diferentes g_Modulation
+__attribute__((section(".dtcmram_bss"))) volatile uint32_t  __attribute__((aligned(32))) g_Modulation_Reset[modulation_source_last]; // bool pour marquer un reset de phase, utilisé pour les lfo 1 2 3 ds certain cas.
+__attribute__((section(".dtcmram_bss"))) volatile float  __attribute__((aligned(32))) g_Modulation_Phase[modulation_source_last]; // valeur des phases des diferentes g_Modulation
+__attribute__((section(".dtcmram_bss"))) volatile double  __attribute__((aligned(32))) g_Modulation_Phase_double[modulation_source_last]; // valeur des phases des diferentes g_Modulation
 
 enum GATE_source {gate_KB_int, gate_MIDI, gate_5V};
 
@@ -321,5 +320,4 @@ struct voice
     float v_ADSR_out = 0.f;
 };
 
-__attribute__((section(".dtcmram_bss")))
-voice allvoice[4]; // declaration des memoires des voies de polyphonie
+__attribute__((section(".dtcmram_bss"))) voice allvoice[4]; // declaration des memoires des voies de polyphonie
