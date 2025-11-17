@@ -339,8 +339,10 @@ float g_Effect2_filtre = 0.f;
 float g_effect2_sound_env = 0.f;
 float g_effect2_phase = 0.33f;
 
+
 daisysp::DelayLine<float, 32768> g_delay_effect2;
-daisysp::DelayLine<float, 16384>  __attribute__((section(".dtcmram_bss"))) g_delay_effect2b;
+daisysp::DelayLine<float, 16384>  g_delay_effect2b;
+//__attribute__((section(".dtcmram_bss")))
 
 inline float effect2(float sound_in) { //, float param, float param1) {
 	float const param = g_pot_audio[k_EFFECT2_wet] += g_pot_increment[k_EFFECT2_wet];
