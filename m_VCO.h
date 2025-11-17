@@ -113,7 +113,7 @@ float VCO_WF(uint32_t VCO_WF, float VCO_phase, float increment, float PWM_local,
         /*fa = wrap(2.f * VCO_phase);
 		if ( fa < 2.f * increment) { v_VCO_last[0] = -1 * sign(v_VCO_last[0]) * mix(fabsf(v_VCO_last[0]), _rnd_f(), PWM_local*PWM_local); }
 		out = v_VCO_last[0];*/
-		{
+		/*{ // cf : https://www.youtube.com/watch?v=V4GfkFbDojc pour trouver d'autres algo plus simpa
 			v_VCO_last[0] = wrap(v_VCO_last[0]  + increment / 5000.f); // --- 1) Phase lente
 			uint32_t t = (uint32_t)(v_VCO_last[0] * 131072.f);
 			uint32_t p = ((uint32_t)(PWM_local * 1024.f)) & 1023;
@@ -132,7 +132,38 @@ float VCO_WF(uint32_t VCO_WF, float VCO_phase, float increment, float PWM_local,
 			uint32_t chaos = (t * (RYTH + 3)) ^ (t >> (RYTH + 2));// bit → ajout d’un masque pseudo-chaotique
 			v ^= (RYTH & 4) ? chaos : 0;
 			return (v & 128) ? 1.f : -1.f;
-		}
+		}*/
+{
+    // Phase
+    v_VCO_last[0] += increment / 5000.f;
+    if (v_VCO_last[0] >= 1.f) v_VCO_last[0] -= 1.f;
+    float phase = v_VCO_last[0];
+
+    uint32_t t = (uint32_t)(phase * 65536.f);
+    uint32_t p = ((uint32_t)(PWM_local * 1024.f)) & 1023; // 0..1023
+
+    // Bits rapides seulement
+    uint32_t t_fast = t & 0xFFFF;
+    uint32_t v;
+	//t = (t * p) & 0xFFFF;
+    // v = ((t_fast * ((p >> 2) + 1)) ^ (t_fast >> ((p >> 7) & 7))) & 127;
+	// v = ((t_fast * ((p & 31) + 1)) ^ (t_fast >> ((p >> 5) & 3))) & 127;
+	// v = ((t_fast ^ ((t_fast >> ((p & 7) + 1)) * ((p >> 2) + 1)))) & 127;
+	// v = ((t_fast * ((p >> 1) & 15)) ^ ((t_fast >> ((p & 7) + 1)))) ; v = (v<<2) + (v>>11); 	v &= 127;
+	//v = t*((t-2296&t)>>11);
+	//v = ((t>>5&t)-(t>>5)+(t>>5&t))+(t*((t>>14)&14));
+	//v= (t*(t&(t>>12))*8/11025); v=((v&16)/8-1)*(v*(v^15)+v+127);
+	//v = t*(t*287/256&t>>11&31);
+	v = ((t&p)<<1) ^ (t>>7)  ;
+	v &= 127;
+    // Normaliser -1 → 1
+    return (v / 63.5f) - 1.f;
+}
+
+
+
+
+
         break;
     case 13 : // 4 bis : sawnoise
 		if ( VCO_phase < increment) {
