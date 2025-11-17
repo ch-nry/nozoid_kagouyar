@@ -110,9 +110,29 @@ float VCO_WF(uint32_t VCO_WF, float VCO_phase, float increment, float PWM_local,
 		out=mix(_sin(VCO_phase), _sin(fa), fminf(PWM_local * 10.f, 1.f));
         break;
     case 12 :  // 3 bis : squarenoise
-        fa = wrap(2.f * VCO_phase);
+        /*fa = wrap(2.f * VCO_phase);
 		if ( fa < 2.f * increment) { v_VCO_last[0] = -1 * sign(v_VCO_last[0]) * mix(fabsf(v_VCO_last[0]), _rnd_f(), PWM_local*PWM_local); }
-		out = v_VCO_last[0];
+		out = v_VCO_last[0];*/
+		{
+			v_VCO_last[0] = wrap(v_VCO_last[0]  + increment / 5000.f); // --- 1) Phase lente
+			uint32_t t = (uint32_t)(v_VCO_last[0] * 131072.f);
+			uint32_t p = ((uint32_t)(PWM_local * 1024.f)) & 1023;
+			uint32_t STRUCT = (p >> 7) & 7;   // 3 bits supérieurs = 8 grandes familles
+			uint32_t MOD    = (p >> 3) & 15;  // 4 bits = modulations
+			uint32_t RYTH   =  p       & 7;   // 3 bits = rythmiques
+			uint32_t s1 = (STRUCT % 7) + 1; // --- 3) Combinaisons logiques légères
+			uint32_t s2 = ((STRUCT * 3) % 6) + 1;
+			uint32_t m1 = (MOD % 5) + 2;
+			uint32_t m2 = ((MOD * 7) % 9) + 3;
+			uint32_t base =((t >> s1) ^ (t >> s2)) ^(t * m1) ^ (t * m2); // --- 4) Motif principal (sans switch)
+			uint32_t mod = ((t >> (MOD & 3)) ^ (t * ((MOD & 7) + 1)) ^ ((t >> ((MOD >> 2) + 1)) * (MOD + 5)));// --- 5) Modulations fines (LSB)
+			uint32_t v = base ^ mod;
+			v ^= (RYTH & 1) ? (t >> 5) : 0; // bit0 → gating simple
+			v = (RYTH & 2) ? (v & (t >> 3)) : v; // bit1 → divisions /3 ou /4
+			uint32_t chaos = (t * (RYTH + 3)) ^ (t >> (RYTH + 2));// bit → ajout d’un masque pseudo-chaotique
+			v ^= (RYTH & 4) ? chaos : 0;
+			return (v & 128) ? 1.f : -1.f;
+		}
         break;
     case 13 : // 4 bis : sawnoise
 		if ( VCO_phase < increment) {
