@@ -25,6 +25,16 @@
 //__attribute__((section(".dtcmram_bss"))) : ok
 //__attribute__((aligned(32))) : ok
 
+// optimiser les données en memoire : rassembler tout ce qui concerne 1 pot ds une structure, et dupliquer la structure par le nombre de pot, et ranger par ordre d'utilisation
+// virer delay de la memeoire rapide, et remettre les structures importante dedant
+//calculer tout les oscillateurs, puis le filtre, puis les effets
+// optimisser pour que les addresses des acces memoire soit sequenciels
+// ne pas mettre d'apelle / ecriture ds es structure de branches
+// tester de virer le inline de chaque fonctions (surtout les grosses)
+// tout mettre en //__attribute__((section(".dtcmram_bss"))) : mais faire des initialisation!!!
+//__attribute__((hot))   // Code fréquent : doit rester en cache
+//__attribute__((cold))  // Code rare : cache miss OK
+
 #include <stdio.h>
 #include <string.h>
 #include "daisysp.h"
