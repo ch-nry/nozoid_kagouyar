@@ -149,8 +149,7 @@ inline float _cos(float x){
 	// coefs : 2pi X - 64(pi-2.5) X³ +512(pi-3)x⁵
 	float const y = fabsf(x-0.5)-0.25;
 	float const y2 = y*y;
-	float const y3 = y2*y;
-	return 6.28318530718f*y - 41.0619298297f*y3 + 72.4954386381f * y3*y2;
+	return y * (6.28318530718f - y2*(41.0619298297f - y2*72.4954386381f));
  }
 /*inline float _cos2(float index) { // index from 0 to 1 only
 // 6 multiplications
@@ -456,6 +455,7 @@ inline float Polyblep(const float increment, const float phase)
     const float t = (phase - increment) / increment;
     return (-2.f/24.f) + t * (2.f/6.f + t * (-2.f/4.f + t * (2.f/6.f + t * (-2.f/24.f))));
 }
+
 
 inline float saw_bl(float phase, float increment) {
   return (phase+phase - 1.f - Polyblep(increment, phase));
