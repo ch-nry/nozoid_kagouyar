@@ -166,7 +166,7 @@ inline float _cos_loop(float index) { //
 inline float fast_cos_loop(float index) { //
     return fast_cos(wrap2(index) );
 }
-/*inline float _sin(const float x) {
+/*inline float _sin(float x) {
 	// coef : 256-64pi; 32-4pi
 	const float hx = 0.5f-x;
 	const float gx = 0.25f - fabsf(hx);
