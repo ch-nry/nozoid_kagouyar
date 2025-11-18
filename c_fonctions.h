@@ -17,7 +17,7 @@
 
 void delay1_clear();
 
-float table_CV2freq[269] ;
+__attribute__((section(".dtcmram_bss"))) float table_CV2freq[269] ;
 /* // un poile plus lent, mais 5% de flash en moins
 static const float table_CV2freq[] = {
 	0.00503, 0.00533, 0.00565, 0.00598, 0.00634, 0.00671, 0.00711, 0.00754, 0.00798, 0.00846, 0.00896, 0.00949, 0.01006, 0.01066,
@@ -166,7 +166,13 @@ inline float _cos_loop(float index) { //
 inline float fast_cos_loop(float index) { //
     return fast_cos(wrap2(index) );
 }
-
+/*inline float _sin(const float x) {
+	// coef : 256-64pi; 32-4pi
+	const float hx = 0.5f-x;
+	const float gx = 0.25f - fabsf(hx);
+	const float gx2 = gx*gx;
+	return sign(hx)*((54.93807017*gx2 - 19.4336293856)*gx2+1.f);
+}*/
 inline float _sin(float index) { // index from 0 to 1 only
 // 6 multiplication
   float const x=index-0.5f;
@@ -531,15 +537,27 @@ inline uint32_t get_pot(uint32_t i) {
     //hw.test_out(false);
 }
 
+void init_table_f_0(int x, float *table){ for (int i=0; i<x; i++) table[i] = 0.f; }
+void init_table_d_0(int x, double *table){ for (int i=0; i<x; i++) table[i] = 0.f; }
+void init_table_i_0(int x, uint32_t *table){ for (int i=0; i<x; i++) table[i] = 0; }
+
 void init_variables() {
     uint32_t i;
   	volatile uint32_t tmp;
 
-    for (i=0; i<2.*modulation_source_last; i++) g_Modulation[i] = 0.;
+	init_table_f_0(2*modulation_source_last, (float *)g_Modulation);
+	init_table_f_0(modulation_source_last, (float *)g_Modulation_Reset);
+	init_table_f_0(modulation_source_last, (float *)g_Modulation_Phase);
+	init_table_d_0(modulation_source_last, (double *)g_Modulation_Phase_double);
+	init_table_f_0(nb_CV, (float *)g_pot_increment);
+	init_table_f_0(nb_CV, (float *)g_pot_audio);
+	init_table_i_0(nb_CV, (uint32_t *)g_pot16);
+	init_table_f_0(nb_CV, (float *)g_filter_index);
+	init_table_f_0(nb_CV, (float *)g_filter_moins);
+	init_table_f_0(nb_CV, (float *)g_filter_plus);
+	init_table_f_0(nb_CV, (float *)g_midi_parameter);
 
-	for (i=0; i<48; i++) {
-		while (get_pot(i) == 0.); // initialisation des valeurs des potentiomettres
-	}
+	for (i=0; i<48; i++) { while (get_pot(i) == 0.); } // initialisation des valeurs des potentiomettres
 
 	do {tmp = hw.knobs_[k_CV1].Process_ch();} // on sort de l'initialisation, on attend d'avoir une valeur
 	while (tmp == 0.);
@@ -549,44 +567,57 @@ void init_variables() {
 	while (tmp == 0.);
 	g_randomSeed_v = (tmp<<15)+tmp; // idem
 
-    for (i=0; i<nb_drunk_attractor; i++) {
-        g_drunk_lfo[i] = _rnd_f();
-    }
+    for (i=0; i<nb_drunk_attractor; i++) { g_drunk_lfo[i] = _rnd_f(); }
 
     for (i=0; i<nb_voice; i++) {
-		memset(allvoice[i].v_VCO_last, 0, sizeof(allvoice[i].v_VCO_last));
+		init_table_f_0(8,  allvoice[i].v_VCO_last[0]);
+		init_table_f_0(8,  allvoice[i].v_VCO_last[1]);
+		init_table_f_0(8,  allvoice[i].v_VCO_last[2]);
+		init_table_f_0(3,  allvoice[i].v_VCO_phase);
         allvoice[i].v_VCO_last[0][1] = _rnd_f();
-        allvoice[i].v_VCO_phase[0]= 0.;
-
         allvoice[i].v_VCO_last[1][1] = _rnd_f();
-        allvoice[i].v_VCO_phase[1]= 0.;
-
         allvoice[i].v_VCO_last[2][1] = _rnd_f();
-        allvoice[i].v_VCO_phase[2]= 0.;
-
         allvoice[i].v_ADSR_mode = Release;
-    }
-
-    // mtof table initialisation in RAM
-    init_table_CV2freq();
-
-    // keyboard
-    g_state_kb = 7; // force le recalcul des boutons etc
-
-    //MIDI
-    for (i=0; i<nb_potentiometer; i++) {
-		g_midi_parameter[i] = 0.;
-	}
-    // Init des voies de polyphonie
-    for (int i=0; i<nb_voice; i++) {
         allvoice[i].v_priority = i+1; // la voie 1 est la plus prioritaire apres l'initialisation
         allvoice[i].v_GATE_source = -1;
         allvoice[i].v_GATE = 0;
+        allvoice[i].v_pitch = 64.f;
+        allvoice[i].v_TRIG = 0;
+        allvoice[i].v_VCO1_pitch = 0.f;
+        allvoice[i].v_LPG_last = 0.f;
+        allvoice[i].v_VCF1_filter = 0.f;
+        allvoice[i].v_VCF1_last_input1 = 0.f;
+        allvoice[i].v_VCF1_last_input2 = 0.f;
+        allvoice[i].v_VCF1_last_input3 = 0.f;
+        allvoice[i].v_VCF1_last_input4 = 0.f;
+        allvoice[i].v_VCF1_last_output1 = 0.f;
+        allvoice[i].v_VCF1_last_output2 = 0.f;
+        allvoice[i].v_VCF1_last_output3 = 0.f;
+        allvoice[i].v_VCF1_last_output4 = 0.f;
+        allvoice[i].v_ADSR_out = 0.f;
+        allvoice[i].v_ADSR_mode = Release;
     }
 
-    g_Modulation[NONE_OUT] = 0.f;
-    g_Modulation_Phase[NONE_OUT] = 0.f;
-    g_Modulation_Reset[NONE_OUT] = 0;
+    init_table_CV2freq(); // mtof table initialisation in RAM
+    g_state_kb = 7; // keyboard : force le recalcul des boutons etc
+
+	g_MIDI_LFO_increment = 0.0f;
+	g_MIDI_led_time = 0.0f;
+	g_last_load_save = -1;
+	led_time = 0;
+	g_time = 0;
+
+	g_MIDI_exprssion_LSB = 0;
+	g_MIDI_MODWHEEL_LSB = 0;
+	g_RNPN_value_MSB = 0;
+	g_RNPN_value_LSB = 0;
+	g_RNPN_addresse_MSB = 0;
+	g_RNPN_addresse_LSB = 0;
+	g_MIDI_pitchWHEEL = 0.f;
+	g_MIDI_MODWHEEL = 0.f;
+
+	g_state_kb = 7;
+	g_CV2KB = 0;
 }
 
 void random_config() {

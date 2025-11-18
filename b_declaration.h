@@ -114,48 +114,48 @@ const uint32_t table_midi_order[] = {k_VCO1_fq,  k_VCO1_wfm, k_VCO1_mod1, k_VCO1
 	 k_LFO7_sym, k_EFFECT1_wet, k_EFFECT1_p1, k_EFFECT1_p2, k_EFFECT2_wet, k_EFFECT2_p1, k_VCF2_fq, k_VCF2_mod, k_GAIN};
 
 // potentiomettres:
-volatile float g_pot_increment[nb_CV] __attribute__((aligned(32))) = {0.0f}; // utilisé pour le filtre IIR en audio
-volatile float g_pot_audio[nb_CV] __attribute__((aligned(32))) = {0.0f}; // valeur des pots mais filtré en audio
-volatile int32_t g_pot16[nb_CV] __attribute__((aligned(32))) = {0}; // filtre en 16 bit
-volatile uint32_t g_filter_index[nb_CV] __attribute__((aligned(32))) = {0};
-int32_t g_filter_moins[nb_CV][filter_order]  __attribute__((aligned(32))) = {0};
-int32_t g_filter_plus[nb_CV][filter_order]  __attribute__((aligned(32))) = {0};
+__attribute__((section(".dtcmram_bss"))) volatile float g_pot_increment[nb_CV] = {0.0f}; // utilisé pour le filtre IIR en audio
+__attribute__((section(".dtcmram_bss"))) volatile float g_pot_audio[nb_CV] = {0.0f}; // valeur des pots mais filtré en audio
+__attribute__((section(".dtcmram_bss"))) volatile int32_t g_pot16[nb_CV] = {0}; // filtre en 16 bit
+__attribute__((section(".dtcmram_bss"))) volatile uint32_t g_filter_index[nb_CV] = {0};
+__attribute__((section(".dtcmram_bss"))) int32_t g_filter_moins[nb_CV][filter_order] = {0};
+__attribute__((section(".dtcmram_bss"))) int32_t g_filter_plus[nb_CV][filter_order] = {0};
 
 // MIDI
-volatile float g_midi_parameter[nb_CV] = {0.0f};
-volatile float g_knob[nb_CV] = {0.0f};
-volatile float g_MIDI_LFO_increment = 0.0f;
-volatile float g_MIDI_led_time = 0.0f;
+__attribute__((section(".dtcmram_bss"))) volatile float g_midi_parameter[nb_CV] = {0.0f};
+__attribute__((section(".dtcmram_bss"))) volatile float g_knob[nb_CV] = {0.0f};
+__attribute__((section(".dtcmram_bss"))) volatile float g_MIDI_LFO_increment = 0.0f;
+__attribute__((section(".dtcmram_bss"))) volatile float g_MIDI_led_time = 0.0f;
 
 // Random
-volatile int32_t g_randomSeed_v;
-volatile int32_t g_randomSeed_u;
+__attribute__((section(".dtcmram_bss"))) volatile int32_t g_randomSeed_v;
+__attribute__((section(".dtcmram_bss"))) volatile int32_t g_randomSeed_u;
 
 // chaos :
 #define nb_drunk_attractor 3*16 // 16 for LFO 1 to 3
-volatile float g_drunk_lfo[nb_drunk_attractor];
+__attribute__((section(".dtcmram_bss"))) volatile float g_drunk_lfo[nb_drunk_attractor];
 
 // affichage de la sauvegarde des memoires sur le clavier
-int32_t g_last_load_save  = -1;
+__attribute__((section(".dtcmram_bss"))) int32_t g_last_load_save  = -1;
 // affichage des animations
-uint32_t led_time = 0;
+__attribute__((section(".dtcmram_bss"))) uint32_t led_time = 0;
 
 // sheduller :
-volatile int32_t g_time = 0;
+__attribute__((section(".dtcmram_bss"))) volatile int32_t g_time = 0;
 
 // MIDI
-uint32_t g_MIDI_exprssion_LSB = 0, g_MIDI_MODWHEEL_LSB = 0, g_RNPN_value_MSB = 0, g_RNPN_value_LSB = 0, g_RNPN_addresse_MSB = 0, g_RNPN_addresse_LSB = 0;
-float g_MIDI_pitchWHEEL = 0.f,  g_MIDI_MODWHEEL = 0.f;
+__attribute__((section(".dtcmram_bss"))) uint32_t g_MIDI_exprssion_LSB = 0, g_MIDI_MODWHEEL_LSB = 0, g_RNPN_value_MSB = 0, g_RNPN_value_LSB = 0, g_RNPN_addresse_MSB = 0, g_RNPN_addresse_LSB = 0;
+__attribute__((section(".dtcmram_bss"))) float g_MIDI_pitchWHEEL = 0.f,  g_MIDI_MODWHEEL = 0.f;
 
 //clavier
-uint32_t g_state_kb = 7; // machine a etat de la fonction de reception du clavier
+__attribute__((section(".dtcmram_bss"))) uint32_t g_state_kb = 7; // machine a etat de la fonction de reception du clavier
 // 1er etat : on recalcule les valeur global du clavier
 
 // calibration CV
-float g_CV1_offset, g_CV2_offset, g_CV1_gain;
+__attribute__((section(".dtcmram_bss"))) float g_CV1_offset, g_CV2_offset, g_CV1_gain;
 
 // fonctions speciale
-uint32_t g_CV2KB = 0;
+__attribute__((section(".dtcmram_bss"))) uint32_t g_CV2KB = 0;
 
 // g_Modulation
 enum MOD_OUT {
@@ -273,13 +273,13 @@ struct CONFIGURATION
 };
 
 // configuration actuel
-volatile CONFIGURATION  __attribute__((aligned(32))) curent_config; // configuration actuel
+__attribute__((section(".dtcmram_bss"))) volatile CONFIGURATION curent_config; // configuration actuel
 
 // modulations, LFO
-volatile float  __attribute__((aligned(32))) g_Modulation[2*modulation_source_last]; // valeur des diferentes g_Modulation
-volatile uint32_t  __attribute__((aligned(32))) g_Modulation_Reset[modulation_source_last]; // bool pour marquer un reset de phase, utilisé pour les lfo 1 2 3 ds certain cas.
-volatile float  __attribute__((aligned(32))) g_Modulation_Phase[modulation_source_last]; // valeur des phases des diferentes g_Modulation
-volatile double  __attribute__((aligned(32))) g_Modulation_Phase_double[modulation_source_last]; // valeur des phases des diferentes g_Modulation
+__attribute__((section(".dtcmram_bss"))) volatile float g_Modulation[2*modulation_source_last]; // valeur des diferentes g_Modulation
+__attribute__((section(".dtcmram_bss"))) volatile uint32_t g_Modulation_Reset[modulation_source_last]; // bool pour marquer un reset de phase, utilisé pour les lfo 1 2 3 ds certain cas.
+__attribute__((section(".dtcmram_bss"))) volatile float g_Modulation_Phase[modulation_source_last]; // valeur des phases des diferentes g_Modulation
+__attribute__((section(".dtcmram_bss"))) volatile double g_Modulation_Phase_double[modulation_source_last]; // valeur des phases des diferentes g_Modulation
 
 enum GATE_source {gate_KB_int, gate_MIDI, gate_5V};
 
@@ -320,4 +320,4 @@ struct voice
     float v_ADSR_out = 0.f;
 };
 
-voice allvoice[4]; // declaration des memoires des voies de polyphonie
+__attribute__((section(".dtcmram_bss"))) voice allvoice[4]; // declaration des memoires des voies de polyphonie
