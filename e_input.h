@@ -825,21 +825,6 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 				if (curent_config.c_EFFECT1_TYPE != (uint32_t)switch_keyboard + 7 * change_time) {
 					curent_config.c_EFFECT1_TYPE = 14;
 					delay1_clear();
-					g_effect1_phase = 0.f;
-					g_effect1_last_out = 0.f;
-					g_effect1_param_filter = 0.f;
-					g_effect1_param_filter2 = 0.f;
-					g_vitesse = 0.f;
-					g_old_sound_out = 0.f;
-					g_last_sound_in = 0.f;
-					g_effect1_f1 = 0.f;
-					g_effect1_f2 = 0.f;
-					g_effect1_f3 = 0.f;
-					g_effect1_f4 = 0.f;
-					g_effect1_f1old = 0.f;
-					g_effect1_f2old = 0.f;
-					g_effect1_f3old = 0.f;
-					g_effect1_f4old = 0.f;
 					curent_config.c_EFFECT1_TYPE = switch_keyboard + 7 * change_time;
 					}
 				else curent_config.c_EFFECT1_TYPE = 14;
