@@ -113,9 +113,6 @@
 #define PIN_HW_TEST 3
 #define PIN_LOW_POWER 1
 
-// prototype
-inline float _fclamp(float, float, float);
-
 using namespace daisy;
 
 Kagouyar hw;
