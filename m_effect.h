@@ -44,6 +44,24 @@ delay_line g_delay1;
 uint32_t g_delay1_pos; // position ds le buffer
 uint32_t g_delay2_pos;
 uint32_t g_delay3_pos;
+uint32_t g_delay1b_pos; // position ds le buffer
+
+__attribute__((section(".dtcmram_bss"))) float  g_delay1b[16384];
+inline void delay1b_write_f(float in){
+	int32_t l_delay1b_pos = g_delay1b_pos % 16384;
+	g_delay1b[l_delay1b_pos] = in;
+	l_delay1b_pos += 16384 - 1;
+	l_delay1b_pos %= 16384;
+	g_delay1b_pos = l_delay1b_pos;
+}
+inline float delay1b_read_f(float delay){ // en sample
+	int32_t delay_integral   = static_cast<int32_t>(delay);
+	float const  delay_fractional = delay - static_cast<float>(delay_integral);
+	delay_integral += g_delay1b_pos;
+	const float a = g_delay1b[(delay_integral) % 16384];
+	const float b = g_delay1b[(delay_integral + 1) % 16384];
+	return a + (b - a) * delay_fractional;
+}
 
 inline float reverb1_read(uint32_t a, uint32_t i){
 	return g_delay1.reverb.reverb1[a][(g_delay1_pos+i)%8192];
@@ -71,8 +89,25 @@ inline void reverb3_write(int i, float a0){
 }
 
 inline void delay1_clear(){
-	for (int i=0; i<delay1_sizef; i++) g_delay1.delay1_float[i] = 0.f;
+	//for (int i=0; i<delay1_sizef; i++) g_delay1.delay1_float[i] = 0.f;
+	init_table_f_0(delay1_sizef, g_delay1.delay1_float);
+	init_table_f_0(16384, g_delay1b);
 	g_delay1_pos = 0;
+	g_effect1_phase = 0.f;
+	g_effect1_last_out = 0.f;
+	g_effect1_param_filter = 0.f;
+	g_effect1_param_filter2 = 0.f;
+	g_vitesse = 0.f;
+	g_old_sound_out = 0.f;
+	g_last_sound_in = 0.f;
+	g_effect1_f1 = 0.f;
+	g_effect1_f2 = 0.f;
+	g_effect1_f3 = 0.f;
+	g_effect1_f4 = 0.f;
+	g_effect1_f1old = 0.f;
+	g_effect1_f2old = 0.f;
+	g_effect1_f3old = 0.f;
+	g_effect1_f4old = 0.f;
 }
 inline void delay1_write_f(float in){
 	int32_t l_delay1_pos = g_delay1_pos % delay1_sizef;
@@ -197,17 +232,17 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 			float o4 = (tri_positif_loop(0.71f + p7) + 5.73f) * param_scaled;
 
 			// 5. Lectures delay
-			float s1 = delay1_read_f(o1);
-			float s2 = delay1_read_f(o2);
-			float s3 = delay1_read_f(o3);
-			float s4 = delay1_read_f(o4);
+			float s1 = delay1b_read_f(o1);
+			float s2 = delay1b_read_f(o2);
+			float s3 = delay1b_read_f(o3);
+			float s4 = delay1b_read_f(o4);
 
 			// 6. Combinaison
 			float chorus = s1 - s2 + s3 - s4;
 
 			// 7. Output
 			sound_out = sound_in + _tanh_clip(wet_scaled * chorus);
-			delay1_write_f(sound_out);
+			delay1b_write_f(sound_out);
 			return sound_out;
 		}
     case 5 : // ring delay : OK
@@ -342,7 +377,7 @@ float g_effect2_phase = 0.33f;
 
 daisysp::DelayLine<float, 32768> g_delay_effect2;
 daisysp::DelayLine<float, 16384>  g_delay_effect2b;
-//__attribute__((section(".dtcmram_bss")))
+//__attribute__((section(".dtcmram_bss"))) daisysp::DelayLine<float, 16384>  g_delay_effect2b;
 
 inline float effect2(float sound_in) { //, float param, float param1) {
 	float const param = g_pot_audio[k_EFFECT2_wet] += g_pot_increment[k_EFFECT2_wet];
