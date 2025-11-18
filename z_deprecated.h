@@ -15,6 +15,57 @@
 //  volatile float critical_value __attribute__((aligned(4)));
 // static inline
 
+/*
+inline float Polyblep(float increment, float _phase)
+{
+    float phase = _phase;
+
+    if (phase > 0.5) {
+        phase = 1.f-phase;
+
+        if (phase > 2.f * increment) return 0.0f;
+        if (phase < increment) {
+            phase /= increment;
+            return 1.f + phase * ( (-4.f/3.f) + phase * phase * ((2.f/3.f) + phase * (-2.f/8.f)));
+        }
+        else {
+            phase -= increment;
+            phase /= increment;
+            return (2.f/24.f) + phase * ((-2.f/6.f) + phase * ( (2.f/4.f) + phase * ((-2.f/6.f) + phase * (2.f/24.f))));
+        }
+    }
+    else {
+        if (phase > 2.f * increment) return 0.0f;
+        if (phase < increment) {
+            phase /= increment;
+            return -1.f + phase * ( (4.f/3.f) + phase * phase * ((-2.f/3.f) + phase * (2.f/8.f)));
+        }
+        else {
+            phase -= increment;
+            phase /= increment;
+            return (-2.f/24.f) + phase * ((2.f/6.f) + phase * ( (-2.f/4.f) + phase * ((2.f/6.f) + phase * (-2.f/24.f))));
+        }
+    }
+}
+*/
+// for VCO band limited waveform
+
+/*
+inline float Polyblep2(float increment, float phase) {
+    float t = phase;
+    if(t < increment) {
+        t /= increment;
+        return t * (2.f - t) - 1.0f; // -t² + 2t -1
+    }
+    else if(t - 1.f > - increment) {
+        t = (t - 1.0f) / increment;
+        return t * (t + 2.f) + 1.0f; // (t-1)(t+1)+1 = t²
+    }
+    else {
+        return 0.0f;
+    }
+}
+*/
 void UsbCallback(uint8_t* buf, uint32_t* len)
 {
     for(size_t i = 0; i < *len; i++)

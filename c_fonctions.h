@@ -362,25 +362,6 @@ float Interpolation_Curve(float phase, uint32_t WF, float *last_point) { // inte
     return(0.f); // not used
 }
 
-// for VCO band limited waveform
-
-/*
-inline float Polyblep2(float increment, float phase) {
-    float t = phase;
-    if(t < increment) {
-        t /= increment;
-        return t * (2.f - t) - 1.0f; // -t² + 2t -1
-    }
-    else if(t - 1.f > - increment) {
-        t = (t - 1.0f) / increment;
-        return t * (t + 2.f) + 1.0f; // (t-1)(t+1)+1 = t²
-    }
-    else {
-        return 0.0f;
-    }
-}
-*/
-
 inline float Polyblep2(const float increment, const float phase) {
     const float t = phase;
     if (t >= increment && t - 1.f <= -increment) {
@@ -393,41 +374,6 @@ inline float Polyblep2(const float increment, const float phase) {
     const float normalizedT = (t - 1.0f) / increment;
     return normalizedT * (normalizedT + 2.f) + 1.0f;
 }
-
-/*
-inline float Polyblep(float increment, float _phase)
-{
-    float phase = _phase;
-
-    if (phase > 0.5) {
-        phase = 1.f-phase;
-
-        if (phase > 2.f * increment) return 0.0f;
-        if (phase < increment) {
-            phase /= increment;
-            return 1.f + phase * ( (-4.f/3.f) + phase * phase * ((2.f/3.f) + phase * (-2.f/8.f)));
-        }
-        else {
-            phase -= increment;
-            phase /= increment;
-            return (2.f/24.f) + phase * ((-2.f/6.f) + phase * ( (2.f/4.f) + phase * ((-2.f/6.f) + phase * (2.f/24.f))));
-        }
-    }
-    else {
-        if (phase > 2.f * increment) return 0.0f;
-        if (phase < increment) {
-            phase /= increment;
-            return -1.f + phase * ( (4.f/3.f) + phase * phase * ((-2.f/3.f) + phase * (2.f/8.f)));
-        }
-        else {
-            phase -= increment;
-            phase /= increment;
-            return (-2.f/24.f) + phase * ((2.f/6.f) + phase * ( (-2.f/4.f) + phase * ((2.f/6.f) + phase * (-2.f/24.f))));
-        }
-    }
-}
-*/
-
 
 inline float Polyblep(const float increment, const float phase)
 {
@@ -462,7 +408,6 @@ inline float Polyblep(const float increment, const float phase)
     return (-2.f/24.f) + t * (2.f/6.f + t * (-2.f/4.f + t * (2.f/6.f + t * (-2.f/24.f))));
 }
 
-
 inline float saw_bl(float phase, float increment) {
   return (phase+phase - 1.f - Polyblep(increment, phase));
 }
@@ -478,7 +423,6 @@ inline float tri_bl(float phase, float increment, float &last_out) {
 	last_out = out;
     return 4.*out;
 }
-
 
 // --------------- potentiomettres -------------------
 inline uint32_t get_pot(uint32_t i) {
@@ -728,16 +672,9 @@ void empty_config() {
         curent_config.c_Modulation_Source[i] = NONE_OUT;
         curent_config.c_Modulation_Type[i] = 0; // FM_exp pour les VCO, LFO_mix pour les LFO
     }
- //    curent_config.c_Modulation_Source[VCF1_MOD1] = NONE_OUT;
- //    curent_config.c_Modulation_Source[VCF1_MOD2] = NONE_OUT;
- //    curent_config.c_Modulation_Source[VCF2_MOD1] = NONE_OUT;
-
     curent_config.c_Modulation_Source[LFO1_MOD] = LFO1_OUT;
     curent_config.c_Modulation_Source[LFO2_MOD] = LFO2_OUT;
     curent_config.c_Modulation_Source[LFO3_MOD] = LFO3_OUT;
- //   curent_config.c_Modulation_Type[LFO1_MOD] = LFO_Mix;
- //   curent_config.c_Modulation_Type[LFO2_MOD] = LFO_Mix;
- //   curent_config.c_Modulation_Type[LFO3_MOD] = LFO_Mix;
 }
 
 void standard_config() {
