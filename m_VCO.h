@@ -15,7 +15,7 @@ inline void VCO3_pitch(voice &myvoice, float &pitch) {
 
 // --------------- VCO -------------------
 // forme d'onde
-float VCO_WF(uint32_t VCO_WF, float VCO_phase, float increment, float PWM_local, float* v_VCO_last)
+__attribute__((hot))  float VCO_WF(uint32_t VCO_WF, float VCO_phase, float increment, float PWM_local, float* v_VCO_last)
 {
 	float out = 0;
 	float phase2, tmp, fa, fb;
