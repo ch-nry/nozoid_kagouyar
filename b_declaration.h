@@ -116,8 +116,8 @@ const uint32_t table_midi_order[] = {k_VCO1_fq,  k_VCO1_wfm, k_VCO1_mod1, k_VCO1
 // potentiomettres:
 __attribute__((section(".dtcmram_bss"))) volatile float g_pot_increment[nb_CV] = {0.0f}; // utilisé pour le filtre IIR en audio
 __attribute__((section(".dtcmram_bss"))) volatile float g_pot_audio[nb_CV] = {0.0f}; // valeur des pots mais filtré en audio
-__attribute__((section(".dtcmram_bss"))) volatile int32_t g_pot16[nb_CV] = {0}; // filtre en 16 bit
-__attribute__((section(".dtcmram_bss"))) volatile uint32_t g_filter_index[nb_CV] = {0};
+__attribute__((section(".dtcmram_bss"))) int32_t g_pot16[nb_CV] = {0}; // filtre en 16 bit
+__attribute__((section(".dtcmram_bss"))) uint32_t g_filter_index[nb_CV] = {0};
 __attribute__((section(".dtcmram_bss"))) int32_t g_filter_moins[nb_CV][filter_order] = {0};
 __attribute__((section(".dtcmram_bss"))) int32_t g_filter_plus[nb_CV][filter_order] = {0};
 
