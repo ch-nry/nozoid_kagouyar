@@ -15,7 +15,7 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
-//#define proto2 // commenter pour la version final
+#define proto2 // commenter pour la version final
 
 // verifier les double promotion
 //-fno-strict-aliasing
@@ -24,14 +24,7 @@
 //register float tmp
 //__attribute__((section(".dtcmram_bss"))) : ok
 //__attribute__((aligned(32))) : ok
-
-// optimiser les données en memoire : rassembler tout ce qui concerne 1 pot ds une structure, et dupliquer la structure par le nombre de pot, et ranger par ordre d'utilisation
-// virer delay de la memeoire rapide, et remettre les structures importante dedant
-//calculer tout les oscillateurs, puis le filtre, puis les effets
-// optimisser pour que les addresses des acces memoire soit sequenciels
-// ne pas mettre d'apelle / ecriture ds es structure de branches
-// tester de virer le inline de chaque fonctions (surtout les grosses)
-// tout mettre en //__attribute__((section(".dtcmram_bss"))) : mais faire des initialisation!!!
+//__attribute__((section(".itcm")))
 //__attribute__((hot))   // Code fréquent : doit rester en cache
 //__attribute__((cold))  // Code rare : cache miss OK
 
@@ -60,7 +53,7 @@
 //14th slot to save curent preset on shutdown
 #define save_pos  0x90000000 + (14*4096)
 
-static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle::InterleavingOutputBuffer out, size_t size) {
+__attribute__((hot)) static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle::InterleavingOutputBuffer out, size_t size) {
     float mix1, mix2, mix3;
 
     hw.test_out(true); // write test_out pin;  10µs la premiere partie
@@ -205,8 +198,42 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer  in, AudioHandle:
     hw.test_out(false);
 }
 
+extern uint32_t _sitcm_flash;   // Adresse en FLASH
+extern uint32_t _sitcm;         // Début ITCM
+extern uint32_t _eitcm;         // Fin ITCM
+
+void ITCM_Init(void)
+{
+    /* 1) Disable I-Cache */
+    SCB_DisableICache();
+    __DSB(); __ISB();
+
+    /* 2) Enable ITCM (this remaps ITCM at 0x00000000 on STM32H7) */
+    SCB->ITCMCR =
+        SCB_ITCMCR_EN_Msk   |
+        SCB_ITCMCR_RMW_Msk  |
+        SCB_ITCMCR_RETEN_Msk;
+
+    __DSB(); __ISB();
+
+    /* 3) Copy FLASH -> ITCM */
+    uint32_t *src = &_sitcm_flash;
+    uint32_t *dst = &_sitcm;
+    while (dst < &_eitcm)
+        *dst++ = *src++;
+
+    __DSB(); __ISB();
+
+    /* 4) Re-enable I-Cache */
+    SCB_EnableICache();
+}
+
+
 int main(void)
 {
+
+	ITCM_Init();
+
 ////////////////////////////////////////////////////////////////////////
 // attend que l'allimentation se stabilise
 ////////////////////////////////////////////////////////////////////////
