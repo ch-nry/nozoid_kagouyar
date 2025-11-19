@@ -145,7 +145,7 @@ inline float tri_positif_loop(float index) { // index from 0 to 1 only
   return fabsf(2.f*wrap(index)-1.f); // only for positive index
 }
 
-inline float _cos(float x){
+__attribute__((section(".itcm"))) float _cos(float x){
 	// coefs : 2pi X - 64(pi-2.5) X³ +512(pi-3)x⁵
 	float const y = fabsf(x-0.5)-0.25;
 	float const y2 = y*y;
@@ -159,21 +159,22 @@ inline float _cos(float x){
 }*/
 inline float _cos_loop(float index) { //
     return _cos(wrap2(index) );
-}inline float fast_cos(float index) { // index from 0 to 1 only
+}
+__attribute__((section(".itcm"))) float fast_cos(float index) { // index from 0 to 1 only
   const float x = fabsf(4.f*index-2.f)-1.f;
   return 2.f*x-x*fabsf(x);
 }
 inline float fast_cos_loop(float index) { //
     return fast_cos(wrap2(index) );
 }
-/*inline float _sin(float x) {
+/*__attribute__((section(".itcm"))) float _sin2(float x) {
 	// coef : 256-64pi; 32-4pi
 	const float hx = 0.5f-x;
 	const float gx = 0.25f - fabsf(hx);
 	const float gx2 = gx*gx;
 	return sign(hx)*((54.93807017*gx2 - 19.4336293856)*gx2+1.f);
 }*/
-inline float _sin(float index) { // index from 0 to 1 only
+__attribute__((section(".itcm"))) float _sin(float index) { // index from 0 to 1 only
 // 6 multiplication
   float const x=index-0.5f;
   float const x2=x*x;
@@ -193,7 +194,8 @@ void drunk_lfo(uint32_t i, float dt) { // numero de l'attracteur a calculer
     g_drunk_lfo[i] = tmp;
     }
 
-inline float interpol4(float mu, float y0, float y1, float y2, float y3) {
+//__attribute__((section(".itcm")))
+float interpol4(float mu, float y0, float y1, float y2, float y3) {
     float a1, a2, a3;
     // 4-point, 3rd-order Hermite (x-form)
     a1 = 0.5f * (y2 - y0);
@@ -324,6 +326,7 @@ float LFO_compute_WF(float phase, uint32_t WF, float *last, uint32_t reset) {
     }
     return(0.f);// not used
 }
+
 
 float Interpolation_Curve(float phase, uint32_t WF, float *last_point) { // interpol through diferent points depending on the LFO waveform
     float out;
