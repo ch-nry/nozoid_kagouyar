@@ -67,13 +67,8 @@ ceilf  arrondi vers le bas
 floorf : arondi vers le haut
 truncf : arondi vers zero
 modf() = x-floor(x)
-
-static inline float sign(float x)
-{
-    return (x > 0.0f) - (x < 0.0f);
-}
+///////////////////////////////////////////////////
 */
-///////////////////////
 
 // quick clamp
 inline float _fclamp(float in, float min, float max) {
@@ -90,11 +85,6 @@ inline float mix(float in1, float in2, float mix){ // mix from 0 to 1
 inline float sign(float in) {
 	return ((in<0.f)?-1.f : 1.f);
 }
-/*
-inline float sign(float x) {
-	return copysignf(1.0f, x);
-}*/
-
 
 inline uint32_t _rnd_ui() {
     uint32_t v = g_randomSeed_v;
@@ -114,11 +104,7 @@ inline int32_t _rnd_i() {
 inline float _rnd_f() { // from 0 to 1
         return _rnd_ui() * 2.3283064e-010f;
 }
-/*
-static inline int _floor(float x) {
-	return (int) x - (x < (int) x);
-	//return (floorf(x));
-}*/
+
 static inline float wrap(float x) { // only for positive number, inversé pour les nombres negatifs
   return x - (int)x;
 }
@@ -151,12 +137,7 @@ __attribute__((section(".itcm"))) float _cos(float x){
 	float const y2 = y*y;
 	return y * (6.28318530718f - y2*(41.0619298297f - y2*72.4954386381f));
  }
-/*inline float _cos2(float index) { // index from 0 to 1 only
-// 6 multiplications
-  float const x=index-0.5f;
-  float const x2=x*x;
-  return -0.99999944f + x2 * (19.73903275f + x2 * (-64.93054874f + x2 * (85.29509341f + x2 * (-58.90779707f + x2 * 21.27414825f))));
-}*/
+
 inline float _cos_loop(float index) { //
     return _cos(wrap2(index) );
 }
@@ -167,19 +148,27 @@ __attribute__((section(".itcm"))) float fast_cos(float index) { // index from 0 
 inline float fast_cos_loop(float index) { //
     return fast_cos(wrap2(index) );
 }
-/*__attribute__((section(".itcm"))) float _sin2(float x) {
-	// coef : 256-64pi; 32-4pi
-	const float hx = 0.5f-x;
-	const float gx = 0.25f - fabsf(hx);
-	const float gx2 = gx*gx;
-	return sign(hx)*((54.93807017*gx2 - 19.4336293856)*gx2+1.f);
-}*/
-__attribute__((section(".itcm"))) float _sin(float index) { // index from 0 to 1 only
+
+__attribute__((section(".itcm"))) float _sin(float x)
+{
+    const float hx = 0.5f - x;
+    union { float f; uint32_t u; } a = { hx };
+    a.u &= 0x7FFFFFFF;   // ----- abs(hx) en bitwise -----
+    union { float f; uint32_t u; } s = { hx };
+    s.u = (s.u & 0x80000000) | 0x3F800000;  // signe + 1.0
+    const float gx  = 0.25f - a.f;
+    const float gx2 = gx * gx;
+    float p = 54.93807017f * gx2;
+    p = (p - 19.4336293856f) * gx2 + 1.0f;
+    return s.f * p;
+}
+/*
+ * __attribute__((section(".itcm"))) float _sin2(float index) { // index from 0 to 1 only
 // 6 multiplication
   float const x=index-0.5f;
   float const x2=x*x;
   return x * (-6.28308759f +x2*(41.33318714f + x2*(-81.39900318f + x2*(74.66885164f - x2*33.1532588f))));
-}
+}*/
 inline float _sin_positiv_loop(float index) { // positive index only
     return _sin(wrap(index));
 }
@@ -517,9 +506,9 @@ void init_variables() {
     for (i=0; i<nb_drunk_attractor; i++) { g_drunk_lfo[i] = _rnd_f(); }
 
     for (i=0; i<nb_voice; i++) {
-		init_table_f_0(8,  allvoice[i].v_VCO_last[0]);
-		init_table_f_0(8,  allvoice[i].v_VCO_last[1]);
-		init_table_f_0(8,  allvoice[i].v_VCO_last[2]);
+		init_table_f_0(16,  allvoice[i].v_VCO_last[0]);
+		init_table_f_0(16,  allvoice[i].v_VCO_last[1]);
+		init_table_f_0(16,  allvoice[i].v_VCO_last[2]);
 		init_table_f_0(3,  allvoice[i].v_VCO_phase);
         allvoice[i].v_VCO_last[0][1] = _rnd_f();
         allvoice[i].v_VCO_last[1][1] = _rnd_f();

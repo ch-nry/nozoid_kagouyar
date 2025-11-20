@@ -72,7 +72,15 @@ void UsbCallback(uint8_t* buf, uint32_t* len)
     {
     }
 }
-
+/*
+static inline float sign(float x) {
+    union { float f; uint32_t u; } v = { x };
+    v.u = (v.u & 0x80000000) | 0x3F800000; // bit de signe + 1.0
+    return v.f;
+}*/
+/*
+static inline float sign(float x) { return (x > 0.0f) - (x < 0.0f); }
+*/
 /*inline float fast_sin(const float x) {
 	const float hx = 0.5f-x;
 	const float gx = 0.25f - fabsf(hx);
@@ -86,6 +94,12 @@ inline float bof_sin(const float x) {
 	return sign(hx)*(54.93807017*gx2*gx2 - 19.4336293856*gx2+1.f);
 }
 
+/*
+static inline int _floor(float x) {
+	return (int) x - (x < (int) x);
+	//return (floorf(x));
+}*/
+/*
 static inline float _sin(float x)
 {
     float hx = 0.5f - x;                     // hx ∈ [-0.5, +0.5]
@@ -100,6 +114,40 @@ static inline float _sin(float x)
     return r.f;
 }
 */
+/*inline float _cos2(float index) { // index from 0 to 1 only
+// 6 multiplications
+  float const x=index-0.5f;
+  float const x2=x*x;
+  return -0.99999944f + x2 * (19.73903275f + x2 * (-64.93054874f + x2 * (85.29509341f + x2 * (-58.90779707f + x2 * 21.27414825f))));
+}*/
+/*
+// sign() sans branche, sans comparaison, 100% bitwise
+__attribute__((section(".itcm")))  static inline float fast_sign(float x) {
+    union { float f; uint32_t u; } v = { x };
+    v.u = (v.u & 0x80000000) | 0x3F800000; // bit de signe + 1.0
+    return v.f;
+}
+*/
+
+
+/*
+static inline float _abs(float x) {
+    union { float f; uint32_t u; } v = { x };
+    v.u &= 0x7FFFFFFF;
+    return v.f;
+}*/
+
+// abs() sans branche, sans lib
+__attribute__((section(".itcm")))  static inline float fast_abs(float x) {
+    union { float f; uint32_t u; } v = { x };
+    v.u &= 0x7FFFFFFF;
+    return v.f;
+}
+
+/*
+inline float sign(float x) {
+	return copysignf(1.0f, x);
+}*/
 
     // USB
     //hw.seed.usb_handle.Init(UsbHandle::FS_INTERNAL);
