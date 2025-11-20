@@ -109,18 +109,9 @@ __attribute__((hot))  float VCO_WF(uint32_t VCO_WF, float VCO_phase, float incre
 		fa = fa*0.5f + 0.5f; // on remet de 0 a 1
 		out=mix(_sin(VCO_phase), _sin(fa), fminf(PWM_local * 10.f, 1.f));
         break;
-case 12 :  // 3 bis : squarenoise
-		{
-			// Phase
-			v_VCO_last[0] += increment / 5000.f;
-			if (v_VCO_last[0] >= 1.f) v_VCO_last[0] -= 1.f;
-			float phase = v_VCO_last[0]; // on utilise cete variable comme phase, pour pouvoir l'incrementer plus lentement
-			uint32_t t = (uint32_t)(phase * 65536.f); // time
-			uint32_t p = ((uint32_t)(PWM_local * 1024.f)) & 1023; // parametter 0..1023
-			uint32_t v = p*(t>>6|t|t>>(t>>16))+(7&t>>11); // out
-			v &= 127;
-			return (v / 63.5f) - 1.f;
-		}
+case 12 :  // 3 bis : quantizer la phase : floorf(phase * steps) / steps;
+		phase2 = floorf(1./(0.3*PWM_local+0.001f));
+        out = fast_cos_loop( floorf(VCO_phase * phase2)/phase2);
         break;
     case 13 : // 4 bis : sawnoise
 		if ( VCO_phase < increment) {
@@ -129,7 +120,7 @@ case 12 :  // 3 bis : squarenoise
 		}
 		out = v_VCO_last[0] + VCO_phase * ( v_VCO_last[1] - v_VCO_last[0]);
         break;
-    case 14 : // 5 bis :
+    case 14 : // 5 bis : interpol 4 sur des valeur rnd
 		fa = wrap(3.f * VCO_phase);
 		if( fa < increment * 3.f) {
 			v_VCO_last[3] = v_VCO_last[2];
@@ -143,15 +134,24 @@ case 12 :  // 3 bis : squarenoise
 		}
 		out = interpol4(fa, v_VCO_last[3], v_VCO_last[2], v_VCO_last[1], v_VCO_last[0]);
         break;
-    case 15 : // 6 bis : quantizer la phase : floorf(phase * steps) / steps;
-		phase2 = floorf(1./(0.3*PWM_local+0.001f));
-        out = fast_cos_loop( floorf(VCO_phase * phase2)/phase2);
+    case 15 : // 3 bis : squarenoise
+		{
+			// Phase
+			v_VCO_last[0] += increment / 5000.f;
+			if (v_VCO_last[0] >= 1.f) v_VCO_last[0] -= 1.f;
+			float phase = v_VCO_last[0]; // on utilise cete variable comme phase, pour pouvoir l'incrementer plus lentement
+			uint32_t t = (uint32_t)(phase * 65536.f); // time
+			uint32_t p = ((uint32_t)(PWM_local * 1024.f)) & 1023; // parametter 0..1023
+			uint32_t v = p*(t>>6|t|t>>(t>>16))+(7&t>>11); // out
+			v &= 127;
+			return (v / 63.5f) - 1.f;
+		}
         break;
-    case 16 : // 7 bis :  table rnd et boucler dessus :
+    case 16 : // 7 bis :  table rnd et boucler dessus : TODO : trouver un moyen pour que l'amplitude ne basisse pas a faible mvt
 		fa = 8.f * VCO_phase;
 		ua = (int)fa;
-		if( wrap(fa) < increment*8.f) { v_VCO_last[ua] = mix(v_VCO_last[ua], 2.f * _rnd_f() -1.f, PWM_local*PWM_local); }
-		out = interpol4(wrap(fa), v_VCO_last[ua], v_VCO_last[(ua+1)%8], v_VCO_last[(ua+2)%8], v_VCO_last[(ua+3)%8]);
+		if( wrap(fa) < increment*8.f) { v_VCO_last[ua] = wrap2(v_VCO_last[ua] + (_rnd_f() -0.5f) * PWM_local); v_VCO_last[ua+8] = fast_cos(v_VCO_last[ua] );}
+		out = interpol4(wrap(fa), v_VCO_last[ua+8], v_VCO_last[(ua+1)%8+8], v_VCO_last[(ua+2)%8+8], v_VCO_last[(ua+3)%8+8]);
         break;
     case 17 : // 8 bis
 		fa = (wrap(4.f*VCO_phase)) ;

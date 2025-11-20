@@ -299,7 +299,7 @@ struct voice
 
     // VCO*
 	float v_VCO_phase[3] = {0};
-	float v_VCO_last[3][8] = {0};
+	float v_VCO_last[3][16] = {0};
     volatile float v_VCO1_pitch = 0.f;
 
 // MIX
