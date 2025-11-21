@@ -338,7 +338,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		sound_out = delay1_read_f(5.f + 5000.f * param1M);
 		tmp =  -0.9f*wet  * sound_out + sound_in;
 		delay1_write_f(tmp);
-		sound_out += tmp * wet;
+		sound_out = sound_in + tmp * wet;
 		return sound_out;
 	case 12: // RING 2 : OK
 		//WET : amplitude du ring; param1 : frequence du ring; param2 : modulation du wet
@@ -352,7 +352,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		_fonepole(g_effect1_param_filter, sound_in, 0.01f);
 		sound_out = sound_in + 8.f * param1 * param1 * (sound_in - g_effect1_param_filter);
 		sound_out = _tanh_clip( (1.f + 15.f*wetM*wetM) * sound_out);
-		return mix(sound_in, sound_out*0.5f, fminf(1.f,10.f*wetM));
+		return mix(sound_in, sound_out*0.8f, fminf(1.f,4.f*wetM));
 	case 14 : //rien, utilisé lors du changement d'effet
 		g_effect1_phase = 0.;
 		g_effect1_last_out = 0.f;
@@ -441,13 +441,13 @@ inline float effect2(float sound_in) { //, float param, float param1) {
 		g_delay_effect2.Write(tmp);
 		return sound_in + tmp;
 	case 8: // BITCRUSH 2 : downsampler : ok
-	    g_effect2_phase +=  CV2freq(125.f - param1*100.f) * OneOverSR;
+	    g_effect2_phase +=  CV2freq(125.f - wet*100.f) * OneOverSR;
         tmp = wrap(g_effect2_phase);
 		if ( tmp < g_effect2_phase ) { // reset de phase
 			g_Effect2_filtre = sound_in;
 		}
 		g_effect2_phase = tmp;
-		sound_out = mix(sound_in, g_Effect2_filtre, param);
+		sound_out = mix(sound_in, g_Effect2_filtre, (fminf(1.f,10.f*wet)));
 		return sound_out;
 	case 9: // doepler 2: ok
         g_delay_effect2.Write(sound_in);
