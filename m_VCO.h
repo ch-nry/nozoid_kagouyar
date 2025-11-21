@@ -109,7 +109,7 @@ __attribute__((hot))  float VCO_WF(uint32_t VCO_WF, float VCO_phase, float incre
 		fa = fa*0.5f + 0.5f; // on remet de 0 a 1
 		out=mix(_sin(VCO_phase), _sin(fa), fminf(PWM_local * 10.f, 1.f));
         break;
-case 12 :  // 3 bis : quantizer la phase : floorf(phase * steps) / steps;
+	case 12 :  // 3 bis : quantizer la phase : floorf(phase * steps) / steps;
 		phase2 = floorf(1./(0.3*PWM_local+0.001f));
         out = fast_cos_loop( floorf(VCO_phase * phase2)/phase2);
         break;
@@ -120,7 +120,7 @@ case 12 :  // 3 bis : quantizer la phase : floorf(phase * steps) / steps;
 		}
 		out = v_VCO_last[0] + VCO_phase * ( v_VCO_last[1] - v_VCO_last[0]);
         break;
-    case 14 : // 5 bis : interpol 4 sur des valeur rnd
+    case 14 : // 5 bis : interpol 4 sur des valeur rnd : TODO
 		fa = wrap(3.f * VCO_phase);
 		if( fa < increment * 3.f) {
 			v_VCO_last[3] = v_VCO_last[2];
@@ -147,29 +147,22 @@ case 12 :  // 3 bis : quantizer la phase : floorf(phase * steps) / steps;
 			return (v / 63.5f) - 1.f;
 		}
         break;
-    case 16 : // 7 bis :  table rnd et boucler dessus : TODO : trouver un moyen pour que l'amplitude ne basisse pas a faible mvt
+    case 16 : // 7 bis :  table rnd et boucler dessus
 		fa = 8.f * VCO_phase;
 		ua = (int)fa;
-		if( wrap(fa) < increment*8.f) { v_VCO_last[ua] = wrap2(v_VCO_last[ua] + (_rnd_f() -0.5f) * PWM_local); v_VCO_last[ua+8] = fast_cos(v_VCO_last[ua] );}
+		if( wrap(fa) < increment*8.f) { v_VCO_last[ua] = wrap2(v_VCO_last[ua] + (_rnd_f() -0.5f) * PWM_local *PWM_local); v_VCO_last[ua+8] = fast_cos(v_VCO_last[ua] );}
 		out = interpol4(wrap(fa), v_VCO_last[ua+8], v_VCO_last[(ua+1)%8+8], v_VCO_last[(ua+2)%8+8], v_VCO_last[(ua+3)%8+8]);
         break;
-    case 17 : // 8 bis
-		fa = (wrap(4.f*VCO_phase)) ;
+    case 17 : // 8 bis : sinus map + interpol 4
+        fa = (wrap(4.f*VCO_phase));
         if ( fa < 4.f*increment ) {
-            tmp = v_VCO_last[1];
-            if ((tmp <= 0)||(tmp>=1)) tmp = _rnd_f(); //on peut avoir des nb qui sont en dehors des paramettres de la logistic, en venant d'une autre forme d'onde
-            v_VCO_last[0] = tmp;
-            PWM_local =  PWM_local*PWM_local;
-            tmp *= (3.7f+0.5f*PWM_local) * (1.f-tmp);
-            v_VCO_last[1] = tmp;
-
-   			v_VCO_last[2] = v_VCO_last[3];
-			v_VCO_last[3] = v_VCO_last[4];
-			v_VCO_last[4] = v_VCO_last[5];
-			v_VCO_last[5] = v_VCO_last[1];
+            PWM_local =  (0.44f+ PWM_local*0.06f);
+			v_VCO_last[3] = v_VCO_last[2];
+			v_VCO_last[2] = v_VCO_last[1];
+			v_VCO_last[1] = 2.f*v_VCO_last[0]-1.f;
+            v_VCO_last[0]  = _sin_loop(PWM_local*v_VCO_last[0]);
         }
-        out = interpol4(fa, v_VCO_last[2], v_VCO_last[3], v_VCO_last[4], v_VCO_last[5]);
-        out = 2.f*out -1.f;
+        out = interpol4(fa, v_VCO_last[3], v_VCO_last[2], v_VCO_last[1], 2.f*v_VCO_last[0]-1.f);
         break;
     }
     return out;
