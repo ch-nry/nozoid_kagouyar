@@ -113,14 +113,14 @@ __attribute__((hot))  float VCO_WF(uint32_t VCO_WF, float VCO_phase, float incre
 		phase2 = floorf(1./(0.3*PWM_local+0.001f));
         out = fast_cos_loop( floorf(VCO_phase * phase2)/phase2);
         break;
-    case 13 : // 4 bis : sawnoise
+    case 13 : // 4 bis : sawnoise :
 		if ( VCO_phase < increment) {
 			v_VCO_last[0] = mix(v_VCO_last[0], _rnd_f() * -1, PWM_local*PWM_local);
 			v_VCO_last[1] =  mix(v_VCO_last[1], _rnd_f(), PWM_local*PWM_local);
 		}
 		out = v_VCO_last[0] + VCO_phase * ( v_VCO_last[1] - v_VCO_last[0]);
         break;
-    case 14 : // 5 bis : interpol 4 sur des valeur rnd : TODO
+    case 14 : // 5 bis : interpol 4 sur des valeur rnd
 		fa = wrap(3.f * VCO_phase);
 		if( fa < increment * 3.f) {
 			v_VCO_last[3] = v_VCO_last[2];
