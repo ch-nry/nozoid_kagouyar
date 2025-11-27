@@ -101,30 +101,26 @@ void leds_mode_normal() {
 		hw.led_driver_.SetLed_ch(LED_CV1,  (float)(0.55f + g_Modulation[CV1_OUT]*0.45f));
 		hw.led_driver_.SetLed_ch(LED_CV2,  (float)(0.55f + g_Modulation[CV2_OUT]*0.45f));
 	} else {
+		hw.led_driver_.SetLed_ch(LED_CV1, 0.f );
+		hw.led_driver_.SetLed_ch(LED_CV2, 0.f );
 		switch (curent_config.c_KEYBOARD_octave+3) {
 		case 0 :
-			hw.led_driver_.SetLed_ch(LED_CV1, 0.f);
 			hw.led_driver_.SetLed_ch(LED_CV2, 1.f);
 		break;
 		case 1 :
-			hw.led_driver_.SetLed_ch(LED_CV1, 0.0f);
 			hw.led_driver_.SetLed_ch(LED_CV2, 0.5f);
 		break;
 		case 2 :
-			hw.led_driver_.SetLed_ch(LED_CV1, 0.f);
 			hw.led_driver_.SetLed_ch(LED_CV2, 0.1f);
 		break;
 		case 3 :
 			hw.led_driver_.SetLed_ch(LED_CV1, 0.1f);
-			hw.led_driver_.SetLed_ch(LED_CV2, 0.0f);
 		break;
 		case 4 :
 			hw.led_driver_.SetLed_ch(LED_CV1, 0.5f);
-			hw.led_driver_.SetLed_ch(LED_CV2, 0.f);
 		break;
 		case 5 :
 			hw.led_driver_.SetLed_ch(LED_CV1, 1.f);
-			hw.led_driver_.SetLed_ch(LED_CV2, 0.f);
 		break;
 		}
 	}
