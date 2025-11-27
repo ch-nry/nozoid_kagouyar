@@ -869,19 +869,12 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
 					g_affiche_version = 1;
 				break;
 				case 4:
-				break;
 				case 5:
-				break;
 				case 6:
-				break;
 				case 7:
-				break;
 				case 8:
-				break;
 				case 9:
-				break;
 				case 10:
-				break;
 				case 11:
 				break;
 				case 12:
@@ -969,13 +962,9 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
                 curent_config.c_VCF1_MOD2_TYPE = 1;
             break;
         case LFO1_MOD :
-            curent_config.c_Modulation_Type[LFO1_MOD] = switch_keyboard;
-            break;
         case LFO2_MOD :
-            curent_config.c_Modulation_Type[LFO2_MOD] = switch_keyboard;
-            break;
         case LFO3_MOD :
-            curent_config.c_Modulation_Type[LFO3_MOD] = switch_keyboard;
+            curent_config.c_Modulation_Type[switch_modulation] = switch_keyboard;
             break;
         }
         return 1;
