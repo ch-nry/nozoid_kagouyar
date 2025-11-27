@@ -15,20 +15,19 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
-
 float g_LFO1_noise[4]; // pour le noise avec interpolation cubic
 float g_LFO1_AR[5]; // nb_voice+1
 float g_phase_LFO1_div;
 uint32_t g_LFO1_last_step, g_LFO1_reset;
 
-float LFO1_div(uint32_t OUT, uint32_t source_addresse, float div_factor, float oneoverdiv_factor) {
+float LFO1_div(uint32_t OUT, uint32_t source_addresse, float div_factor) {
 		uint32_t tmp = 0;
 		if (g_Modulation_Reset[source_addresse]) {
 			g_phase_LFO1_div++;
 			if ( g_phase_LFO1_div >= div_factor) { g_phase_LFO1_div = 0; tmp = 1; }
 		}
 		g_Modulation_Reset[OUT] = tmp;
-		return ( g_phase_LFO1_div + g_Modulation_Phase[source_addresse]) * oneoverdiv_factor;
+		return ( g_phase_LFO1_div + g_Modulation_Phase[source_addresse]) /div_factor;
 }
 
 float LFO1_mul(uint32_t OUT, uint32_t source_addresse, float mul_factor) {
@@ -234,68 +233,14 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
             if ((source_addresse != NONE_OUT) && (source_addresse != LFO1_OUT) && (source_addresse != LFO1_OUT + modulation_source_last)) {
 				// clock divid/ mult : FQ : frequency divider or multiplier; MOD: add an offset to the input phase.
                 float const tmp = fq * 8.99f;
-                switch ((uint32_t) tmp + curent_config.c_LFO1_RANGE*4) {
-                    case 0 : // div
-                    phase = LFO1_div( LFO1_OUT, source_addresse, 128.f, 1.f/128.f);
-                    break;
-                    case 1 : // div
-                    phase = LFO1_div( LFO1_OUT, source_addresse, 64.f, 1.f/64.f);
-                    break;
-                    case 2 : // div
-                    phase = LFO1_div( LFO1_OUT, source_addresse, 32.f, 1.f/32.f);
-                    break;
-                    case 3 : // div 16
-                    phase = LFO1_div( LFO1_OUT, source_addresse, 16.f, 1.f/16.f);
-                    break;
-                    case 4 : // div 8
-                    phase = LFO1_div( LFO1_OUT, source_addresse, 8.f, 0.125f);
-                    break;
-                    case 5 : // div 4
-                    phase = LFO1_div( LFO1_OUT, source_addresse, 4.f,0.25f);
-                    break;
-                    case 6 : // div 3
-                    phase = LFO1_div( LFO1_OUT, source_addresse, 3.f,1.f/3.f);
-                    break;
-                    case 7 : // div 2
-                    phase = LFO1_div( LFO1_OUT, source_addresse, 2.f,0.5f);
-                    break;
-                    case 8 : // Id
-						phase = LFO1_mul( LFO1_OUT, source_addresse, 1.f);
-                    break;
-                    case 9 : // mult 2
-						phase = LFO1_mul( LFO1_OUT, source_addresse, 2.f);
-                    break;
-                    case 10 : // mult 3
-						phase = LFO1_mul( LFO1_OUT, source_addresse, 3.f);
-                    break;
-                    case 11 : // mult 4
-						phase = LFO1_mul( LFO1_OUT, source_addresse, 4.f);
-                    break;
-                    case 12 : // mult 8
-						phase = LFO1_mul( LFO1_OUT, source_addresse, 8.f);
-                    break;
-                     case 13 : // mult
-						phase = LFO1_mul( LFO1_OUT, source_addresse, 16.f);
-                    break;
-                     case 14 : // mult
-						phase = LFO1_mul( LFO1_OUT, source_addresse, 32.f);
-                    break;
-                     case 15 : // mult
-						phase = LFO1_mul( LFO1_OUT, source_addresse, 64.f);
-                    break;
-                     case 16 : // mult
-						phase = LFO1_mul( LFO1_OUT, source_addresse, 128.f);
-                    break;
-                }
+                uint32_t range = (uint32_t) tmp + curent_config.c_LFO1_RANGE*4;
+                if(range<8)  phase = LFO1_div( LFO1_OUT, source_addresse, table_LFO_FQ_DIV[range]);
+                else phase = LFO1_mul( LFO1_OUT, source_addresse, table_LFO_FQ_MUL[range-8]);
                 phase = wrap(phase + mix_factor);
                 g_Modulation_Phase[LFO1_OUT] = phase;
                 modulation = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
                 break;
-            } else {//automodulation donc autre algo : on change juste le PWM
-
-				// TODO : remplacer ca par un multoplication / division de la fq des lfo par des umtiples de 2
-
-                WF1 = mix_factor + mix_factor - 1.f;
+            } else {//automodulation : on multiplie ou divise la frequence actuel, par multiple entrier
 
                 phase = g_Modulation_Phase[LFO1_OUT] + increment;                               // calcul de la phase
                 overflow_phase = (int)phase;
@@ -303,21 +248,9 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
                 g_Modulation_Reset[LFO1_OUT] = overflow_phase;
                 g_Modulation_Phase[LFO1_OUT] = phase;
 
-                if (WF1 > 0.f) {
-                    phase *= mix(1.f, phase, WF1);
-                    phase *= mix(1.f, phase, WF1);
-                    phase *= mix(1.f, phase, WF1);
-                    phase *= mix(1.f, phase, WF1);
-                }
-                else {
-                    WF1 = -WF1;
-                    phase = 1.f - phase;
-                    phase *= mix(1.f, phase, WF1);
-                    phase *= mix(1.f, phase, WF1);
-                    phase *= mix(1.f, phase, WF1);
-                    phase *= mix(1.f, phase, WF1);
-                    phase = 1.f - phase;
-                }
+				// calcul de la phase aparente a cause de la modulation
+				phase = wrap(2.f*phase);
+
                 modulation = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
                 break;
             }

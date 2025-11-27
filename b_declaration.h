@@ -113,6 +113,10 @@ const uint32_t table_midi_order[] = {k_VCO1_fq,  k_VCO1_wfm, k_VCO1_mod1, k_VCO1
 	 k_LFO1_mod, k_LFO4_fq, k_LFO2_fq, k_LFO2_mod, k_LFO5_fq, k_LFO3_fq, k_LFO3_mod, k_LFO6_fq, k_LFO7_fq, k_LFO7_wf,
 	 k_LFO7_sym, k_EFFECT1_wet, k_EFFECT1_p1, k_EFFECT1_p2, k_EFFECT2_wet, k_EFFECT2_p1, k_VCF2_fq, k_VCF2_mod, k_GAIN};
 
+//pour le LFO SYNC
+const float table_LFO_FQ_DIV[] = { 128.f,64.f,32.f,16.f,8.f,4.f,3.f,2.f};
+const float table_LFO_FQ_MUL[] = { 1.f,2.f,3.f,4.f,8.f,16.f,32.f,64.f,128.f};
+
 // potentiomettres:
 __attribute__((section(".dtcmram_bss"))) volatile float g_pot_increment[nb_CV] = {0.0f}; // utilisé pour le filtre IIR en audio
 __attribute__((section(".dtcmram_bss"))) volatile float g_pot_audio[nb_CV] = {0.0f}; // valeur des pots mais filtré en audio
