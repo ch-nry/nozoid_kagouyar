@@ -245,7 +245,7 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
             if ((source_addresse != NONE_OUT) && (source_addresse != LFO1_OUT) && (source_addresse != LFO1_OUT + modulation_source_last)) {
 				// clock divid/ mult : FQ : frequency divider or multiplier; MOD: add an offset to the input phase.
                 float const tmp = fq * 8.99f;
-                uint32_t range = (uint32_t) tmp + curent_config.c_LFO1_RANGE*4;
+                uint32_t range = (uint32_t) tmp + MIN(2,curent_config.c_LFO1_RANGE)*4;
                 if(range<8)  phase = LFO1_div( LFO1_OUT, source_addresse, table_LFO_FQ_DIV[range]);
                 else phase = LFO1_mul( LFO1_OUT, source_addresse, table_LFO_FQ_MUL[range-8]);
                 phase = wrap(phase + mix_factor);
@@ -261,7 +261,7 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
 
 				// calcul de la phase aparente a cause de la modulation
 				float const tmp = mix_factor * 8.99f;
-                uint32_t range = (uint32_t) tmp + curent_config.c_LFO1_RANGE*4;
+                uint32_t range = (uint32_t) tmp + MAX(2,curent_config.c_LFO1_RANGE)*4;
                 if(range<8)  phase = LFO1_div_auto( LFO1_OUT, table_LFO_FQ_DIV[range]);
                 else phase = LFO1_mul_auto( LFO1_OUT, table_LFO_FQ_MUL[range-8]);
                 modulation = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
