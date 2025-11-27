@@ -261,7 +261,7 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
 
 				// calcul de la phase aparente a cause de la modulation
 				float const tmp = mix_factor * 8.99f;
-                uint32_t range = (uint32_t) tmp + MAX(2,curent_config.c_LFO1_RANGE)*4;
+                uint32_t range = (uint32_t) tmp + 4; // on n'utilise pas le lfo_range pour augmenter la course de ce paramettre, car on l'utilise deja pour la frequence du LFO
                 if(range<8)  phase = LFO1_div_auto( LFO1_OUT, table_LFO_FQ_DIV[range]);
                 else phase = LFO1_mul_auto( LFO1_OUT, table_LFO_FQ_MUL[range-8]);
                 modulation = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
