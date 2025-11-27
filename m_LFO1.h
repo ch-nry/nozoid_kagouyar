@@ -234,33 +234,57 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
             if ((source_addresse != NONE_OUT) && (source_addresse != LFO1_OUT) && (source_addresse != LFO1_OUT + modulation_source_last)) {
 				// clock divid/ mult : FQ : frequency divider or multiplier; MOD: add an offset to the input phase.
                 float const tmp = fq * 8.99f;
-                switch ((uint32_t) tmp) { // TODO : utiliser le LFO RANGE pour changer les diviseurs / multiplicateurs
-                    case 0 : // div 8
+                switch ((uint32_t) tmp + curent_config.c_LFO1_RANGE*4) {
+                    case 0 : // div
+                    phase = LFO1_div( LFO1_OUT, source_addresse, 128.f, 1.f/128.f);
+                    break;
+                    case 1 : // div
+                    phase = LFO1_div( LFO1_OUT, source_addresse, 64.f, 1.f/64.f);
+                    break;
+                    case 2 : // div
+                    phase = LFO1_div( LFO1_OUT, source_addresse, 32.f, 1.f/32.f);
+                    break;
+                    case 3 : // div 16
+                    phase = LFO1_div( LFO1_OUT, source_addresse, 16.f, 1.f/16.f);
+                    break;
+                    case 4 : // div 8
                     phase = LFO1_div( LFO1_OUT, source_addresse, 8.f, 0.125f);
                     break;
-                    case 1 : // div 4
+                    case 5 : // div 4
                     phase = LFO1_div( LFO1_OUT, source_addresse, 4.f,0.25f);
                     break;
-                    case 2 : // div 3
+                    case 6 : // div 3
                     phase = LFO1_div( LFO1_OUT, source_addresse, 3.f,1.f/3.f);
                     break;
-                    case 3 : // div 2
+                    case 7 : // div 2
                     phase = LFO1_div( LFO1_OUT, source_addresse, 2.f,0.5f);
                     break;
-                    case 4 : // Id
+                    case 8 : // Id
 						phase = LFO1_mul( LFO1_OUT, source_addresse, 1.f);
                     break;
-                    case 5 : // mult 2
+                    case 9 : // mult 2
 						phase = LFO1_mul( LFO1_OUT, source_addresse, 2.f);
                     break;
-                    case 6 : // mult 3
+                    case 10 : // mult 3
 						phase = LFO1_mul( LFO1_OUT, source_addresse, 3.f);
                     break;
-                    case 7 : // mult 4
+                    case 11 : // mult 4
 						phase = LFO1_mul( LFO1_OUT, source_addresse, 4.f);
                     break;
-                    case 8 : // mult 8
+                    case 12 : // mult 8
 						phase = LFO1_mul( LFO1_OUT, source_addresse, 8.f);
+                    break;
+                     case 13 : // mult
+						phase = LFO1_mul( LFO1_OUT, source_addresse, 16.f);
+                    break;
+                     case 14 : // mult
+						phase = LFO1_mul( LFO1_OUT, source_addresse, 32.f);
+                    break;
+                     case 15 : // mult
+						phase = LFO1_mul( LFO1_OUT, source_addresse, 64.f);
+                    break;
+                     case 16 : // mult
+						phase = LFO1_mul( LFO1_OUT, source_addresse, 128.f);
                     break;
                 }
                 phase = wrap(phase + mix_factor);
