@@ -29,10 +29,22 @@ float LFO1_div(uint32_t OUT, uint32_t source_addresse, float div_factor) {
 		g_Modulation_Reset[OUT] = tmp;
 		return ( g_phase_LFO1_div + g_Modulation_Phase[source_addresse]) /div_factor;
 }
-
 float LFO1_mul(uint32_t OUT, uint32_t source_addresse, float mul_factor) {
 	float phase = g_Modulation_Phase[source_addresse] * mul_factor;
 	g_Modulation_Reset[OUT] = (phase < g_Modulation_Phase[source_addresse]);
+	return phase;
+}
+
+float LFO1_div_auto(uint32_t OUT, float div_factor) {
+		if (g_Modulation_Reset[OUT]) {
+			g_phase_LFO1_div++;
+			if ( g_phase_LFO1_div >= div_factor) { g_phase_LFO1_div = 0; }
+		}
+		return ( g_phase_LFO1_div + g_Modulation_Phase[OUT]) /div_factor;
+}
+
+float LFO1_mul_auto(uint32_t OUT, float mul_factor) {
+	float phase = wrap(g_Modulation_Phase[OUT] * mul_factor);
 	return phase;
 }
 
@@ -241,7 +253,6 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
                 modulation = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
                 break;
             } else {//automodulation : on multiplie ou divise la frequence actuel, par multiple entrier
-
                 phase = g_Modulation_Phase[LFO1_OUT] + increment;                               // calcul de la phase
                 overflow_phase = (int)phase;
                 phase -= overflow_phase;
@@ -249,8 +260,10 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
                 g_Modulation_Phase[LFO1_OUT] = phase;
 
 				// calcul de la phase aparente a cause de la modulation
-				phase = wrap(2.f*phase);
-
+				float const tmp = mix_factor * 8.99f;
+                uint32_t range = (uint32_t) tmp + curent_config.c_LFO1_RANGE*4;
+                if(range<8)  phase = LFO1_div_auto( LFO1_OUT, table_LFO_FQ_DIV[range]);
+                else phase = LFO1_mul_auto( LFO1_OUT, table_LFO_FQ_MUL[range-8]);
                 modulation = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
                 break;
             }
