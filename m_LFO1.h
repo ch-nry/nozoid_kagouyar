@@ -21,6 +21,22 @@ float g_LFO1_AR[5]; // nb_voice+1
 float g_phase_LFO1_div;
 uint32_t g_LFO1_last_step, g_LFO1_reset;
 
+float LFO1_div(uint32_t OUT, uint32_t source_addresse, float div_factor, float oneoverdiv_factor) {
+		uint32_t tmp = 0;
+		if (g_Modulation_Reset[source_addresse]) {
+			g_phase_LFO1_div++;
+			if ( g_phase_LFO1_div >= div_factor) { g_phase_LFO1_div = 0; tmp = 1; }
+		}
+		g_Modulation_Reset[OUT] = tmp;
+		return ( g_phase_LFO1_div + g_Modulation_Phase[source_addresse]) * oneoverdiv_factor;
+}
+
+float LFO1_mul(uint32_t OUT, uint32_t source_addresse, float mul_factor) {
+	float phase = g_Modulation_Phase[source_addresse] * mul_factor;
+	g_Modulation_Reset[OUT] = (phase < g_Modulation_Phase[source_addresse]);
+	return phase;
+}
+
 inline void LFO1(float const fq, float const mix_factor, float const increment) {
     float modulation = 0.f;
 
@@ -218,70 +234,33 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
             if ((source_addresse != NONE_OUT) && (source_addresse != LFO1_OUT) && (source_addresse != LFO1_OUT + modulation_source_last)) {
 				// clock divid/ mult : FQ : frequency divider or multiplier; MOD: add an offset to the input phase.
                 float const tmp = fq * 8.99f;
-                switch ((uint32_t) tmp) {
+                switch ((uint32_t) tmp) { // TODO : utiliser le LFO RANGE pour changer les diviseurs / multiplicateurs
                     case 0 : // div 8
-                        g_Modulation_Reset[LFO1_OUT] = 0;
-                        if (g_Modulation_Reset[source_addresse]) {
-                            g_phase_LFO1_div++;
-                            if ( g_phase_LFO1_div >= 8) {
-                                g_phase_LFO1_div = 0;
-                                g_Modulation_Reset[LFO1_OUT] = 1;
-                            }
-                        }
-                        phase = ( g_phase_LFO1_div + g_Modulation_Phase[source_addresse]) * 0.125f;
+                    phase = LFO1_div( LFO1_OUT, source_addresse, 8.f, 0.125f);
                     break;
                     case 1 : // div 4
-                        g_Modulation_Reset[LFO1_OUT] = 0;
-                        if (g_Modulation_Reset[source_addresse]) {
-                            g_phase_LFO1_div++;
-                            if ( g_phase_LFO1_div >= 4) {
-                                g_phase_LFO1_div = 0;
-                                g_Modulation_Reset[LFO1_OUT] = 1;
-                            }
-                        }
-                        phase = ( g_phase_LFO1_div + g_Modulation_Phase[source_addresse])*0.25f;
+                    phase = LFO1_div( LFO1_OUT, source_addresse, 4.f,0.25f);
                     break;
                     case 2 : // div 3
-                        g_Modulation_Reset[LFO1_OUT] = 0;
-                        if (g_Modulation_Reset[source_addresse]) {
-                            g_phase_LFO1_div++;
-                            if ( g_phase_LFO1_div >= 3) {
-                                g_phase_LFO1_div = 0;
-                                g_Modulation_Reset[LFO1_OUT] = 1;
-                            }
-                        }
-                        phase = ( g_phase_LFO1_div + g_Modulation_Phase[source_addresse])/3.0f;
+                    phase = LFO1_div( LFO1_OUT, source_addresse, 3.f,1.f/3.f);
                     break;
                     case 3 : // div 2
-                        g_Modulation_Reset[LFO1_OUT] = 0;
-                        if (g_Modulation_Reset[source_addresse]) {
-                            g_phase_LFO1_div++;
-                            if ( g_phase_LFO1_div >= 2) {
-                                g_phase_LFO1_div = 0;
-                                g_Modulation_Reset[LFO1_OUT] = 1;
-                            }
-                        }
-                        phase = ( g_phase_LFO1_div + g_Modulation_Phase[source_addresse])*0.5f;
+                    phase = LFO1_div( LFO1_OUT, source_addresse, 2.f,0.5f);
                     break;
                     case 4 : // Id
-                        g_Modulation_Reset[LFO1_OUT] = g_Modulation_Reset[source_addresse];
-                        phase = g_Modulation_Phase[source_addresse];
+						phase = LFO1_mul( LFO1_OUT, source_addresse, 1.f);
                     break;
                     case 5 : // mult 2
-                        phase = g_Modulation_Phase[source_addresse] * 2.f;
-                        g_Modulation_Reset[LFO1_OUT] = (phase < g_Modulation_Phase[source_addresse]);
+						phase = LFO1_mul( LFO1_OUT, source_addresse, 2.f);
                     break;
                     case 6 : // mult 3
-                        phase = g_Modulation_Phase[source_addresse] * 3.f;
-                        g_Modulation_Reset[LFO1_OUT] = (phase < g_Modulation_Phase[source_addresse]);
+						phase = LFO1_mul( LFO1_OUT, source_addresse, 3.f);
                     break;
                     case 7 : // mult 4
-                        phase = g_Modulation_Phase[source_addresse] * 4.f;
-                        g_Modulation_Reset[LFO1_OUT] = (phase < g_Modulation_Phase[source_addresse]);
+						phase = LFO1_mul( LFO1_OUT, source_addresse, 4.f);
                     break;
                     case 8 : // mult 8
-                        phase = g_Modulation_Phase[source_addresse] * 8.f;
-                        g_Modulation_Reset[LFO1_OUT] = (phase < g_Modulation_Phase[source_addresse]);
+						phase = LFO1_mul( LFO1_OUT, source_addresse, 8.f);
                     break;
                 }
                 phase = wrap(phase + mix_factor);
@@ -289,6 +268,9 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
                 modulation = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
                 break;
             } else {//automodulation donc autre algo : on change juste le PWM
+
+				// TODO : remplacer ca par un multoplication / division de la fq des lfo par des umtiples de 2
+
                 WF1 = mix_factor + mix_factor - 1.f;
 
                 phase = g_Modulation_Phase[LFO1_OUT] + increment;                               // calcul de la phase
@@ -440,6 +422,7 @@ inline void LFO4(float increment) {
     phase -= overflow_phase;
     g_Modulation_Reset[LFO4_OUT] = overflow_phase;
     g_Modulation_Phase_double[LFO4_OUT] = phase;
+    g_Modulation_Phase[LFO4_OUT] = phase; // on l'utilise aussi ailleur (pour la syncro)
 
     tmp = LFO_compute_WF(phase, curent_config.c_LFO4_WF, g_LFO4_noise, g_Modulation_Reset[LFO4_OUT]);
     g_Modulation[LFO4_OUT] = tmp;
