@@ -15,7 +15,8 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
-//#define proto2 // commenter pour la version final
+#define proto2 // commenter pour la version final
+//#define olivier
 
 // verifier les double promotion
 //-fno-strict-aliasing

@@ -776,8 +776,11 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
                 if (switch_keyboard < 9) curent_config.c_LFO4_WF = switch_keyboard + 9 * change_time;
                 else {
                     switch_keyboard -= 9;
-                    //if(change_time && (switch_keyboard==0)) curent_config.c_LFO4_RANGE = 4;
+                    #ifdef olivier
                     if((curent_config.c_LFO4_RANGE == (uint32_t)switch_keyboard) && (!change_time)) curent_config.c_LFO4_RANGE = 4;
+                    #else
+                    if(change_time && (switch_keyboard==0)) curent_config.c_LFO4_RANGE = 4;
+                    #endif
                     else curent_config.c_LFO4_RANGE = switch_keyboard;
                 }
             }
@@ -787,8 +790,11 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
                 if (switch_keyboard < 9) curent_config.c_LFO5_WF = switch_keyboard + 9 * change_time;
                 else {
                     switch_keyboard -= 9;
-                    //if(change_time && (switch_keyboard==0)) curent_config.c_LFO4_RANGE = 4;
+                    #ifdef olivier
                     if((curent_config.c_LFO5_RANGE == (uint32_t)switch_keyboard) && (!change_time)) curent_config.c_LFO5_RANGE = 4;
+                    #else
+                    if(change_time && (switch_keyboard==0)) curent_config.c_LFO5_RANGE = 4;
+					#endif
                     else curent_config.c_LFO5_RANGE = switch_keyboard;
                  }
             }
@@ -798,8 +804,11 @@ int keyboard_all() { // gere le clavier : change les configs si besion and retur
                 if (switch_keyboard < 9) curent_config.c_LFO6_WF = switch_keyboard + 9 * change_time;
                 else {
                     switch_keyboard -= 9;
-                    //if(change_time && (switch_keyboard==0)) curent_config.c_LFO4_RANGE = 4;
+                    #ifdef olivier
                     if((curent_config.c_LFO6_RANGE == (uint32_t)switch_keyboard) && (!change_time)) curent_config.c_LFO6_RANGE = 4;
+                    #else
+                    if(change_time && (switch_keyboard==0)) curent_config.c_LFO6_RANGE = 4;
+					#endif
                     else curent_config.c_LFO6_RANGE = switch_keyboard;
                  }
             }
