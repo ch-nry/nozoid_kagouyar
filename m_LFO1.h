@@ -242,6 +242,7 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
             }
             break;
         case LFO_SYNC : // on se syncronise sur la modulation extern,
+        // TODO : faut il actualiser les frequence seulement au reset?
             if ((source_addresse != NONE_OUT) && (source_addresse != LFO1_OUT) && (source_addresse != LFO1_OUT + modulation_source_last)) {
 				// clock divid/ mult : FQ : frequency divider or multiplier; MOD: add an offset to the input phase.
                 float const tmp = fq * 8.99f;
@@ -294,7 +295,7 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
                 float l_mix_factor;
                 if ((source_addresse != NONE_OUT) && (source_addresse != LFO1_OUT) && (source_addresse != LFO1_OUT + modulation_source_last))  { // pas automodulation
                     WF1 = g_Modulation[source_addresse];
-                    l_mix_factor = mix_factor;;
+                    l_mix_factor = mix_factor;
                 } else {
                     WF1 = 0.f;
 					l_mix_factor = 1.f-mix_factor;

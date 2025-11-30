@@ -278,7 +278,7 @@ float LFO_compute_WF(float phase, uint32_t WF, float *last, uint32_t reset) {
 		if ( reset ) { last[0] = last[2];  last[1] = -1 * _rnd_f() * sign(last[0]);  last[2] = -1 * _rnd_f() * sign(last[1]); }
 		if (tmp > phase) return mix(last[0], last[1], tmp);
 		else return mix(last[1], last[2], tmp);
-    case WF_square2:
+    case WF_square2: // TODO : BFF (mugler) avec nb de valeur out reglable?
        	tmp = wrap(2.f*phase);
 		if ( reset ) { last[0] = last[2];  last[1] = -1 * _rnd_f() * sign(last[0]);  last[2] = -1 * _rnd_f() * sign(last[1]); }
 		if (tmp > phase) return last[0];

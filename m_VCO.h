@@ -134,7 +134,7 @@ __attribute__((hot))  float VCO_WF(uint32_t VCO_WF, float VCO_phase, float incre
 		}
 		out = interpol4(fa, v_VCO_last[3], v_VCO_last[2], v_VCO_last[1], v_VCO_last[0]);
         break;
-    case 15 : // 3 bis : squarenoise
+    case 15 : // 3 bis : squarenoise : 8 bit melodic patern
 		{
 			// Phase
 			v_VCO_last[0] += increment / 5000.f;
