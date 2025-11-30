@@ -318,21 +318,21 @@ void leds_key_configuration(uint32_t my_menu_switch) { // led lorsque on appuie 
         if(curent_config.c_LFO4_WF<9) led_keyboard |= 1 << table_led_key[curent_config.c_LFO4_WF];
         else if ((curent_config.c_LFO4_WF<18)  &&  (g_led_blink>0))  led_keyboard |= 1 << table_led_key[curent_config.c_LFO4_WF-9];
         if(curent_config.c_LFO4_RANGE<4) led_keyboard |= 1 << table_led_key[9+curent_config.c_LFO4_RANGE];
-        else if ((curent_config.c_LFO4_RANGE==4)  &&  (g_led_blink>0)) led_keyboard |= 1 << table_led_key[9];
+        //else if ((curent_config.c_LFO4_RANGE==4)  &&  (g_led_blink>0)) led_keyboard |= 1 << table_led_key[9];
     break;
     case MENU_LFO5 :
         led_keyboard |= 1 << BIT_LED_MENU_LFO;
         if(curent_config.c_LFO5_WF<9) led_keyboard |= 1 << table_led_key[curent_config.c_LFO5_WF];
         else if ((curent_config.c_LFO5_WF<18)  &&  (g_led_blink>0))  led_keyboard |= 1 << table_led_key[curent_config.c_LFO5_WF-9];
         if(curent_config.c_LFO5_RANGE<4) led_keyboard |= 1 << table_led_key[9+curent_config.c_LFO5_RANGE];
-        else if ((curent_config.c_LFO5_RANGE==4)  &&  (g_led_blink>0)) led_keyboard |= 1 << table_led_key[9];
+        //else if ((curent_config.c_LFO5_RANGE==4)  &&  (g_led_blink>0)) led_keyboard |= 1 << table_led_key[9];
         break;
     case MENU_LFO6 :
         led_keyboard |= 1 << BIT_LED_MENU_LFO;
         if(curent_config.c_LFO6_WF<9) led_keyboard |= 1 << table_led_key[curent_config.c_LFO6_WF];
         else if ((curent_config.c_LFO6_WF<18)  &&  (g_led_blink>0))  led_keyboard |= 1 << table_led_key[curent_config.c_LFO6_WF-9];
         if(curent_config.c_LFO6_RANGE<4) led_keyboard |= 1 << table_led_key[9+curent_config.c_LFO6_RANGE];
-        else if ((curent_config.c_LFO6_RANGE==4)  &&  (g_led_blink>0)) led_keyboard |= 1 << table_led_key[9];
+        //else if ((curent_config.c_LFO6_RANGE==4)  &&  (g_led_blink>0)) led_keyboard |= 1 << table_led_key[9];
         break;
     case MENU_LFO7 :
         led_keyboard |= 1 << BIT_LED_MENU_LFO;
