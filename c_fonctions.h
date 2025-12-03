@@ -595,7 +595,7 @@ void random_config() {
     curent_config.c_EFFECT2_TYPE = _rnd_ui()%12;
 
     for (uint32_t i=0; i<VCF1_MOD1; i++) { // pour tout les VCO
-        curent_config.c_Modulation_Source[i] = table_VCO_Mod[_rnd_ui()%11]; // TODO test
+        curent_config.c_Modulation_Source[i] = table_VCO_Mod[_rnd_ui()%11];
         curent_config.c_Modulation_Type[i] = _rnd_ui()%modulation_type_last;
     }
 
