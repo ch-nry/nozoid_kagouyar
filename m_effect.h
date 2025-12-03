@@ -399,8 +399,7 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         return (sound_in + tmp*tmp*_sin_positiv_loop(1000.f + sound_in*fabsf(0.25*sound_in*tmp))) / (tmp*tmp + 1.f);
      case 2 : // BITCRUSH : OK
         wet = 0.01f + wet*0.99f;
-        sound_out = sound_in;
-        sound_out = floorf(sound_out/wet)*wet;
+        sound_out = floorf(sound_in/wet)*wet;
         return mix(sound_in, sound_out, fminf(1.f,10.f*wet));
     case 3: // auto doppler : on utilise le son comme temps de delay : OK
         g_delay_effect2.Write(sound_in);
