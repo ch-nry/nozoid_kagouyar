@@ -148,8 +148,16 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
 
                 float const WF = LFO_compute_WF(phase, curent_config.c_LFO1_WF, g_LFO1_noise, g_Modulation_Reset[LFO1_OUT]);
 
-                modulation = fminf(WF, WF1+2.f*(1.f-mix_factor));
-                modulation = fmaxf(modulation, WF1-2.f*(1.f-mix_factor));
+				if (source_addresse != NONE_OUT) {
+					modulation = fminf(WF, WF1+2.f*(1.f-mix_factor));
+					modulation = fmaxf(modulation, WF1-2.f*(1.f-mix_factor));
+				} else { // on met un algo completement diferent : bitcrush continue
+					WF1 = 2.f * WF1 + 1.001f; // pour ne jamais etre a zero a cause de la divisio
+					float wet = WF1*WF1;
+					modulation = floorf(0.5 + WF/wet)*wet;
+					modulation = mix(WF, modulation, fminf(1.f,100.f*wet));
+					// TODO : tester
+				}
             }
             break;
         case LFO_Fold : // fold : OK
@@ -242,7 +250,7 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
             }
             break;
         case LFO_SYNC : // on se syncronise sur la modulation extern,
-        // TODO : faut il actualiser les frequence seulement au reset?
+        // faut il actualiser les frequence seulement au reset?
             if ((source_addresse != NONE_OUT) && (source_addresse != LFO1_OUT) && (source_addresse != LFO1_OUT + modulation_source_last)) {
 				// clock divid/ mult : FQ : frequency divider or multiplier; MOD: add an offset to the input phase.
                 float const tmp = fq * 8.99f;
