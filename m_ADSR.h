@@ -15,8 +15,6 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
-// TODO : tester sensibilité a la velocity
-
 #define ADSR_overshotA 1.2f
 #define ADSR_overshotR -0.1f
 
@@ -93,7 +91,7 @@ float ADSR(uint32_t j) {
     ADSR_out = allvoice[j].v_ADSR_out;
 
     if ( ADSR_out >= allvoice[j].v_velocity) {
-        ADSR_out = allvoice[j].v_velocity;
+        //ADSR_out = allvoice[j].v_velocity;
         ADSR_mode = Decay;
     } else
         ADSR_out = fmaxf(0.f,ADSR_out);
