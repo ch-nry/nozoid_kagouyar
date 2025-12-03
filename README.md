@@ -15,6 +15,7 @@ new in version 2 :
 - change the automodulation in LFO SYNC : the modulation allow to divide or multiply frequency with factor 1,2,3,4,8.
 - when "LOAD" switch is press, the potentiometters are no more updated in order to allow cut transitions
 - add an option to use CV switch to control keyboard octave (LOAD + SAVE + KB13)
+- use midi note velocity for the amplitude of the note
 - The triangle VCO WF is more expressive
 - add a urve to VCF Q for better mapping
 - lots of "fine tuning"
