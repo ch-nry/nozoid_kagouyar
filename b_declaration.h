@@ -177,6 +177,10 @@ enum MOD_OUT {
     modulation_source_last
 };
 
+const int table_VCO_Mod[] = { VCO1_OUT, VCO2_OUT, VCO3_OUT,
+	ADSR_OUT, LFO1_OUT, LFO2_OUT, LFO3_OUT,
+    LFO4_OUT, LFO5_OUT, LFO6_OUT, LFO7_OUT};
+
 enum MOD_DESTINATION {
     VCO1_MOD1, VCO1_MOD2, VCO1_MOD3,
     VCO2_MOD1, VCO2_MOD2, VCO2_MOD3,

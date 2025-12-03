@@ -278,7 +278,7 @@ float LFO_compute_WF(float phase, uint32_t WF, float *last, uint32_t reset) {
 		if ( reset ) { last[0] = last[2];  last[1] = -1 * _rnd_f() * sign(last[0]);  last[2] = -1 * _rnd_f() * sign(last[1]); }
 		if (tmp > phase) return mix(last[0], last[1], tmp);
 		else return mix(last[1], last[2], tmp);
-    case WF_square2: // TODO : BFF (mugler) avec nb de valeur out reglable?
+    case WF_square2:
        	tmp = wrap(2.f*phase);
 		if ( reset ) { last[0] = last[2];  last[1] = -1 * _rnd_f() * sign(last[0]);  last[2] = -1 * _rnd_f() * sign(last[1]); }
 		if (tmp > phase) return last[0];
@@ -595,7 +595,7 @@ void random_config() {
     curent_config.c_EFFECT2_TYPE = _rnd_ui()%12;
 
     for (uint32_t i=0; i<VCF1_MOD1; i++) { // pour tout les VCO
-        curent_config.c_Modulation_Source[i] = _rnd_ui()%MIDI_modulation;
+        curent_config.c_Modulation_Source[i] = table_VCO_Mod[_rnd_ui()%11]; // TODO test
         curent_config.c_Modulation_Type[i] = _rnd_ui()%modulation_type_last;
     }
 
