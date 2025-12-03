@@ -303,7 +303,7 @@ struct voice
     volatile float v_pitch;
     volatile uint32_t v_GATE; // GATE on/off
     volatile uint32_t v_TRIG; // for the A/Decay
-    //float  v_velocity;
+    float  v_velocity;
 
     // VCO*
 	float v_VCO_phase[3] = {0};

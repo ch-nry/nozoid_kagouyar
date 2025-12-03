@@ -15,6 +15,8 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
+// TODO : tester sensibilité a la velocity
+
 #define ADSR_overshotA 1.2f
 #define ADSR_overshotR -0.1f
 
@@ -33,7 +35,7 @@ inline float ADSR_time2filter(float time) {
 float ADSR(uint32_t j) {
 	//float A = g_pot_audio[k_ADSR_a];
 	//float D = g_pot_audio[k_ADSR_d];
-	float const S = g_pot_audio[k_ADSR_s];// * allvoice[j].v_velocity;
+	float const S = g_pot_audio[k_ADSR_s] *  allvoice[j].v_velocity;
 	//float R = g_pot_audio[k_ADSR_r];
 
     float tmp=0.;
@@ -73,7 +75,7 @@ float ADSR(uint32_t j) {
     switch (ADSR_mode) {
     case Attack :
         tmp = g_pot_audio[k_ADSR_a];
-        ADSR_goal = ADSR_overshotA;
+        ADSR_goal = ADSR_overshotA * allvoice[j].v_velocity;
         break;
     case Decay :
         tmp = g_pot_audio[k_ADSR_d];
@@ -90,8 +92,8 @@ float ADSR(uint32_t j) {
     _fonepole(allvoice[j].v_ADSR_out, ADSR_goal, tmp ); // the core of the ADSR
     ADSR_out = allvoice[j].v_ADSR_out;
 
-    if ( ADSR_out >= 1.f ) {
-        ADSR_out = 1.f;
+    if ( ADSR_out >= allvoice[j].v_velocity) {
+        ADSR_out = allvoice[j].v_velocity;
         ADSR_mode = Decay;
     } else
         ADSR_out = fmaxf(0.f,ADSR_out);

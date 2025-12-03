@@ -422,7 +422,7 @@ void change_key(uint32_t current_key_bit) {
             pitch = i+12*curent_config.c_KEYBOARD_octave; //
             if(curent_config.c_KEYBOARD_toggle == 0) {  // mode normal
                 if ( (current_key_bit>>i) & 1 ) { // appuie sur la touche : note on
-                    add_voice(0, pitch);
+                    add_voice(0, pitch, 1.f);
                 }
                 else {
                     remove_voice(0, pitch); // on relache : note off
@@ -433,7 +433,7 @@ void change_key(uint32_t current_key_bit) {
                     if (test_voice(pitch))
                         remove_voice(0, pitch); // remove si la voie etait on
                     else
-                        add_voice(0, pitch); // on l'ajoute sinon
+                        add_voice(0, pitch, 1.f); // on l'ajoute sinon
                 }
             }
         }
@@ -1068,7 +1068,7 @@ void midi_in(uint32_t MIDI_data) {
                 // we have a full midi message
                 if ( ( g_MIDI_status == 0x90) &&  (MIDI_data2 != 0) ) // note on
                 {
-                    add_voice(1, MIDI_data1-60);//, (float)MIDI_data2/127.);
+                    add_voice(1, MIDI_data1-60, (float)MIDI_data2/127.);
                     //g_Modulation[MIDI_vel] = MIDI_data2;
                 }
                 if ( ( (g_MIDI_status == 0x90) &&  (MIDI_data2 == 0) ) || ( g_MIDI_status == 0x80 ) )
@@ -1138,7 +1138,7 @@ inline void compute_CV_in() {
 
     analog_gate = dsy_gpio_read(&gate_pin);
     if (g_analog_gate > analog_gate) remove_voice(2, 0);
-    if (g_analog_gate < analog_gate) add_voice(2, 0);
+    if (g_analog_gate < analog_gate) add_voice(2, 0, 1.f);
     g_analog_gate = analog_gate;
 }
 
