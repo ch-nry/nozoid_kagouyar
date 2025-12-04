@@ -9,10 +9,11 @@ new in version 2 :
 - twice more audio effect (via long click on the efect)
 - increase max cutoff of the main VCF
 - add a A/D mode in to the A/R
-- add a DJ mode to tha VCF2 filter (low/high on the same potentiometer)
-- add a very slow mode for les lfo4,5 and 6 (up to more than 2.5h period) 
-- change the LFO SYNC modulation : depending on the LFO Fq range, the divsion or multiplication goes from /128 to *128
-- change the automodulation in LFO SYNC : the modulation allow to divide or multiply frequency with factor 1,2,3,4,8.
+- add a DJ mode to the VCF2 filter (low/high on the same potentiometer)
+- add a very slow mode for the lfo4, 5 and 6 (up to more than 2.5h period) 
+- change the LFO SYNC modulation : The frequency division now depend on the LFO Fq range, the division or multiplication goes from /128 to *128
+- change the automodulation in LFO SYNC : the modulation potentiommeter allow to divide or multiply frequency with factor 1,2,3,4,8.
+- The LFO CLIP modulation have a new functionality when no modulation is set : the LFO waveform is cliped in various step (like a bitcrusher)
 - when "LOAD" switch is press, the potentiometters are no more updated in order to allow cut transitions
 - add an option to use CV switch to control keyboard octave (LOAD + SAVE + KB13)
 - use midi note velocity for the amplitude of the note
