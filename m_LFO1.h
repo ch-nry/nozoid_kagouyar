@@ -153,7 +153,7 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
 					modulation = fmaxf(modulation, WF1-2.f*(1.f-mix_factor));
 				} else { // on met un algo completement diferent : bitcrush continue
 					float wet = mix_factor + 0.000001f; // pour ne jamais etre a zero a cause de la division
-					wet *= (2.f - wet) * 0.7f;
+					wet *= (2.f - wet) * 0.67f;
 					modulation = floorf(0.5 + WF/wet)*wet;
 					modulation = mix(WF, modulation, fminf(1.f,100.f*wet));
 				}
