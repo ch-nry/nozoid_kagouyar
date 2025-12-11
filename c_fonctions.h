@@ -482,15 +482,15 @@ void init_variables() {
   	volatile uint32_t tmp;
 
 	init_table_f_0(2*modulation_source_last, (float *)g_Modulation);
-	init_table_f_0(modulation_source_last, (float *)g_Modulation_Reset);
+	init_table_i_0(modulation_source_last, (uint32_t *)g_Modulation_Reset);
 	init_table_f_0(modulation_source_last, (float *)g_Modulation_Phase);
 	init_table_d_0(modulation_source_last, (double *)g_Modulation_Phase_double);
 	init_table_f_0(nb_CV, (float *)g_pot_increment);
 	init_table_f_0(nb_CV, (float *)g_pot_audio);
 	init_table_i_0(nb_CV, (uint32_t *)g_pot16);
-	init_table_f_0(nb_CV, (float *)g_filter_index);
-	init_table_f_0(nb_CV, (float *)g_filter_moins);
-	init_table_f_0(nb_CV, (float *)g_filter_plus);
+	init_table_i_0(nb_CV, (uint32_t *)g_filter_index);
+	init_table_i_0(nb_CV, (uint32_t *)g_filter_moins);
+	init_table_i_0(nb_CV, (uint32_t *)g_filter_plus);
 	init_table_f_0(nb_CV, (float *)g_midi_parameter);
 
 	for (i=0; i<48; i++) { while (get_pot(i) == 0.); } // initialisation des valeurs des potentiomettres
@@ -553,7 +553,6 @@ void init_variables() {
 	g_MIDI_pitchWHEEL = 0.f;
 	g_MIDI_MODWHEEL = 0.f;
 
-	g_state_kb = 7;
 	g_CV2KB = 0;
 }
 
