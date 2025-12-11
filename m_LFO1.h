@@ -15,10 +15,10 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
-float g_LFO1_noise[4]; // pour le noise avec interpolation cubic
-float g_LFO1_AR[5]; // nb_voice+1
-float g_phase_LFO1_div;
-uint32_t g_LFO1_last_step, g_LFO1_reset;
+float g_LFO1_noise[4] = {0.f}; // pour le noise avec interpolation cubic
+float g_LFO1_AR[5] = {0.f}; // nb_voice+1
+float g_phase_LFO1_div = 0.f;
+uint32_t g_LFO1_last_step = 0, g_LFO1_reset = 0;
 
 float LFO1_div(uint32_t OUT, uint32_t source_addresse, float div_factor) {
 		uint32_t tmp = 0;
@@ -390,7 +390,7 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
     }
 }
 
-float g_LFO4_noise[4]; // pour le noise avec interpolation cubic
+float g_LFO4_noise[4] = {0.f}; // pour le noise avec interpolation cubic
 
 inline void LFO4(float increment) {
     float overflow_phase, tmp;

@@ -74,7 +74,7 @@ LED_ADSR, LED_LFO1, LED_LFO2, LED_LFO3, LED_LFO4, LED_LFO5, LED_LFO6, LED_LFO7, 
 LED_MIDI, LED_CV1, LED_CV2, LED_notused};
 //VCO1_out, VCO1_SIN, VCO1_TRI... etc
 
-float g_clip;
+float g_clip = 0.f;
 
 void leds_mode_normal() {
     hw.led_driver_.SetLed_ch(LED_VCO1, (float)0.f);

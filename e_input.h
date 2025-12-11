@@ -137,10 +137,10 @@ const int bit_key_I2C2[] = { BIT_KEY_kb0, BIT_KEY_kb1, BIT_KEY_kb2, BIT_KEY_kb3,
 // MIDI
 ///////////////////////////////////////////////////////
 
-uint32_t g_MIDI_status, MIDI_data1, MIDI_data2, g_MIDI_state;
+uint32_t g_MIDI_status, MIDI_data1, MIDI_data2, g_MIDI_state = 0;
 
 // pour la syncro :
-uint32_t g_MIDI_QNote, g_MIDI_count;
+uint32_t g_MIDI_QNote = 0, g_MIDI_count = 0;
 // g_MIDI_count doit etre incrementé a la meme vitese que le calcule du phasor des LFO syncronisés sur le MIDI
 
 // g_MIDI_state :
@@ -158,7 +158,7 @@ uint32_t g_switch1=0, g_switch2=0; // valeur des touches en cours de récupérat
 
 ///////////////////////////////////////////////////////
 uint32_t g_menu_count = 0; // pour compter le temps d'apuis sur une touche (pour tester les appuis long)
-volatile int32_t g_led_blink;
+volatile int32_t g_led_blink = 0;
 
 
 // sauvegarde des touches

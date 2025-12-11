@@ -15,8 +15,7 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
-uint32_t g_shaser;
-int32_t g_test_mode;
+uint32_t g_shaser = 0;
 volatile  uint32_t g_led_time; // pour l'annimation des leds, variable temporaire
 
 const uint32_t table_led_shaser[] = { LED_VCO1, LED_VCO2, LED_VCO3, LED_ADSR, \

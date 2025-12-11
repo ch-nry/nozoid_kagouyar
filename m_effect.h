@@ -19,7 +19,7 @@
 #define delay1_sizei 144000
 // mettre un multiple de 2 sur la taille des buffer
 
-float g_effect1_phase;
+float g_effect1_phase = 0.f;
 float g_effect1_last_out = 0.f;
 float g_effect1_param_filter = 0.f;
 float g_effect1_param_filter2 = 0.f;
