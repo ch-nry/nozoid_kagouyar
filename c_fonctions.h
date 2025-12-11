@@ -532,6 +532,7 @@ void init_variables() {
         allvoice[i].v_VCF1_last_output4 = 0.f;
         allvoice[i].v_ADSR_out = 0.f;
         allvoice[i].v_ADSR_mode = Release;
+        allvoice[i].v_velocity = 0.;
     }
 
     init_table_CV2freq(); // mtof table initialisation in RAM
