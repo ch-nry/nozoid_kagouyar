@@ -459,9 +459,9 @@ inline uint32_t get_pot(uint32_t i) {
 
 		g_pot16[i] = out;
         tmpf = (float) out;
-        tmpf -= 250.f;
+        tmpf -= 500.f;
         tmpf = fmaxf(tmpf,0.f);
-        tmpf *= 1.f/65000.f; // pour etre sur d'etre entre 0. et 1.
+        tmpf *= 1.f/64500.f; // pour etre sur d'etre entre 0. et 1.
         tmpf +=  g_midi_parameter[i];
         tmpf= fminf(tmpf,1.f);
         g_knob[i] = tmpf;
