@@ -61,7 +61,7 @@ inline float VCO1(uint32_t j, float frequency) {
 
     float vco_pitch = frequency + 48.f * VCO1_FM_exp;
     vco_pitch += allvoice[j].v_pitch;
-    vco_pitch += (int)((12.f*VCO1_FM_Qtz)+0.5f);
+    vco_pitch += (int)((24.f*VCO1_FM_Qtz)+0.5f);
 
     VCO1_pitch(allvoice[j], vco_pitch); // sauve ou rapele la valeur de vco1 pour les pitch des VCO1 et 3 syncro sur le 1 (cf fonction.h)
     float freq = CV2freq(vco_pitch) + VCO1_FM_lin * 2000.f; // attention, la freq peux etre negative, ou nulle
