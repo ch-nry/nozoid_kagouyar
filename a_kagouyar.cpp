@@ -16,7 +16,8 @@
 // --------------------------------------------------------------------------
 
 #define proto2 // commenter pour la version final
-//#define olivier
+//#define olivier // unclick pour le very slow LFO plutot que le click long
+//#define fabien //plus de zone morte sur ls potentiomettre car le proto a plus de bruit de font
 
 // verifier les double promotion
 //-fno-strict-aliasing
