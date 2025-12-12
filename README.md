@@ -1,4 +1,5 @@
 # Kagouyar
+![Kagouyar Synthesizer](https://nozoid.com/wp-content/uploads/2022/12/DSC03690b-scaled.jpg)
 
 Firmware for the Kagouyar synthesizer by [nozoïd](http://nozoid.com/kagouyar)
 
