@@ -217,28 +217,28 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 
 			// 2. Update phase
 			g_effect1_phase = wrap(g_effect1_phase + (0.005f/48000.f));
-			float phase = g_effect1_phase;
+			const float phase = g_effect1_phase;
 
 			// 3. Calculer phases modulées
-			float p3 = phase * 3.f;
-			float p4 = phase * 4.f;
-			float p5 = phase * 5.f;
-			float p7 = phase * 7.f;
+			const float p3 = phase * 3.f;
+			const float p4 = phase * 4.f;
+			const float p5 = phase * 5.f;
+			const float p7 = phase * 7.f;
 
 			// 4. Calculer offsets
-			float o1 = (tri_positif_loop(p3) + 1.11f) * param_scaled;
-			float o2 = (tri_positif_loop(0.23f + p4) + 2.31f) * param_scaled;
-			float o3 = (tri_positif_loop(0.57f + p5) + 3.52f) * param_scaled;
-			float o4 = (tri_positif_loop(0.71f + p7) + 5.73f) * param_scaled;
+			const float o1 = (tri_positif_loop(p3) + 1.11f) * param_scaled;
+			const float o2 = (tri_positif_loop(0.23f + p4) + 2.31f) * param_scaled;
+			const float o3 = (tri_positif_loop(0.57f + p5) + 3.52f) * param_scaled;
+			const float o4 = (tri_positif_loop(0.71f + p7) + 5.73f) * param_scaled;
 
 			// 5. Lectures delay
-			float s1 = delay1b_read_f(o1);
-			float s2 = delay1b_read_f(o2);
-			float s3 = delay1b_read_f(o3);
-			float s4 = delay1b_read_f(o4);
+			const float s1 = delay1b_read_f(o1);
+			const float s2 = delay1b_read_f(o2);
+			const float s3 = delay1b_read_f(o3);
+			const float s4 = delay1b_read_f(o4);
 
 			// 6. Combinaison
-			float chorus = s1 - s2 + s3 - s4;
+			const float chorus = s1 - s2 + s3 - s4;
 
 			// 7. Output
 			sound_out = sound_in + _tanh_clip(wet_scaled * chorus);
@@ -273,11 +273,13 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		}
 		g_old_sound_out = sound_out;
 		return sound_out;
-	case 7: // WS2 : waveshaper simple : OK
-		sound_out = _tanh(5.f * sound_in + param1M * fast_cos_loop(0.75 + param1M  * 4.f * sound_in));
-		return mix(sound_in, sound_out*0.3f, wet);
-	case 8: // ECHO 2 : disto ok
-		tmp = delay1_read_f(10.f + 5000.f * param1M* param1M);
+	case 7: // WS2 : waveshaper simple : ok
+		sound_out = _tanh(15.f * (sound_in + param1M * fast_cos_loop(0.75 + param1M  * 4.f * sound_in)));
+		return mix(sound_in, sound_out*0.5f, wet);
+	case 8: // ECHO 2 : ok
+		//tmp = delay1_read_f(10.f + 5000.f * param1M* param1M);
+        tmp = ((delay1_sizef - 101.f) * param1M) + 100.f;
+		tmp = delay1_read_f(tmp);
 		sound_out = sound_in + tmp * wet;
 		delay1_write_f( _fclamp(sound_out, -2.f, 2.f));
 		return sound_out;
@@ -304,7 +306,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		a4 *= mix(g_effect1_f4old, g_effect1_f4, effect1_phase);
 		sound_out = a1 + a2 + a3 + a4;
 		return mix(sound_in, sound_out, wet);
-	case 10: // STRING 2 : reverb OK
+	case 10: // STRING 2 : reverb : OK
 		// algorythm from miller puckette, in "Pure Data" example G28.
 		_fonepole(g_effect1_param_filter, sound_in, 0.0003f); // low pass
 		a1 = sound_in- g_effect1_param_filter; a2 = 0.f; b1 = a1 + a2; b2 = a1 - a2;
@@ -333,7 +335,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		reverb1_write(a1, a2, a3, a4);
 		sound_out = mix(sound_in, sound_out, wet);
 		return sound_out;
-	case 11: // CHORUS 2
+	case 11: // CHORUS 2 : ok
 		// all passe + feedback
 		sound_out = delay1_read_f(5.f + 5000.f * param1M);
 		tmp =  -0.9f*wet  * sound_out + sound_in;
@@ -348,11 +350,11 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		sound_out = sound_in * _cos(tmp);
 		sound_out = mix(sound_in, sound_out, wetM);
         return sound_out;
-	case 13: // FRICTION 2 : disto avec hysteresys:
+	case 13: // FRICTION 2 : disto avec hysteresys: ok
 		_fonepole(g_effect1_param_filter, sound_in, 0.01f);
 		sound_out = sound_in + 8.f * param1 * param1 * (sound_in - g_effect1_param_filter);
 		sound_out = _tanh_clip( (1.f + 15.f*wetM*wetM) * sound_out);
-		return mix(sound_in, sound_out*0.8f, fminf(1.f,4.f*wetM));
+		return mix(sound_in, sound_out*0.5f, fminf(1.f,4.f*wetM));
 	case 14 : //rien, utilisé lors du changement d'effet
 		g_effect1_phase = 0.;
 		g_effect1_last_out = 0.f;
@@ -454,7 +456,7 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         _fonepole(g_Effect2_filtre, tmp, 0.0003f); // smooth le paramettre de temps et filtre le audio in
         sound_out = g_delay_effect2.ReadHermite(fmaxf(1.f,g_Effect2_filtre));
         return sound_out;
-	case 10: // sub2 : delay a resonnance metalique, non lineaire bizare
+	case 10: // sub2 : delay a resonnance metalique, non lineaire bizare ok
 		tmp2 = param1 * param1;
 		tmp = g_delay_effect2.Read(tmp2 * 5500.f);
 		tmp2 = g_delay_effect2b.Read(tmp2 * 5550.f + 50.f);
@@ -465,7 +467,7 @@ inline float effect2(float sound_in) { //, float param, float param1) {
 		g_delay_effect2b.Write(sound_in - (sound_out-g_Effect2_filtre) * tmp3);
 		sound_out = tmp + tmp2;
 		return sound_out;
-	case 11: // compress 2: binarizator : sign * envelope
+	case 11: // compress 2: binarizator : sign * envelope : ok
 	tmp = fabsf(sound_in);
 		if ( tmp > g_effect2_phase ) _fonepole(g_effect2_phase, tmp, 0.3);
 		else  _fonepole(g_effect2_phase, tmp, 0.01);
