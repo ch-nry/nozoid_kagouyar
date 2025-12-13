@@ -283,7 +283,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
         tmp = ((delay1_sizef - 101.f) * param1M) + 100.f;
 		tmp = delay1_read_f(tmp);
 		sound_out = sound_in + tmp * wet;
-		delay1_write_f( _fclamp(sound_out, -2.f, 2.f));
+		delay1_write_f( softClip(sound_out));
 		return sound_out;
 	case 9: // FREEZE 2 : filtre en peigne variable OK
 		// algo from pd G07 :  4 delread, sans feedback a des temps diferent (30, 17, 11), et des amplitudes variable (random)
@@ -343,7 +343,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		// all passe + feedback
 		sound_out = delay1_read_f(5.f + 5000.f * param1M);
 		tmp =  -0.9f*wet  * sound_out + sound_in;
-		delay1_write_f(tmp);
+		delay1_write_f(softClip(tmp));
 		sound_out = sound_in + tmp * wet;
 		return sound_out;
 	case 12: // RING 2 : OK
@@ -454,13 +454,13 @@ inline float effect2(float sound_in) { //, float param, float param1) {
 		g_effect2_phase = tmp;
 		sound_out = mix(sound_in, g_Effect2_filtre, (fminf(1.f,10.f*wet)));
 		return sound_out;
-	case 9: // doepler 2: ok
+	case 9: // doepler 2: auto doepler : ok
         g_delay_effect2.Write(sound_in);
         tmp = (wet * 5000.f) * (2.f - _tanh_clip(3.f*sound_in));
         _fonepole(g_Effect2_filtre, tmp, 0.0003f); // smooth le paramettre de temps et filtre le audio in
         sound_out = g_delay_effect2.ReadHermite(fmaxf(1.f,g_Effect2_filtre));
         return sound_out;
-	case 10: // sub2 : delay a resonnance metalique, non lineaire bizare ok
+	case 10: // sub2 : delay a resonnance metalique, non lineaire bizare : ok
 		tmp2 = param1 * param1;
 		tmp = g_delay_effect2.Read(tmp2 * 5500.f);
 		tmp2 = g_delay_effect2b.Read(tmp2 * 5550.f + 50.f);
