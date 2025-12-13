@@ -171,7 +171,9 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		// long delay (wet /  param1 : time / param2 : feedback)
         tmp = ((delay1_sizei - 101.f) * param1) + 100.f;
         sound_out = delay1_read_i(tmp);
-        delay1_write_i(_fclamp(sound_in + sound_out*param2, -3.f, 3.f));
+        tmp = sound_in + sound_out*param2;
+        tmp = _fonepoleHP(g_effect1_param_filter, tmp, 0.0004f);
+        delay1_write_i(softClip(tmp));
         sound_out = mix(sound_in, sound_out, wet);
         return sound_out;
         //break;
