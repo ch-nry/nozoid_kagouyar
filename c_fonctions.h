@@ -490,25 +490,25 @@ inline uint32_t get_pot(uint32_t i) {
     //hw.test_out(false);
 }
 
-void init_table_f_0(int x, float *table){ for (int i=0; i<x; i++) table[i] = 0.f; }
-void init_table_d_0(int x, double *table){ for (int i=0; i<x; i++) table[i] = 0.f; }
-void init_table_i_0(int x, uint32_t *table){ for (int i=0; i<x; i++) table[i] = 0; }
+void init_table_f_0(int x, volatile float *table) { for (int i=0; i<x; i++) table[i] = 0.f; }
+void init_table_d_0(int x, volatile double *table){ for (int i=0; i<x; i++) table[i] = 0.f; }
+void init_table_i_0(int x, volatile uint32_t *table){ for (int i=0; i<x; i++) table[i] = 0; }
 
 void init_variables() {
     uint32_t i;
   	volatile uint32_t tmp;
 
-	init_table_f_0(2*modulation_source_last, (float *)g_Modulation);
-	init_table_i_0(modulation_source_last, (uint32_t *)g_Modulation_Reset);
-	init_table_f_0(modulation_source_last, (float *)g_Modulation_Phase);
-	init_table_d_0(modulation_source_last, (double *)g_Modulation_Phase_double);
-	init_table_f_0(nb_CV, (float *)g_pot_increment);
-	init_table_f_0(nb_CV, (float *)g_pot_audio);
+	init_table_f_0(2*modulation_source_last, g_Modulation);
+	init_table_i_0(modulation_source_last, g_Modulation_Reset);
+	init_table_f_0(modulation_source_last, g_Modulation_Phase);
+	init_table_d_0(modulation_source_last, g_Modulation_Phase_double);
+	init_table_f_0(nb_CV, g_pot_increment);
+	init_table_f_0(nb_CV, g_pot_audio);
 	init_table_i_0(nb_CV, (uint32_t *)g_pot16);
 	init_table_i_0(nb_CV, (uint32_t *)g_filter_index);
 	init_table_i_0(nb_CV, (uint32_t *)g_filter_moins);
 	init_table_i_0(nb_CV, (uint32_t *)g_filter_plus);
-	init_table_f_0(nb_CV, (float *)g_midi_parameter);
+	init_table_f_0(nb_CV, g_midi_parameter);
 
 	for (i=0; i<48; i++) { while (get_pot(i) == 0.); } // initialisation des valeurs des potentiomettres
 
