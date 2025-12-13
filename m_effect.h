@@ -279,7 +279,6 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		sound_out = _tanh(15.f * (sound_in + param1M * fast_cos_loop(0.75 + param1M  * 4.f * sound_in)));
 		return mix(sound_in, sound_out*0.5f, wet);
 	case 8: // ECHO 2 : ok
-		//tmp = delay1_read_f(10.f + 5000.f * param1M* param1M);
         tmp = ((delay1_sizef - 101.f) * param1M) + 100.f;
 		tmp = delay1_read_f(tmp);
 		sound_out = sound_in + tmp * wet;
@@ -348,15 +347,15 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		return sound_out;
 	case 12: // RING 2 : OK
 		//WET : amplitude du ring; param1 : frequence du ring; param2 : modulation du wet
-        g_effect1_phase +=  CV2freq(param1*127.f) * OneOverSR; // OneOverSR + param1 * param1 * 400.f * OneOverSR;
+        g_effect1_phase +=  CV2freq(param1M*127.f) * OneOverSR; // OneOverSR + param1 * param1 * 400.f * OneOverSR;
         tmp = wrap(g_effect1_phase);
 		g_effect1_phase = tmp;
 		sound_out = sound_in * _cos(tmp);
-		sound_out = mix(sound_in, sound_out, wetM);
+		sound_out = mix(sound_in, sound_out, wet);
         return sound_out;
 	case 13: // FRICTION 2 : disto avec hysteresys: ok
 		_fonepole(g_effect1_param_filter, sound_in, 0.01f);
-		sound_out = sound_in + 8.f * param1 * param1 * (sound_in - g_effect1_param_filter);
+		sound_out = sound_in + 15.f * param1 * param1 * (sound_in - g_effect1_param_filter);
 		sound_out = _tanh_clip( (1.f + 15.f*wetM*wetM) * sound_out);
 		return mix(sound_in, sound_out*0.5f, fminf(1.f,4.f*wetM));
 	case 14 : //rien, utilisé lors du changement d'effet
@@ -434,7 +433,7 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         sound_out = sound_in * tmp2/tmp;        // compress
         sound_out *= _fclamp(1.f - param1 * (1.f-g_Modulation[curent_config.c_Modulation_Source[EFFECT2_MOD]]), 0.f, 1.f); // attenuation
         return sound_out;
-	case 6: // DIST 2 : ok : plus soupe que la disto 1
+	case 6: // DIST 2 : ok : plus souple que la disto 1
 		sound_out = _tanh_clip( (15.f*wet*wet+1) * sound_in);
 		sound_out = mix(sound_in, sound_out*0.5f, fminf(1.f, wet*10.f) );
 		return sound_out;
@@ -460,7 +459,7 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         _fonepole(g_Effect2_filtre, tmp, 0.0003f); // smooth le paramettre de temps et filtre le audio in
         sound_out = g_delay_effect2.ReadHermite(fmaxf(1.f,g_Effect2_filtre));
         return sound_out;
-	case 10: // sub2 : delay a resonnance metalique, non lineaire bizare : ok
+	case 10: // sub2 : delay avec resonnance metalique, non lineaire bizare : ok
 		tmp2 = param1 * param1;
 		tmp = g_delay_effect2.Read(tmp2 * 5500.f);
 		tmp2 = g_delay_effect2b.Read(tmp2 * 5550.f + 50.f);
