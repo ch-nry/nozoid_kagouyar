@@ -179,7 +179,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		// small delay (wet : feedback / param1M : time) : flanger / chorus / doubler
         tmp = param1M * 50000.f + 6.f;
         sound_out = mix(sound_in , delay1_read_f(tmp), wet);
-		delay1_write_f(_fclamp(sound_out, -3.f, 3.f));
+		delay1_write_f(softClip(sound_out));
         return sound_out;
         //break;
     case 3 : // KS : OK
@@ -189,9 +189,9 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
         tmp = delay1_read_f(tmp);
         _fonepole(g_effect1_last_out, tmp,fminf(1.,CV2freq(wet*127.f)*(1.f/12000.f)));
         sound_out = sound_in - g_effect1_last_out;
-        if(sound_out >  1.f) sound_out =  1.f + _tanh_clip(sound_out - 1.f); // soft clip with ID between -1 and 1;
-        if(sound_out < -1.f) sound_out = -1.f + _tanh_clip(sound_out + 1.f); // between -2 and 2;
-        delay1_write_f(_fclamp(sound_out, -3.f, 3.f));
+        //if(sound_out >  1.f) sound_out =  1.f + _tanh_clip(sound_out - 1.f); // soft clip with ID between -1 and 1;
+        //if(sound_out < -1.f) sound_out = -1.f + _tanh_clip(sound_out + 1.f); // between -2 and 2;
+        delay1_write_f(softClip(sound_out));
         return sound_out;
         //break;
     case 4 : // chorus : OK
@@ -308,8 +308,10 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		return mix(sound_in, sound_out, wet);
 	case 10: // STRING 2 : reverb : OK
 		// algorythm from miller puckette, in "Pure Data" example G28.
-		_fonepole(g_effect1_param_filter, sound_in, 0.0003f); // low pass
-		a1 = sound_in- g_effect1_param_filter; a2 = 0.f; b1 = a1 + a2; b2 = a1 - a2;
+		_fonepole(g_effect1_param_filter, sound_in, 0.0004f); // low pass
+		a1 = sound_in - g_effect1_param_filter; // high pass pour virer le continu
+		a1*=0.2f; // limitation du nvx d'entree de la reverb pour moins saturer
+		a2 = 0.f; b1 = a1 + a2; b2 = a1 - a2;
 		reverb2_write(0, b2); b2 = reverb2_read(0, 261);
 		a1 = b1; a2 = b2; b1 = a1 + a2; b2 = a1 - a2;
 		reverb2_write(1, b2); b2 = reverb2_read(1, 406);
@@ -331,7 +333,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		tmp = 2*param1M - param1M * param1M;// courbe plus punchi au debut
 		tmp *= 0.5f;
 		a1 *= tmp; a2 *= tmp; a3 *= tmp; a4 *= tmp; // gain de la reverb
-		a1 = _fclamp(a1, -30.f, 30.f); a2 = _fclamp(a2, -30.f, 30.f);  a3 = _fclamp(a3, -30.f, 30.f); a4 = _fclamp(a4, -30., 30.f);
+		//a1 = softClip(a1); a2 = softClip(a2);  a3 = softClip(a3); a4 = softClip(a4);
 		reverb1_write(a1, a2, a3, a4);
 		sound_out = mix(sound_in, sound_out, wet);
 		return sound_out;
