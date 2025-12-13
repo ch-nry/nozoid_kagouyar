@@ -193,6 +193,15 @@ float interpol4(float mu, float y0, float y1, float y2, float y3) {
     return ((a3 * mu + a2) * mu + a1) * mu + y1;
 }
 
+//__attribute__((section(".itcm")))
+float softClip(float x) { // TODO : implementer ca pour la reverbe et les delay
+    const float abs_x = fabsf(x);
+    const float excess = fmaxf(0.0f, abs_x - 2.0f); // Excès au-delà de 2
+    const float sat_excess = excess / (1.0f + excess); // Saturation hyperbolique de l'excès
+    const float result = fminf(abs_x, 2.0f + sat_excess); // min(abs_x, 2 + sat_excess)
+    return (x < 0.0f) ? -result : result;
+}
+
 #define  write_binary_led(data) hw.binary_led.Write_data(data, 24)
 
 void init_table_CV2freq() {
