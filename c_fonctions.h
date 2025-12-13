@@ -60,7 +60,10 @@ i.e : f/fs
 inline void _fonepole(float &out, float in, float coeff) {
     out += coeff * (in - out);
 }
-
+inline float _fonepoleHP(float &out, float in, float coeff) {
+    out += coeff * (in - out);
+    return(in-out);
+}
 /*
 ///////////////////////////////////////////////////
 ceilf  arrondi vers le bas
