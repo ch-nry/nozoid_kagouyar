@@ -275,9 +275,12 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		}
 		g_old_sound_out = sound_out;
 		return sound_out;
-	case 7: // WS2 : waveshaper simple : ok
-		sound_out = _tanh(15.f * (sound_in + param1M * fast_cos_loop(0.75 + param1M  * 4.f * sound_in)));
-		return mix(sound_in, sound_out*0.5f, wet);
+	case 7: // WS2 : waveshaper dynamique
+		tmp = CV2freq(param1*100.f) * OneOverSR;
+		g_effect1_f1 = wrap( g_effect1_f1 + tmp * 0.002345);
+		sound_out = sound_in * (1.f +  fast_cos_loop(wet*5.f*sound_in+g_effect1_f1));
+		sound_out = _tanh_clip(sound_out);
+		return mix(sound_in, sound_out, wetM);
 	case 8: // ECHO 2 : ok
         tmp = ((delay1_sizef - 101.f) * param1M) + 100.f;
 		tmp = delay1_read_f(tmp);
@@ -378,6 +381,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 float g_Effect2_filtre = 0.f;
 float g_effect2_sound_env = 0.f;
 float g_effect2_phase = 0.33f;
+uint32_t g_effet2_sign = 0;
 
 
 daisysp::DelayLine<float, 32768> g_delay_effect2;
@@ -459,7 +463,16 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         _fonepole(g_Effect2_filtre, tmp, 0.0003f); // smooth le paramettre de temps et filtre le audio in
         sound_out = g_delay_effect2.ReadHermite(fmaxf(1.f,g_Effect2_filtre));
         return sound_out;
-	case 10: // sub2 : delay avec resonnance metalique, non lineaire bizare : ok
+	case 10: //  sub2:  bad subharmonic generation
+		tmp = sound_in*g_effect2_phase;// changement de sign-> tmp <0; >0 sinon
+		g_effect2_phase = sound_in;
+		g_effet2_sign += (tmp<0)? 1:0;
+		g_effet2_sign = g_effet2_sign%4; //1 sur 2
+		tmp = (g_effet2_sign>=2)?1.f:-1.f;
+		_fonepole(g_Effect2_filtre, tmp, 0.01f);
+		sound_out = mix(sound_in, sound_in*g_Effect2_filtre, wet);
+		return sound_out;
+	case 11: // compress2 : delay avec resonnance metalique, non lineaire bizare : ok
 		tmp2 = param1 * param1;
 		tmp = g_delay_effect2.Read(tmp2 * 5500.f);
 		tmp2 = g_delay_effect2b.Read(tmp2 * 5550.f + 50.f);
@@ -470,11 +483,6 @@ inline float effect2(float sound_in) { //, float param, float param1) {
 		g_delay_effect2b.Write(sound_in - (sound_out-g_Effect2_filtre) * tmp3);
 		sound_out = tmp + tmp2;
 		return sound_out;
-	case 11: // compress 2: binarizator : sign * envelope : ok
-	tmp = fabsf(sound_in);
-		if ( tmp > g_effect2_phase ) _fonepole(g_effect2_phase, tmp, 0.3);
-		else  _fonepole(g_effect2_phase, tmp, 0.01);
-		return mix(sound_in, g_effect2_phase * sign(sound_in), wet);
 	case 12 : //rien, utilisé lors du changement d'effet
 		g_effect2_sound_env = 0.;
 		g_Effect2_filtre = 0.f;
