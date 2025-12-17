@@ -23,14 +23,14 @@ __attribute__((hot))  float VCO_WF(uint32_t VCO_WF, float VCO_phase, float incre
 
     switch(VCO_WF) {
     case 0 : //sin
-        phase2 = _sin(VCO_phase);
+        phase2 = _sin(VCO_phase);// TODO : pourquoi sin? cos est plus rapide
         _fonepole(v_VCO_last[0], phase2, 6000.f*OneOverSR);
         phase2 = _cos_loop(VCO_phase + v_VCO_last[0] * PWM_local * 0.4f);
         _fonepole(v_VCO_last[1], phase2, 0.5f);
 		out = v_VCO_last[1];
         break;
     case 1 : //multi sin
-        phase2 = _sin(VCO_phase);
+        phase2 = _sin(VCO_phase); // TODO : pourquoi sin? cos est plus rapide
         _fonepole(v_VCO_last[0], phase2, 600.f*OneOverSR);
         out = _cos_loop((0.7f+3.5f*PWM_local) * v_VCO_last[0] + 0.33f );
         break;
@@ -95,7 +95,7 @@ __attribute__((hot))  float VCO_WF(uint32_t VCO_WF, float VCO_phase, float incre
         out = 2.f*(v_VCO_last[1]) -1.f;
         break;
 	case 9 : // 0bis : atan(sin)
-        phase2 = _sin(VCO_phase);
+        phase2 = _sin(VCO_phase); // TODO : sin?
         _fonepole(v_VCO_last[0], phase2, 10000.f*OneOverSR);
         out = _tanh_clip ( PWM_local + phase2 * (1.f + 12.f*PWM_local*PWM_local));
         break;

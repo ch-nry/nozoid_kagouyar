@@ -222,7 +222,8 @@ inline float CV2freq(float index) { // index from -128 to 139; 69 for 440Hz
   float const index_reste = f_index-index_entier;
   float const inc1 = table_CV2freq[i_index];
   return inc1 * (1.f + .0577622650f * index_reste) ;
-}
+} // TODO : changer pour CV2inc
+
 
 inline float CV2increment_lfo(uint32_t range, float cv) {
     switch (range) { // Frequence des LFO = SR/2
@@ -258,7 +259,7 @@ float LFO_compute_WF(float phase, uint32_t WF, float *last, uint32_t reset) {
     case WF_AR:
         return 0.f; // not used
     case WF_sin:
-        return _sin(phase);
+        return _sin(phase); // TODO :cos?
     case WF_tri:
         return 1.f - 2.f*(fabsf(2.f*wrap(phase+0.25f) - 1.f));
     case WF_square:

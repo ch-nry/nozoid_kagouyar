@@ -15,6 +15,10 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
+//TODO : mettre fabsf partout?
+// TODO : pourquoi les LFO ne sont pas synchronisé au demarage
+// TODO : abs comme non linearité sur les vco
+
 #define proto2 // commenter pour la version final
 //#define olivier // unclick pour le very slow LFO plutot que le click long
 //#define fabien //plus de zone morte sur ls potentiomettre car le proto a plus de bruit de font
@@ -182,7 +186,7 @@ __attribute__((hot)) static void AudioCallback(AudioHandle::InterleavingInputBuf
         g_Modulation[LFO2_OUT+modulation_source_last] = -g_LFO2_AR[nb_voice];
         g_Modulation[LFO3_OUT] = g_LFO3_AR[nb_voice];
         g_Modulation[LFO3_OUT+modulation_source_last] = -g_LFO3_AR[nb_voice];
-		// les modulations par les VCO ne sont pas serapé par voice, puisque la suite se fait sur toutes les voie simultanement
+		// les modulations par les VCO ne sont pas separé par voice, puisque la suite se fait sur toutes les voie simultanement
 		// doit on interdire les modulation VCO?
 		// on accepte juste comme ca...
 
@@ -255,7 +259,6 @@ int main(void)
     g_delay_effect2.Init();
     //g_delay_effect3.Init();
     hw.midi.StartRx(); // init MIDI
-
 
 ////////////////////////////////////////////////////////////////////////
 // initialisation des memoires
