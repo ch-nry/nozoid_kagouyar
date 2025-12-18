@@ -197,7 +197,7 @@ float interpol4(float mu, float y0, float y1, float y2, float y3) {
 }
 
 //__attribute__((section(".itcm")))
-float softClip(float x) { // TODO : implementer ca pour la reverbe et les delay
+float softClip(float x) {
     const float abs_x = fabsf(x);
     const float excess = fmaxf(0.0f, abs_x - 2.0f); // Excès au-delà de 2
     const float sat_excess = excess / (1.0f + excess); // Saturation hyperbolique de l'excès
@@ -222,8 +222,7 @@ inline float CV2freq(float index) { // index from -128 to 139; 69 for 440Hz
   float const index_reste = f_index-index_entier;
   float const inc1 = table_CV2freq[i_index];
   return inc1 * (1.f + .0577622650f * index_reste) ;
-} // TODO : changer pour CV2inc
-
+}
 
 inline float CV2increment_lfo(uint32_t range, float cv) {
     switch (range) { // Frequence des LFO = SR/2
@@ -259,7 +258,7 @@ float LFO_compute_WF(float phase, uint32_t WF, float *last, uint32_t reset) {
     case WF_AR:
         return 0.f; // not used
     case WF_sin:
-        return _sin(phase); // TODO :cos?
+        return _sin(phase);
     case WF_tri:
         return 1.f - 2.f*(fabsf(2.f*wrap(phase+0.25f) - 1.f));
     case WF_square:
@@ -512,6 +511,8 @@ void init_variables() {
 	init_table_f_0(nb_CV, g_midi_parameter);
 
 	for (i=0; i<48; i++) { while (get_pot(i) == 0.); } // initialisation des valeurs des potentiomettres
+
+	for (i=0; i<48000; i++) { get_pot(i%48) ; } // attente
 
 	do {tmp = hw.knobs_[k_CV1].Process_ch();} // on sort de l'initialisation, on attend d'avoir une valeur
 	while (tmp == 0.);

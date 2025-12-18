@@ -15,10 +15,6 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
-//TODO : mettre fabsf partout?
-// TODO : pourquoi les LFO ne sont pas synchronisé au demarage
-// TODO : abs comme non linearité sur les vco
-
 #define proto2 // commenter pour la version final
 //#define olivier // unclick pour le very slow LFO plutot que le click long
 //#define fabien //plus de zone morte sur ls potentiomettre car le proto a plus de bruit de font

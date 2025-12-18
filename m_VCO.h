@@ -23,21 +23,20 @@ __attribute__((hot))  float VCO_WF(uint32_t VCO_WF, float VCO_phase, float incre
 
     switch(VCO_WF) {
     case 0 : //sin
-        phase2 = _sin(VCO_phase);// TODO : pourquoi sin? cos est plus rapide
+        phase2 = _sin(VCO_phase);
         _fonepole(v_VCO_last[0], phase2, 6000.f*OneOverSR);
         phase2 = _cos_loop(VCO_phase + v_VCO_last[0] * PWM_local * 0.4f);
         _fonepole(v_VCO_last[1], phase2, 0.5f);
 		out = v_VCO_last[1];
         break;
     case 1 : //multi sin
-        phase2 = _sin(VCO_phase); // TODO : pourquoi sin? cos est plus rapide
+        phase2 = _sin(VCO_phase);
         _fonepole(v_VCO_last[0], phase2, 600.f*OneOverSR);
         out = _cos_loop((0.7f+3.5f*PWM_local) * v_VCO_last[0] + 0.33f );
         break;
     case 2 : // tri
     	float tmpf;
     	tmp =  v_VCO_last[0];
-        //out = tri_bl(VCO_phase, increment, v_VCO_last[0]);
         out = VCO_phase < 0.5 ? 1.0f : -1.0f;
 		out += Polyblep2(increment, VCO_phase);
 		out -= Polyblep2(increment, wrap(VCO_phase + 0.5f));
@@ -58,13 +57,13 @@ __attribute__((hot))  float VCO_WF(uint32_t VCO_WF, float VCO_phase, float incre
         break;
     case 5 :  // noise filter
         tmp = 2.f*_rnd_f()-1.f;
-        _fonepole(v_VCO_last[0], tmp, abs(fminf(increment*15.f, 1.f)));
+        _fonepole(v_VCO_last[0], tmp, fabsf(fminf(increment*15.f, 1.f)));
         tmp = CV2freq(60.f + PWM_local * 60.f)*(1.f/13000.f);
         _fonepole(v_VCO_last[1], v_VCO_last[0], tmp);
         out = 2.f * (v_VCO_last[1]-v_VCO_last[0]);
         break;
     case 6 :  // noise downsampled
-        if ( (wrap(4.f*VCO_phase)) < abs(4.f*increment) ) {
+        if ( (wrap(4.f*VCO_phase)) < fabsf(4.f*increment) ) {
             phase2 = 2.f*_rnd_f() -1.f;
             v_VCO_last[0] = phase2;
         }
@@ -95,7 +94,7 @@ __attribute__((hot))  float VCO_WF(uint32_t VCO_WF, float VCO_phase, float incre
         out = 2.f*(v_VCO_last[1]) -1.f;
         break;
 	case 9 : // 0bis : atan(sin)
-        phase2 = _sin(VCO_phase); // TODO : sin?
+        phase2 = _cos(VCO_phase);
         _fonepole(v_VCO_last[0], phase2, 10000.f*OneOverSR);
         out = _tanh_clip ( PWM_local + phase2 * (1.f + 12.f*PWM_local*PWM_local));
         break;
@@ -127,7 +126,7 @@ __attribute__((hot))  float VCO_WF(uint32_t VCO_WF, float VCO_phase, float incre
 			v_VCO_last[2] = v_VCO_last[1];
 			v_VCO_last[1] = v_VCO_last[0];
 			fb = (v_VCO_last[3]+1.f)*0.5f + PWM_local * PWM_local * 2.f *(_rnd_f()-0.5);
-			fb = fabs(fb);
+			fb = fabsf(fb);
 			fb = 1. - fabsf(fb-1.f);
 			fb = fb * 2.f - 1.f;
 			v_VCO_last[0]  = fb;

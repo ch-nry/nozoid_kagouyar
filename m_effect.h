@@ -383,7 +383,6 @@ float g_effect2_sound_env = 0.f;
 float g_effect2_phase = 0.33f;
 uint32_t g_effet2_sign = 0;
 
-
 daisysp::DelayLine<float, 32768> g_delay_effect2;
 daisysp::DelayLine<float, 16384>  g_delay_effect2b;
 //__attribute__((section(".dtcmram_bss"))) daisysp::DelayLine<float, 16384>  g_delay_effect2b;
