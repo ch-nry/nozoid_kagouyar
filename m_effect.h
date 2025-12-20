@@ -163,7 +163,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		// Waveform : a zero : on est sur une disto, a full sur un WS sauvage
 		// DRY Modulation
 		tmp = sound_in/(1.f + 10.f*param1)*150.f*(wetM+1.f)*wetM*wetM*wetM;
-		tmp = (1.f-param1)*(sound_in+tmp)/(1.f+fabsf(tmp));
+		tmp = (1.f-param1)*(sound_in+tmp)/(1.f+2*fabsf(tmp));
 		tmp += (1.f-wetM)*param1*sound_in;
 		tmp += wetM*param1*fabsf(sound_in)*_sin_loop(5.f*param1*sound_in*(1.f+fabsf(sound_in)));
 		return tmp;
@@ -334,12 +334,12 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		sound_out = a1;
 		b1 = a1 + a2; b2 = a1 - a2; b3 = a3 + a4; b4 = a3 - a4;
 		a1 = b1 + b3; a2 = b2 + b4; a3 = b1 - b3; a4= b2 - b4;
-		tmp = 2*param1M - param1M * param1M;// courbe plus punchi au debut
+		tmp = 2*param1 - param1 * param1;// courbe plus punchi au debut
 		tmp *= 0.5f;
 		a1 *= tmp; a2 *= tmp; a3 *= tmp; a4 *= tmp; // gain de la reverb
 		//a1 = softClip(a1); a2 = softClip(a2);  a3 = softClip(a3); a4 = softClip(a4);
 		reverb1_write(a1, a2, a3, a4);
-		sound_out = mix(sound_in, sound_out, wet);
+		sound_out = mix(sound_in, sound_out, wetM);
 		return sound_out;
 	case 11: // CHORUS 2 : ok
 		// all passe + feedback
@@ -358,9 +358,10 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
         return sound_out;
 	case 13: // FRICTION 2 : disto avec hysteresys: ok
 		_fonepole(g_effect1_param_filter, sound_in, 0.01f);
-		sound_out = sound_in + 15.f * param1 * param1 * (sound_in - g_effect1_param_filter);
+		tmp =  param1 * param1;
+		sound_out = sound_in + 15.f * tmp * tmp * (sound_in - g_effect1_param_filter);
 		sound_out = _tanh_clip( (1.f + 15.f*wetM*wetM) * sound_out);
-		return mix(sound_in, sound_out*0.5f, fminf(1.f,4.f*wetM));
+		return mix(sound_in, sound_out*0.5f, wetM);
 	case 14 : //rien, utilisé lors du changement d'effet
 		g_effect1_phase = 0.;
 		g_effect1_last_out = 0.f;
@@ -399,7 +400,7 @@ inline float effect2(float sound_in) { //, float param, float param1) {
     case 0: // disto : OK
         tmp = wet*(wet+1.f);
         tmp = wet*wet;
-        tmp = wet*wet*sound_in*150.f;
+        tmp = wet*wet*sound_in*80.f;
         sound_out = (sound_in + tmp)/(1.f+2.f*fabsf(tmp));
         return sound_out;
      case 1: // WS : OK
@@ -438,7 +439,7 @@ inline float effect2(float sound_in) { //, float param, float param1) {
         return sound_out;
 	case 6: // DIST 2 : ok : plus souple que la disto 1
 		sound_out = _tanh_clip( (15.f*wet*wet+1) * sound_in);
-		sound_out = mix(sound_in, sound_out*0.5f, fminf(1.f, wet*10.f) );
+		sound_out = mix(sound_in, sound_out*0.5f, fminf(1.f, wet*2.f) );
 		return sound_out;
 	case 7: // WS 2 : delay : OK : delay infini, mais qui peux s'effacer pour laisser la place au nvx sond in
 		g_delay_effect2.SetDelay(5.f + 10000.f * param1);
