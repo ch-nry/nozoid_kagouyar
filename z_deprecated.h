@@ -413,6 +413,20 @@ inline float sign(float x) {
         *
 */
 
+
+
+		// TODO : tenter le delay metalique de miller: preserving power
+		// tmp1 = delread(delay1, 10ms) * feedback * 0.7071
+		// tmp2 = delread(delay2, 15ms)* feedback * 0.7071
+		//a = tmp1 - tmp2
+		//b = tmp1 + tmp2; // rotation de 45°
+		//a += sound_in;
+		//b += sound_in;
+		//delwritedelay1, a);
+		//delwritedelay2, b);
+
+		//TODO : filtre multi band : rotation de signal avec sin.cos, et en faire plein
+
 /////////////////////
 // algo LFO
 
