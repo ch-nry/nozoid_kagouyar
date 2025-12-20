@@ -482,8 +482,8 @@ inline float effect2(float sound_in) { //, float param, float param1) {
 		a += sound_in;
 		a = _tanh_clip(a);
 		b = _tanh_clip(b);
-		g_delay_effect2.Write(a  * param * 0.7071);
-		g_delay_effect2b.Write(b  * param * 0.7071);
+		g_delay_effect2.Write(a  * param * 0.707106781);
+		g_delay_effect2b.Write(b  * param * 0.707106781);
 		return a;
 		}
 	case 12 : //rien, utilisé lors du changement d'effet
