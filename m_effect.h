@@ -473,16 +473,19 @@ inline float effect2(float sound_in) { //, float param, float param1) {
 		sound_out = mix(sound_in, sound_in*g_Effect2_filtre, wet);
 		return sound_out;
 	case 11: // compress2 : delay avec resonnance metalique, non lineaire bizare : ok
-		tmp2 = param1 * param1;
-		tmp = g_delay_effect2.Read(tmp2 * 5500.f);
-		tmp2 = g_delay_effect2b.Read(tmp2 * 5550.f + 50.f);
-		sound_out = _tanh(param * (tmp - tmp2)) ;
-		_fonepole(g_Effect2_filtre, sound_out, 0.0001f); // low pass pour virer le CC
-		tmp3 = _tanh(3.f * param); // petite courbe
-		g_delay_effect2.Write(sound_in + (sound_out-g_Effect2_filtre) * tmp3);
-		g_delay_effect2b.Write(sound_in - (sound_out-g_Effect2_filtre) * tmp3);
-		sound_out = tmp + tmp2;
-		return sound_out;
+		{
+		tmp3 = _tanh(3.f*param1);
+		tmp = g_delay_effect2.Read(tmp3 * 5000.f + 500.f);
+		tmp2 = g_delay_effect2b.Read(tmp3 * 4000.f + 432.f);
+		float a = tmp - tmp2;
+		float b = tmp + tmp2; // rotation de 45°
+		a += sound_in;
+		a = _tanh_clip(a);
+		b = _tanh_clip(b);
+		g_delay_effect2.Write(a  * param * 0.7071);
+		g_delay_effect2b.Write(b  * param * 0.7071);
+		return a;
+		}
 	case 12 : //rien, utilisé lors du changement d'effet
 		g_effect2_sound_env = 0.;
 		g_Effect2_filtre = 0.f;
