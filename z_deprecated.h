@@ -413,17 +413,17 @@ inline float sign(float x) {
         *
 */
 
+-		tmp2 = param1 * param1;
+-		tmp = g_delay_effect2.Read(tmp2 * 5500.f);
+-		tmp2 = g_delay_effect2b.Read(tmp2 * 5550.f + 50.f);
+-		sound_out = _tanh(param * (tmp - tmp2)) ;
+-		_fonepole(g_Effect2_filtre, sound_out, 0.0001f); // low pass pour virer le CC
+-		tmp3 = _tanh(3.f * param); // petite courbe
+-		g_delay_effect2.Write(sound_in + (sound_out-g_Effect2_filtre) * tmp3);
+-		g_delay_effect2b.Write(sound_in - (sound_out-g_Effect2_filtre) * tmp3);
+-		sound_out = tmp + tmp2;
+-		return sound_out;
 
-
-		// TODO : tenter le delay metalique de miller: preserving power
-		// tmp1 = delread(delay1, 10ms) * feedback * 0.7071
-		// tmp2 = delread(delay2, 15ms)* feedback * 0.7071
-		//a = tmp1 - tmp2
-		//b = tmp1 + tmp2; // rotation de 45°
-		//a += sound_in;
-		//b += sound_in;
-		//delwritedelay1, a);
-		//delwritedelay2, b);
 
 		//TODO : filtre multi band : rotation de signal avec sin.cos, et en faire plein
 
