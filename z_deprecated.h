@@ -425,7 +425,7 @@ inline float sign(float x) {
 -		return sound_out;
 
 
-		//TODO : filtre multi band : rotation de signal avec sin.cos, et en faire plein
+		// filtre multi band : rotation de signal avec sin.cos, et en faire plein
 
 /////////////////////
 // algo LFO
