@@ -15,7 +15,7 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
-#define delay1_sizef 72000 // attention : la reverb fait env 51k
+#define delay1_sizef 76500 // attention : la reverb fait env 51k
 #define delay1_sizei 144000
 // mettre un multiple de 2 sur la taille des buffer
 
@@ -37,6 +37,10 @@ union delay_line {
 		float reverb2[6][1024];
 		float reverb3[3][4096];
 	} reverb;
+	struct {
+		float delay1c[43700];
+		float delay1d[32768];
+	} delay1;
 };
 
 delay_line g_delay1;
@@ -129,7 +133,7 @@ inline float delay1_read_f_fixe(uint32_t delay){ // en sample
 	return a;
 }
 inline void delay1_write_i(float  in){
-	int32_t l_delay1_pos = g_delay1_pos; // % delay1_sizei// inutil car sizei > sizef
+	int32_t l_delay1_pos = g_delay1_pos % delay1_sizei;
 	g_delay1.delay1_int[l_delay1_pos] = f2s16(in/3.f);
 	l_delay1_pos += delay1_sizei - 1;
 	l_delay1_pos %= delay1_sizei;
@@ -142,6 +146,23 @@ inline float delay1_read_i(float delay){
 	const float a = s162f(g_delay1.delay1_int[(delay_integral) % delay1_sizei]);
 	const float b = s162f(g_delay1.delay1_int[(delay_integral + 1) % delay1_sizei]);
 	return 3.f*(a + (b - a) * delay_fractional);
+}
+
+inline float delay1c_read_f(float delay){ // en sample
+	int32_t delay_integral   = static_cast<int32_t>(delay);
+	float const  delay_fractional = delay - static_cast<float>(delay_integral);
+	delay_integral += g_delay1_pos;
+	const float a = g_delay1.delay1.delay1c[(delay_integral) % 43700];
+	const float b = g_delay1.delay1.delay1c[(delay_integral + 1) % 43700];
+	return a + (b - a) * delay_fractional;
+}
+inline float delay1d_read_f(float delay){ // en sample
+	int32_t delay_integral   = static_cast<int32_t>(delay);
+	float const  delay_fractional = delay - static_cast<float>(delay_integral);
+	delay_integral += g_delay2_pos;
+	const float a = g_delay1.delay1.delay1d[(delay_integral) % 32768];
+	const float b = g_delay1.delay1.delay1d[(delay_integral + 1) % 32768];
+	return a + (b - a) * delay_fractional;
 }
 
 inline float effect1(float sound_in) { //, float wet, float param1, float param2) {
@@ -248,9 +269,11 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 			return sound_out;
 		}
     case 5 : // ring delay : OK
+    //TODO : doc
 		// WET : amplitude du feedback; param1 : temps de delay ; param2 : frequence du ring
-		sound_out = delay1_read_f((24000.f * param1 * (param1+1.f)) + 50.f);
-        g_effect1_phase += OneOverSR + param2 * param2 * 400.f * OneOverSR;
+		sound_out = delay1_read_f((24000.f * param2 * (param2+1.f)) + 50.f);
+		g_effect1_phase += CV2freq(param1*130.f-20.f) * OneOverSR;
+        //g_effect1_phase += OneOverSR + param2 * param2 * 400.f * OneOverSR;
         tmp = wrap(g_effect1_phase);
 		g_effect1_phase = tmp;
 		sound_out *= _cos(tmp);
@@ -281,12 +304,29 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		sound_out = sound_in * (1.f +  fast_cos_loop(wet*5.f*sound_in+g_effect1_f1));
 		sound_out = _tanh_clip(sound_out);
 		return mix(sound_in, sound_out, wetM);
-	case 8: // ECHO 2 : ok
+	case 8: // ECHO 2 : echo double avec conservation d'energie
+        tmp = 43500.f * param1 + 100.f;
+		a1 = sound_in;
+		a1 += delay1c_read_f(tmp);
+        tmp *= 0.75f;
+		a2 = delay1d_read_f(tmp);
+
+		b1 = a1+a2; // energy conserving mix
+		b2 = a1-a2;
+		b1 *= 0.707106f;
+		b2 *= 0.707106f;
+		g_delay1_pos = (g_delay1_pos+43699)%43700;
+		g_delay2_pos = (g_delay2_pos+32767)%32768;
+		g_delay1.delay1.delay1c[g_delay1_pos] = wetM * b1;
+		g_delay1.delay1.delay1d[g_delay2_pos] = wetM * b2;
+		return a1;
+		/*
         tmp = ((delay1_sizef - 101.f) * param1M) + 100.f;
 		tmp = delay1_read_f(tmp);
 		sound_out = sound_in + tmp * wet;
 		delay1_write_f( softClip(sound_out));
 		return sound_out;
+		*/
 	case 9: // FREEZE 2 : filtre en peigne variable OK
 		// algo from pd G07 :  4 delread, sans feedback a des temps diferent (30, 17, 11), et des amplitudes variable (random)
 		delay1_write_f(sound_in);
@@ -341,14 +381,22 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		reverb1_write(a1, a2, a3, a4);
 		sound_out = mix(sound_in, sound_out, wetM);
 		return sound_out;
-	case 11: // CHORUS 2 : ok
-		// all passe + feedback
+	case 11: // CHORUS 2 : ok :	// all passe + feedback
 		sound_out = delay1_read_f(5.f + 5000.f * param1M);
 		tmp =  -0.9f*wet  * sound_out + sound_in;
 		delay1_write_f(softClip(tmp));
 		sound_out = sound_in + tmp * wet;
 		return sound_out;
 	case 12: // RING 2 : OK
+		// WET : amplitude du feedback;  param1 : frequence du ring
+		sound_out = sound_in;// + param1 * g_effect1_param_filter;
+		g_effect1_phase += CV2freq(param1M*130.f-20.f) * OneOverSR;
+        tmp = wrap(g_effect1_phase);
+		g_effect1_phase = tmp;
+		sound_out *= _cos(tmp);
+		g_effect1_param_filter = sound_out;
+        return mix(sound_in, sound_out, wet);
+		/*
 		//WET : amplitude du ring; param1 : frequence du ring; param2 : modulation du wet
         g_effect1_phase +=  CV2freq(param1M*127.f) * OneOverSR; // OneOverSR + param1 * param1 * 400.f * OneOverSR;
         tmp = wrap(g_effect1_phase);
@@ -356,6 +404,7 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		sound_out = sound_in * _cos(tmp);
 		sound_out = mix(sound_in, sound_out, wet);
         return sound_out;
+        */
 	case 13: // FRICTION 2 : disto avec hysteresys: ok
 		_fonepole(g_effect1_param_filter, sound_in, 0.01f);
 		tmp =  param1 * param1;
