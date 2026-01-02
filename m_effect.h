@@ -269,11 +269,9 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 			return sound_out;
 		}
     case 5 : // ring delay : OK
-    //TODO : doc
 		// WET : amplitude du feedback; param1 : temps de delay ; param2 : frequence du ring
 		sound_out = delay1_read_f((24000.f * param2 * (param2+1.f)) + 50.f);
 		g_effect1_phase += CV2freq(param1*130.f-20.f) * OneOverSR;
-        //g_effect1_phase += OneOverSR + param2 * param2 * 400.f * OneOverSR;
         tmp = wrap(g_effect1_phase);
 		g_effect1_phase = tmp;
 		sound_out *= _cos(tmp);
@@ -320,13 +318,6 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		g_delay1.delay1.delay1c[g_delay1_pos] = wetM * b1;
 		g_delay1.delay1.delay1d[g_delay2_pos] = wetM * b2;
 		return a1;
-		/*
-        tmp = ((delay1_sizef - 101.f) * param1M) + 100.f;
-		tmp = delay1_read_f(tmp);
-		sound_out = sound_in + tmp * wet;
-		delay1_write_f( softClip(sound_out));
-		return sound_out;
-		*/
 	case 9: // FREEZE 2 : filtre en peigne variable OK
 		// algo from pd G07 :  4 delread, sans feedback a des temps diferent (30, 17, 11), et des amplitudes variable (random)
 		delay1_write_f(sound_in);
@@ -396,15 +387,6 @@ inline float effect1(float sound_in) { //, float wet, float param1, float param2
 		sound_out *= _cos(tmp);
 		g_effect1_param_filter = sound_out;
         return mix(sound_in, sound_out, wet);
-		/*
-		//WET : amplitude du ring; param1 : frequence du ring; param2 : modulation du wet
-        g_effect1_phase +=  CV2freq(param1M*127.f) * OneOverSR; // OneOverSR + param1 * param1 * 400.f * OneOverSR;
-        tmp = wrap(g_effect1_phase);
-		g_effect1_phase = tmp;
-		sound_out = sound_in * _cos(tmp);
-		sound_out = mix(sound_in, sound_out, wet);
-        return sound_out;
-        */
 	case 13: // FRICTION 2 : disto avec hysteresys: ok
 		_fonepole(g_effect1_param_filter, sound_in, 0.01f);
 		tmp =  param1 * param1;
