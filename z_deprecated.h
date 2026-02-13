@@ -15,6 +15,10 @@
 //  volatile float critical_value __attribute__((aligned(4)));
 // static inline
 
+
+//effect : G07 : shaker : comb filter variable inteligent
+
+
 /*
 inline float Polyblep(float increment, float _phase)
 {
