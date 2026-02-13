@@ -15,7 +15,7 @@
 //    along with KAGOUYAR firmware. If not, see <http://www.gnu.org/licenses/>.
 // --------------------------------------------------------------------------
 
-#define proto2 // commenter pour la version final
+//#define proto2 // commenter pour la version final
 //#define olivier // unclick pour le very slow LFO plutot que le click long
 //#define fabien //plus de zone morte sur ls potentiomettre car le proto a plus de bruit de font
 

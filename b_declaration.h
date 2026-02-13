@@ -22,8 +22,8 @@
 
 // this code use an old and sligtly customized daisy lib.
 
-#define major_version 1
-#define minor_version  8
+#define major_version 2
+#define minor_version  0
 #define software_led_version ((major_version << 8) + minor_version) // pour l'affichage de version en mode debug
 
 // Les 3 led MSB servent a indiquer la présence d'une calibration des CVs
