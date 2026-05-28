@@ -52,7 +52,9 @@ void add_voice(uint32_t my_GATE_source, int32_t my_pitch, float velocity) {
             //if( reuse_voice == 0) allvoice[i].v_ADSR_out = 0.; // on reset l'envelope ssi on ne reutilise pas la voie
             allvoice[i].v_pitch = my_pitch;
             allvoice[i].v_GATE = 1;
-            allvoice[i].v_TRIG = 1;
+            allvoice[i].v_TRIG_LFO1 = 1;
+            allvoice[i].v_TRIG_LFO2 = 1;
+            allvoice[i].v_TRIG_LFO3 = 1;
             allvoice[i].v_velocity = velocity;
         } else {
             if (voice_to_use_priority < 0) { // si la nouvelle voie etait deja actif avant (et dc avais une priorité negative
@@ -88,7 +90,9 @@ void remove_voice(uint32_t my_GATE_source, int32_t my_pitch) {
             if(i == num_voice) { // la voie a suprimer
                 allvoice[i].v_priority = nb_vide + 1;
                 allvoice[i].v_GATE = 0;
-                allvoice[i].v_TRIG = 0;
+                allvoice[i].v_TRIG_LFO1 = 0;
+                allvoice[i].v_TRIG_LFO2 = 0;
+                allvoice[i].v_TRIG_LFO3 = 0;
             }
             else if (allvoice[i].v_priority < priorite) {
                 // une voie existante plus ancienne, qui le devient un peu moins

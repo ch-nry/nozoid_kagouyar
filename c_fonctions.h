@@ -541,7 +541,9 @@ void init_variables() {
         allvoice[i].v_GATE_source = -1;
         allvoice[i].v_GATE = 0;
         allvoice[i].v_pitch = 64.f;
-        allvoice[i].v_TRIG = 0;
+        allvoice[i].v_TRIG_LFO1 = 0;
+        allvoice[i].v_TRIG_LFO2 = 0;
+        allvoice[i].v_TRIG_LFO3 = 0;
         allvoice[i].v_VCO1_pitch = 0.f;
         allvoice[i].v_LPG_last = 0.f;
         allvoice[i].v_VCF1_filter = 0.f;

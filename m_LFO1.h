@@ -55,11 +55,11 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
 		float const A_time = ADSR_time2filter(fq);
 		float const D_time = ADSR_time2filter(mix_factor);
         for (uint32_t j=nb_voice; j--;) {
-            float const tmp = allvoice[j].v_TRIG;
+            float const tmp = allvoice[j].v_TRIG_LFO1;
             float const time = tmp?A_time : D_time;
             _fonepole(g_LFO1_AR[j], tmp, time);
             modulation += g_LFO1_AR[j];
-            if (curent_config.c_LFO1_WF == WF_AR2)  allvoice[j].v_TRIG &= (g_LFO1_AR[j] <= 0.9); // on passe en decay
+            if (curent_config.c_LFO1_WF == WF_AR2)  allvoice[j].v_TRIG_LFO1 &= (g_LFO1_AR[j] <= 0.9); // on passe en decay
         }
         modulation *= 1.f/nb_voice;
         g_LFO1_AR[nb_voice] = modulation;
