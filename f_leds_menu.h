@@ -154,7 +154,7 @@ void leds_key_modulation(uint32_t my_modulation) { // switch de choix de la sour
 	uint32_t tmp = curent_config.c_Modulation_Source[my_modulation];
 	uint32_t test = 1;
 	if ( (my_modulation == EFFECT1_MOD) && (1<<curent_config.c_EFFECT1_TYPE & ((1<<1)+(1<<5)+(1<<14)) ) ) test = 0;
-	if ( (my_modulation == EFFECT2_MOD) && (1<<curent_config.c_EFFECT2_TYPE & ((1<<7)+(1<<10)+(1<<12)) ) ) test = 0;
+	if ( (my_modulation == EFFECT2_MOD) && (1<<curent_config.c_EFFECT2_TYPE & ((1<<7)+(1<<12)) ) ) test = 0;
 	if  ( test ) { // on ne l'affiche pas pour les effet qui n'utilisent pas la modulation
 		if ( (tmp <modulation_source_last) || (g_led_blink>0)  ) // soit on as une modulation positive, soit on affiche une fois sur deux a cause du blink
 			hw.led_driver_.SetLed_ch(table_led_modulation[tmp % modulation_source_last], 1.f );
@@ -221,16 +221,22 @@ void leds_key_modulation(uint32_t my_modulation) { // switch de choix de la sour
                 led_keyboard |= 1 << BIT_LED_MENU_KEY10;
             break;
         case LFO1_MOD:
-            led_keyboard |= 1 << BIT_LED_MENU_LFO_MOD;
-            led_keyboard |= 1 << table_led_key[curent_config.c_Modulation_Type[LFO1_MOD]];
+       			if ( (curent_config.c_LFO1_WF != WF_AR) && (curent_config.c_LFO1_WF != WF_AR2) )  { // ssi on n'es pas en mode AR ou AD
+					led_keyboard |= 1 << BIT_LED_MENU_LFO_MOD;
+					led_keyboard |= 1 << table_led_key[curent_config.c_Modulation_Type[LFO1_MOD]];
+				}
             break;
         case LFO2_MOD:
-            led_keyboard |= 1 << BIT_LED_MENU_LFO_MOD;
-            led_keyboard |= 1 << table_led_key[curent_config.c_Modulation_Type[LFO2_MOD]];
+   			if ( (curent_config.c_LFO2_WF != WF_AR) && (curent_config.c_LFO2_WF != WF_AR2) )  { // ssi on n'es pas en mode AR ou AD
+				led_keyboard |= 1 << BIT_LED_MENU_LFO_MOD;
+				led_keyboard |= 1 << table_led_key[curent_config.c_Modulation_Type[LFO2_MOD]];
+			}
             break;
         case LFO3_MOD:
-            led_keyboard |= 1 << BIT_LED_MENU_LFO_MOD;
-            led_keyboard |= 1 << table_led_key[curent_config.c_Modulation_Type[LFO3_MOD]];
+   			if ( (curent_config.c_LFO3_WF != WF_AR) && (curent_config.c_LFO3_WF != WF_AR2) )  { // ssi on n'es pas en mode AR ou AD
+				led_keyboard |= 1 << BIT_LED_MENU_LFO_MOD;
+				led_keyboard |= 1 << table_led_key[curent_config.c_Modulation_Type[LFO3_MOD]];
+			}
             break;
         // case NONE_MOD:
         // on fait rien
