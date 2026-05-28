@@ -59,7 +59,7 @@ inline void LFO1(float const fq, float const mix_factor, float const increment) 
             float const time = tmp?A_time : D_time;
             _fonepole(g_LFO1_AR[j], tmp, time);
             modulation += g_LFO1_AR[j];
-            if (curent_config.c_LFO1_WF == WF_AR2)  allvoice[j].v_TRIG &= !(g_LFO1_AR[j] > 0.9); // on passe en decay
+            if (curent_config.c_LFO1_WF == WF_AR2)  allvoice[j].v_TRIG &= (g_LFO1_AR[j] <= 0.9); // on passe en decay
         }
         modulation *= 1.f/nb_voice;
         g_LFO1_AR[nb_voice] = modulation;
